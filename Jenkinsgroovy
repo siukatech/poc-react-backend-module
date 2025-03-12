@@ -1,0 +1,15 @@
+@Library('jenkins-groovy-library-script') _
+
+def repoName = "poc-react-backend-module"
+def repoUrl = "https://github.com/siukatech/poc-react-backend-module.git"
+def repoHttp = "https"
+def repoHostname = "github.com"
+def repoUsername = "siukatech"
+gradlePublishAndTag(
+    "repoName": "${repoName}"
+    , "repoUrl": "${repoUrl}"
+    , "repoHttp": "${repoHttp}"
+    , "repoHostname": "${repoHostname}"
+    , "repoUsername": "${repoUsername}"
+);
+

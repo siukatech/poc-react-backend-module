@@ -1,0 +1,82 @@
+import com.siukatech.poc.react.backend.plugin.ReactBackendUtil
+import org.codehaus.groovy.runtime.GStringImpl
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    id 'java-library'
+    id 'java-test-fixtures'
+    id 'maven-publish'
+    id 'com.siukatech.poc.react-backend-plugin' version '0.0.1-SNAPSHOT'
+    id 'org.springframework.boot' version '3.3.7' apply false
+    id 'jacoco'
+    id 'org.sonarqube' version '4.0.0.2929'
+}
+apply plugin: 'io.spring.dependency-management'
+
+dependencyManagement {
+    imports {
+        mavenBom SpringBootPlugin.BOM_COORDINATES
+    }
+}
+
+java {
+    group = 'com.siukatech.poc'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = JavaVersion.VERSION_17
+//    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_17
+//    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    if (project.hasProperty("platformSnapshotUri")) {
+        maven {
+            name = 'platformSnapshot'
+            allowInsecureProtocol = true
+            credentials(PasswordCredentials)
+            url = uri("$platformSnapshotUri")
+        }
+    }
+}
+
+ext {
+    mapstructVersion = '1.6.0.RC1'
+    embeddedRedisVersion = '1.4.3'
+    springBootVersion = "${ReactBackendUtil.extractSpringBootVersion()}" as GStringImpl
+    springSecurityVersion = "${ReactBackendUtil.extractSpringSecurityVersion()}" as GStringImpl
+    openapiGeneratorVersion = "${ReactBackendUtil.extractOpenapiGeneratorVersion()}" as GStringImpl
+}
+
+//// define react-backend-module version
+////def coreProjectVersion = '0.0.1-SNAPSHOT'
+//ext {
+//    coreProjectVersion = '0.0.1-SNAPSHOT'
+//    mapstructVersion = '1.6.0.RC1'
+//}
+
+dependencies {
+    api project(':react-backend-module-core')
+
+//    api "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+    testImplementation testFixtures(project(':react-backend-module-core'))
+    testFixturesApi testFixtures(project(':react-backend-module-core'))
+}
+
+// after upgrade to springboot >= 3.2.1
+// this can be fixed by update build.gradle or adding maven plugin
+// https://stackoverflow.com/a/77691302
+// https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#parameter-name-retention
+//tasks.withType(JavaCompile).configureEach {
+//    options.compilerArgs.add("-parameters")
+//}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

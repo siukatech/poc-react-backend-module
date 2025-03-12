@@ -1,0 +1,327 @@
+import com.siukatech.poc.react.backend.plugin.ReactBackendUtil
+import org.codehaus.groovy.runtime.GStringImpl
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+////	id 'java'
+//	id 'application'
+//	id 'java-platform'
+    id 'java-library'
+    id 'java-test-fixtures'
+    id 'maven-publish'
+    id 'com.siukatech.poc.react-backend-plugin' version '0.0.1-SNAPSHOT'
+//    id 'com.pasam.gradle.buildinfo' version '0.1.3'
+////	id 'org.springframework.boot' version '3.1.0' apply false
+////	id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '3.3.7' apply false
+//    id 'org.springframework.boot' version '3.4.2' apply false
+    id 'jacoco'
+//    id "org.sonarqube" version "3.5.0.2730"
+    id 'org.sonarqube' version '4.0.0.2929'
+}
+apply plugin: 'io.spring.dependency-management'
+//
+//    id 'io.spring.dependency-management' version '1.1.0'
+//}
+
+////def springBootVersionStr = "${com.siukatech.poc.react.backend.plugin.ReactBackendUtil.extractSpringBootVersion(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)}"
+//////def springBootVersionStr = "${com.siukatech.poc.react.backend.plugin.ReactBackendUtil.extractSpringBootVersion(this.project)}"
+////println("build.gradle - springBootVersionStr: [${springBootVersionStr}], org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES: [${org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES}]")
+//def springBootVersionStr = "${com.siukatech.poc.react.backend.plugin.ReactBackendUtil.extraSpringBootVersion()}"
+
+// https://stackoverflow.com/a/55731664
+dependencyManagement {
+    imports {
+        mavenBom SpringBootPlugin.BOM_COORDINATES
+//        mavenBom "org.springframework.boot:spring-boot-dependencies:3.2.1"
+    }
+}
+
+java {
+    group = 'com.siukatech.poc'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = JavaVersion.VERSION_17
+//    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_17
+//    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    lombokVersion = '1.18.30'
+    mapstructVersion = '1.6.0.RC1'
+    lombokMapstructBindingVersion = '0.2.0'
+    embeddedRedisVersion = '1.4.3'
+//    springBootVersion = '3.2.1'
+//    springSecurityVersion = '6.2.1'
+//    springBootVersion = "${ReactBackendPlugin.SPRING_BOOT_VERSION}"
+//    springSecurityVersion = "${ReactBackendPlugin.SPRING_SECURITY_VERSION}"
+//    openapiGeneratorVersion = "${ReactBackendPlugin.OPENAPI_GENERATOR_VERSION}"
+    springBootVersion = "${ReactBackendUtil.extractSpringBootVersion()}" as GStringImpl
+    springSecurityVersion = "${ReactBackendUtil.extractSpringSecurityVersion()}" as GStringImpl
+    openapiGeneratorVersion = "${ReactBackendUtil.extractOpenapiGeneratorVersion()}" as GStringImpl
+}
+
+dependencies {
+//	// Use JUnit Jupiter for testing.
+//	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+//
+//	// This dependency is exported to consumers, that is to say found on their compile classpath.
+//	api 'org.apache.commons:commons-math3:3.6.1'
+//
+//	// This dependency is used internally, and not exposed to consumers on their own compile classpath.
+//	implementation 'com.google.guava:guava:31.1-jre'
+
+    // The openapi code generator is required to declare in the plugin of actual project's build.grade.
+
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    api 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    api 'org.springframework.boot:spring-boot-starter-security'
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-actuator'
+
+    api 'org.springframework.boot:spring-boot-starter-cache'
+//    api 'org.springframework:spring-context'
+//    api 'org.springframework:spring-context-support'
+    api 'javax.cache:cache-api:1.1.1'
+    api 'org.ehcache:ehcache:3.10.8'
+
+    api 'org.springframework.boot:spring-boot-starter-data-redis'
+//	api 'org.springframework.data:spring-data-redis'
+//	api 'redis.clients:jedis:4.3.2'
+
+    api 'javax.servlet:javax.servlet-api:4.0.1'
+
+    api 'jakarta.validation:jakarta.validation-api:3.1.0-M1'
+    api 'javax.validation:validation-api:2.0.1.Final'
+
+    api 'jakarta.annotation:jakarta.annotation-api:3.0.0-M1'
+    api 'javax.annotation:javax.annotation-api:1.3.2'
+
+    api platform('io.micrometer:micrometer-tracing-bom:1.2.3')
+//	api 'io.micrometer:micrometer-registry-prometheus:1.12.3'
+//	api 'io.micrometer:micrometer-tracing-bridge-brave:1.2.3'
+    api 'io.micrometer:micrometer-tracing-bridge-brave'
+//	api 'io.zipkin.reporter2:zipkin-reporter-bom:2.16.3'
+//	api 'com.github.loki4j:loki-logback-appender:1.5.0'
+
+//	api platform('io.opentelemetry:opentelemetry-bom:1.35.0')
+////	api 'io.opentelemetry:opentelemetry-api:1.35.0'
+////	api 'io.opentelemetry:opentelemetry-sdk:1.35.0'
+//	api 'io.opentelemetry:opentelemetry-api'
+////	api 'io.opentelemetry:opentelemetry-sdk'
+//	api 'io.opentelemetry:opentelemetry-context'
+
+    api 'org.apache.commons:commons-lang3:3.12.0'
+    api 'commons-io:commons-io:2.15.1'
+
+    api 'org.modelmapper:modelmapper:3.1.1'
+    api 'org.hibernate:hibernate-validator:6.2.0.cr1'
+//	api 'com.google.code.gson:gson:2.10.1'
+
+    api 'io.swagger.core.v3:swagger-core:2.2.20'
+    api 'io.swagger.core.v3:swagger-annotations:2.2.20'
+    api 'org.openapitools:jackson-databind-nullable:0.2.6'
+
+    // No need to define JsonFormat for LocalDateTime
+    // Reference:
+    // https://stackoverflow.com/a/29959842
+    api 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+//	api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
+
+//////	api 'org.apache.httpcomponents:httpclient:4.5.13'
+////	api 'org.apache.httpcomponents.client5:httpclient5:5.2.2'
+//    api 'org.apache.httpcomponents.core5:httpcore5:5.2.4'
+//    api 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
+    api 'org.apache.httpcomponents.core5:httpcore5:5.3.1'
+    api 'org.apache.httpcomponents.client5:httpclient5:5.4.1'
+
+    api 'commons-codec:commons-codec:1.17.0'
+
+    api 'org.reflections:reflections:0.10.2'
+
+    api 'org.apache.tika:tika-core:2.9.1'
+
+    api 'org.javatuples:javatuples:1.2'
+
+    // Reference:
+    // traditional chinese and simplified chinese
+    // https://github.com/houbb/opencc4j
+    // https://github.com/qzw1210/jpinyin
+    // https://github.com/belerweb/pinyin4j
+    api 'com.github.houbb:opencc4j:1.8.1'
+    api 'com.github.stuxuhai:jpinyin:1.1.7'
+    api 'com.belerweb:pinyin4j:2.5.0'
+
+//	api 'org.projectlombok:lombok:1.18.24'
+//	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    api "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+
+    api "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+//    testFixturesApi 'org.springframework.boot:spring-boot-starter-test'
+//    testFixturesApi 'org.springframework.security:spring-security-test'
+    testFixturesApi "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+    testFixturesApi "org.springframework.security:spring-security-test:${springSecurityVersion}"
+    testFixturesApi 'com.h2database:h2:2.2.220'
+
+    testFixturesApi "com.github.codemonstur:embedded-redis:${embeddedRedisVersion}"
+
+//	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//	testImplementation 'org.springframework.security:spring-security-test'
+//	testImplementation 'com.h2database:h2:2.1.214'
+////	testImplementation 'org.simplify4u:slf4j2-mock:2.3.0'
+
+    testImplementation "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testFixturesApi "org.projectlombok:lombok:${lombokVersion}"
+    testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    testFixturesAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+    testFixturesAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+}
+
+// This is not working
+//def buildDirectoryPath = project.layout.buildDirectory.get().asFile.path
+////compileJava {
+//////    options.annotationProcessorPath
+////    options.getGeneratedSourceOutputDirectory().set(file("$buildDirectoryPath/classes/java/main"))
+////}
+//tasks.register('copyMapperImpl', Copy) {
+//    dependsOn(classes)
+//    from "$buildDirectoryPath/generated/sources/annotationProcessor/java/main"
+//    into "$buildDirectoryPath/classes/java/main"
+//}
+//jar.dependsOn(copyMapperImpl);
+
+//jar {
+////	enabled = false
+////	enabled = true
+//	archiveClassifier = '' //use empty string
+//}
+
+
+//bootJar {
+//	enabled = false
+//}
+
+
+// after upgrade to springboot >= 3.2.1
+// this can be fixed by update build.gradle or adding maven plugin
+// https://stackoverflow.com/a/77691302
+// https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#parameter-name-retention
+//
+// mapstruct:
+// https://github.com/mapstruct/mapstruct-examples/blob/main/mapstruct-on-gradle/build.gradle
+tasks.withType(JavaCompile).configureEach {
+//    options.compilerArgs.add('-parameters')
+//    options.compilerArgs.addAll([
+//            '-Amapstruct.suppressGeneratorTimestamp=true'
+//            , '-Amapstruct.defaultComponentModel=spring'
+//    ])
+}
+//tasks.withType(JavaCompile) {
+//    options.compilerArgs = [
+//            '-parameters'
+//            , '-Amapstruct.suppressGeneratorTimestamp=true'
+//    ]
+//}
+
+
+tasks.named('test') {
+    useJUnitPlatform()
+    // jacoco
+    finalizedBy(jacocoTestReport)
+}
+
+// jacoco
+jacocoTestReport {
+    dependsOn(test)
+    reports {
+        csv.required = false
+        html.required = false
+        xml.required = true
+    }
+}
+check {
+    dependsOn(jacocoTestReport)
+}
+
+
+//springBoot {
+//    buildInfo()
+//}
+
+
+// disable publishing for jenkins testing
+publishing {
+    publications {
+        privateMaven(MavenPublication) {
+            def artifactIdStr = "$project.name"
+            groupId "$project.group"
+            version "$project.version"
+            artifactId "$artifactIdStr"
+//			from components.javaPlatform
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = "$artifactId"
+                description = "$artifactId"
+            }
+
+        }
+    }
+    if (project.hasProperty("platformSnapshotUri")) {
+        repositories {
+//			def publishingUri = project.hasProperty("platformSnapshotUri") ? "$platformSnapshotUri" : ""
+            maven {
+                name = 'platformSnapshot'
+                allowInsecureProtocol = true
+                credentials(PasswordCredentials)
+                url = uri("$platformSnapshotUri")
+            }
+        }
+    }
+}
+// disable publishing for jenkins testing
+
+
+//configurations {
+//	instrumentedJars {
+//		canBeConsumed = true
+//		canBeResolved = false
+//		// If you want this configuration to share the same dependencies, otherwise omit this line
+//		extendsFrom implementation, runtimeOnly
+//	}
+//}
+//
+//artifacts {
+//	instrumentedJars(jar)
+//}
+
+//task fatJar(type: Jar) {
+////	archiveClassifier = 'all'
+////	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+//	from sourceSets.main.output
+//	dependsOn configurations.runtimeClasspath
+//	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//	from { configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) } }
+//	println("fatJar")
+//	with jar
+//}

@@ -1,0 +1,13 @@
+
+pluginManagement {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'react-backend-module'
+include 'react-backend-module-core'
+include 'react-backend-module-user'
+

@@ -1,0 +1,82 @@
+@startuml E2EE
+    autonumber
+
+    participant AxiosInterceptor as "frontend: \nAxiosInterceptor"
+    control JSON as "frontend: \nJSON"
+    control CryptoJs as "frontend: \nCryptoJs"
+    control Jsencrypt as "frontend: \nJsencrypt"
+    participant RestControllerAdvice as "backend: \n@RestControllerAdvice"
+    participant EncryptedRequestBodyAdvice as "backend: \nEncryptedRequestBodyAdvice"
+    participant EncryptedBodyAdviceHelper as "backend: \nEncryptedBodyAdviceHelper"
+
+    '1
+    AxiosInterceptor -> RestControllerAdvice: Request /v1/protected/my/public-key
+    '2
+    RestControllerAdvice --> AxiosInterceptor: Reply `user-public-key`
+
+    '3
+    AxiosInterceptor -> CryptoJs: Generate `aes-key` (SHA3)
+    '4
+    CryptoJs --> AxiosInterceptor: Reply `aes-key`
+
+    '5
+    AxiosInterceptor -> CryptoJs: Encrypt `original-payload-str` \nwith `aes-key` \n(AES/CBC/PKCS5Padding)
+    '6
+    CryptoJs --> AxiosInterceptor: Reply `aes-cbc-str`
+
+    '7
+    AxiosInterceptor -> Jsencrypt: Encrypt `aes-key` with `user-public-key`
+    '8
+    Jsencrypt --> AxiosInterceptor: Reply `aes-key-rsa`
+
+    '9
+    AxiosInterceptor -> AxiosInterceptor: Combine `aes-cbc-str` \nand `aes-key-rsa` \nto `request-body-str`
+
+    '10
+    ' https://plantuml.com/sequence-diagram
+    ' ++ / -- Shortcut syntax for activation, deactivation, creation
+    AxiosInterceptor -> RestControllerAdvice ++: Send `request-body-str`
+
+    '11
+    RestControllerAdvice -> EncryptedRequestBodyAdvice: Split `request-body-str` into \n`aes-cbc-str` and `aes-key-rsa` in \n`RequestBodyAdviceAdapter.beforeBodyRead`
+
+    '12
+    EncryptedRequestBodyAdvice -> EncryptedBodyAdviceHelper: Decrypt `aes-key-rsa` \nby `user-private-key` \nto `aes-key` by \n`EncryptedBodyAdviceHelper.ecryptDataBase64ToBodyDetail`
+    '13
+    EncryptedBodyAdviceHelper --> EncryptedRequestBodyAdvice: Reply `aes-key`
+
+    '14
+    EncryptedBodyAdviceHelper -> EncryptedBodyAdviceHelper: Decrypt `aes-cbc-str` \nby `aes-key` \n(AES/CBC/PKCS5Padding) to \n`original-payload-str`
+
+    '15
+    EncryptedBodyAdviceHelper -> RestControllerAdvice: Pass `original-payload-str` to controller \nthrough the return of \n`RequestBodyAdviceAdapter.beforeBodyRead`
+
+    '16
+    ' ~~`aes-ecb-str`~~
+    ' ~~AES/ECB/PKCS7Padding~~
+    RestControllerAdvice -> EncryptedRequestBodyAdvice: Encrypt `original-response-entity` \nby `aes-key` to `aes-cbc-str` \n(AES/CBC/PKCS7Padding)
+
+    '17
+    ' ~~`aes-ecb-str`~~
+    EncryptedRequestBodyAdvice --> RestControllerAdvice: Reply `aes-cbc-str` \nas response through \n`ResponseBodyAdvice.beforeBodyWrite`
+
+    '18
+    ' ~~`aes-ecb-str`~~
+    RestControllerAdvice --> AxiosInterceptor --: Send `aes-cbc-str` as response
+
+    '19
+    ' ~~`aes-ecb-str`~~
+    ' ~~AES/ECB/PKCS7Padding~~
+    AxiosInterceptor -> CryptoJs: Decrypt `aes-cbc-str` \nby `crypto-js` (AES/CBC/PKCS7Padding) \nto `response-entity-str`
+    '20
+    CryptoJs --> AxiosInterceptor: Reply `response-entity-str`
+
+    '21
+    AxiosInterceptor -> JSON: Parse `response-entity-str` to \n`response-entity` by `JSON.parse`
+    '22
+    JSON --> AxiosInterceptor: Reply `response-entity`
+
+
+@enduml
+
+

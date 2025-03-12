@@ -1,0 +1,13 @@
+
+app:
+  host-name: http://localhost:28080
+  api:
+    my-user-info: /v1/protected/my/user-info
+    my-key-info: /v1/protected/my/key-info
+    my-permission-info: /my/permission-info
+    my-user-dossier: /my/user-dossier
+
+logging:
+  level:
+    logging.level.com.siukatech.poc.react.backend.core.global.config: DEBUG
+
