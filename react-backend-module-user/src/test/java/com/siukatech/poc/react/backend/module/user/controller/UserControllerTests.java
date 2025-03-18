@@ -64,7 +64,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         , "oauth2-client-keycloak=http://keycloak-host-name"
         , "oauth2-client-redirect-uri=http://redirect-host-name/redirect"
         , "spring.profiles.active=dev"
-        , "logging.level.com.siukatech.poc.react.backend.core: TRACE"
+        , "logging.level.com.siukatech.poc.react.backend.module.core: TRACE"
     }
 ////    , useDefaultFilters = false
 )

@@ -3,8 +3,10 @@ package com.siukatech.poc.react.backend.module.user.entity;
 import com.siukatech.poc.react.backend.module.core.data.entity.AbstractEntity;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @MappedSuperclass
 public abstract class AbstractUserEntity extends AbstractEntity<String> {
 

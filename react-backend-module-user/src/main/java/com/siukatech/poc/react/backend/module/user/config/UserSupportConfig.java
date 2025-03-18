@@ -17,11 +17,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Slf4j
 @Configuration
-//@EntityScan(basePackages = {"com.siukatech.poc.react.backend.core.security.provider.database.entity"})  // "**" means all packages
-//@EnableJpaRepositories("com.siukatech.poc.react.backend.core.security.provider.database.repository")    // "**" means all packages
-@EntityScan(basePackages = {"com.siukatech.poc.react.backend.core.user.entity"})  // "**" means all packages
-@EnableJpaRepositories("com.siukatech.poc.react.backend.core.user.repository")    // "**" means all packages
-@ComponentScan(value = {"com.siukatech.poc.react.backend.core.user"})
+//@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.core.security.provider.database.entity"})  // "**" means all packages
+//@EnableJpaRepositories("com.siukatech.poc.react.backend.module.core.security.provider.database.repository")    // "**" means all packages
+@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.user.entity"})  // "**" means all packages
+@EnableJpaRepositories("com.siukatech.poc.react.backend.module.user.repository")    // "**" means all packages
+@ComponentScan(value = {"com.siukatech.poc.react.backend.module.user"})
 public class UserSupportConfig {
 
     @Bean

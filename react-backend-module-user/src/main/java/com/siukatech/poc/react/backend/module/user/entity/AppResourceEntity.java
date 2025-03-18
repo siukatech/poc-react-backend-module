@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 //@Entity(name = "app_resources")
 @Entity
 @Table(name = "app_resources")

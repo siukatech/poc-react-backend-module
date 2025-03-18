@@ -9,5 +9,5 @@ app:
 
 logging:
   level:
-    logging.level.com.siukatech.poc.react.backend.core.global.config: DEBUG
+    logging.level.com.siukatech.poc.react.backend.module.core.global.config: DEBUG
 

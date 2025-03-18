@@ -21,7 +21,7 @@ import java.util.List;
         , "spring.cache.cache-names=test1,test2"
         , "spring.cache.ehcache.time-to-live=1s"
         , "logging.level.root=INFO"
-        , "logging.level.com.siukatech.poc.react.backend.core.caching=DEBUG"
+        , "logging.level.com.siukatech.poc.react.backend.module.core.caching=DEBUG"
     }
 )
 //@ImportAutoConfiguration(classes = {

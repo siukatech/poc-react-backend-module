@@ -44,8 +44,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 ////		, "oauth2.client.keycloak=XXX"
 ////	}
 )
-//@EntityScan("com.siukatech.poc.react.backend.core.data.entity")
-//@EnableJpaRepositories("com.siukatech.poc.react.backend.core.data.repository")
+//@EntityScan("com.siukatech.poc.react.backend.module.core.data.entity")
+//@EnableJpaRepositories("com.siukatech.poc.react.backend.module.core.data.repository")
 //
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

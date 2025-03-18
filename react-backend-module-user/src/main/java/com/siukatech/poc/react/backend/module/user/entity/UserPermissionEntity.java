@@ -5,7 +5,7 @@ import lombok.*;
 import org.springframework.data.jpa.repository.EntityGraph;
 
 @Data
-//@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "user_permissions")
 public class UserPermissionEntity {

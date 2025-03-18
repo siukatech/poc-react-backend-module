@@ -13,7 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(
 //        properties = {
 ////        "logging.level.org.springframework.web=TRACE"
-////        , "logging.level.com.siukatech.poc.react.backend.core=TRACE"
+////        , "logging.level.com.siukatech.poc.react.backend.module.core=TRACE"
 //        "spring.jpa.show-sql: true"
 //        , "spring.jpa.properties.hibernate.format_sql: true"
 //        , "logging.level.org.springframework.data: TRACE"

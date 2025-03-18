@@ -36,7 +36,7 @@ import java.util.Map;
         , "spring.data.redis.host=localhost"
         , "spring.data.redis.port=6379"
         , "logging.level.root=INFO"
-        , "logging.level.com.siukatech.poc.react.backend.core.caching=DEBUG"
+        , "logging.level.com.siukatech.poc.react.backend.module.core.caching=DEBUG"
     }
 )
 @ImportAutoConfiguration(classes = {

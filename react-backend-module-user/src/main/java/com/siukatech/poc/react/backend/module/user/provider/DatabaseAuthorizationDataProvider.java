@@ -25,8 +25,8 @@ import static com.siukatech.poc.react.backend.module.core.security.provider.Auth
 import static com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataCacheKeyGenerator.CACHE_KEY_findUserByUserIdAndTokenValue;
 
 @Slf4j
-@EntityScan(basePackages = {"com.siukatech.poc.react.backend.core.security.provider.database.entity"})  // "**" means all packages
-@EnableJpaRepositories("com.siukatech.poc.react.backend.core.security.provider.database.repository")    // "**" means all packages
+@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.core.security.provider.database.entity"})  // "**" means all packages
+@EnableJpaRepositories("com.siukatech.poc.react.backend.module.core.security.provider.database.repository")    // "**" means all packages
 //@Service
 public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvider {
 

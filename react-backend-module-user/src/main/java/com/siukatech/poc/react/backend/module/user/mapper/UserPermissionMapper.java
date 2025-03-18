@@ -4,6 +4,7 @@ import com.siukatech.poc.react.backend.module.core.business.dto.UserPermissionDt
 import com.siukatech.poc.react.backend.module.core.business.mapper.AbstractMapper;
 import com.siukatech.poc.react.backend.module.user.entity.UserPermissionEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -12,6 +13,8 @@ public interface UserPermissionMapper extends AbstractMapper {
     UserPermissionMapper INSTANCE = Mappers.getMapper(UserPermissionMapper.class);
 
     UserPermissionDto convertEntityToDto(UserPermissionEntity userPermissionEntity);
+
+    @Mapping(target = "id", ignore = true)
     UserPermissionEntity convertDtoToEntity(UserPermissionDto userPermissionDto);
 
 }

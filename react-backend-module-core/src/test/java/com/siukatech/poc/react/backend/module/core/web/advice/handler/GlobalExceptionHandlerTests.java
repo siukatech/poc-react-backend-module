@@ -31,8 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {GlobalExceptionHandler.class
         , GlobalExceptionHandler_controller.class}
     , properties = {
-        "logging.level.com.siukatech.poc.react.backend.core.web.advice.handler=DEBUG"
-        , "logging.level.com.siukatech.poc.react.backend.core.web.advice.model=DEBUG"
+        "logging.level.com.siukatech.poc.react.backend.module.core.web.advice.handler=DEBUG"
+        , "logging.level.com.siukatech.poc.react.backend.module.core.web.advice.model=DEBUG"
     }
 )
 @EnableWebMvc // If missing @EnableWebMvc, status 415 will be thrown

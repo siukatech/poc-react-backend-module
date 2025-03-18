@@ -23,7 +23,7 @@ import java.util.Optional;
         "logging.level.org.hibernate.SQL=DEBUG"
 //        , "logging.level.org.hibernate.type=TRACE"
         , "logging.level.org.hibernate.orm.jdbc.bind=TRACE"
-        , "logging.level.com.siukatech.poc.react.backend.core.data.listener=INFO"
+        , "logging.level.com.siukatech.poc.react.backend.module.core.data.listener=INFO"
 //        , "spring.h2.console.enabled=true"
 })
 public class UserPermissionJpaRepositoryTests extends AbstractJpaTests {

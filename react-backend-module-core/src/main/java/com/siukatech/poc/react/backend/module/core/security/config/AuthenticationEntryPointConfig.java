@@ -1,4 +1,4 @@
-//package com.siukatech.poc.react.backend.core.security.config;
+//package com.siukatech.poc.react.backend.module.core.security.config;
 //
 //import com.siukatech.poc.react.backend.module.core.web.security.DelegatedAuthenticationEntryPoint;
 //import org.springframework.context.annotation.Bean;

@@ -11,6 +11,7 @@ import lombok.*;
  * https://stackoverflow.com/a/54654008
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "user_permissions")
 @NamedEntityGraph(name = "UserPermissionJpaEntity.basic"

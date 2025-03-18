@@ -7,7 +7,7 @@ import com.siukatech.poc.react.backend.module.core.security.config.WebSecurityCo
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
-@ComponentScan({"com.siukatech.poc.react.backend.core.security"})
+@ComponentScan({"com.siukatech.poc.react.backend.module.core.security"})
 @Import({
         Oauth2ClientRestTemplateConfig.class
         , AuthorizationDataProviderConfig.class

@@ -7,6 +7,7 @@ import lombok.*;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 //@Entity(name = "user_roles")
 @Entity
 @Table(name = "user_roles")

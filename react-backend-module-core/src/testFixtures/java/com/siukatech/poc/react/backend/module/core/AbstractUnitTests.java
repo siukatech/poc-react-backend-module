@@ -25,8 +25,8 @@ import java.util.List;
 //        , "oauth2-client-keycloak: XXX"
 //        , "spring.profiles.active: dev"
 //        , "logging.level.org.springframework.web: TRACE"
-////        , "logging.level.com.siukatech.poc.react.backend.core: TRACE"
-//        , "logging.level.com.siukatech.poc.react.backend.core: DEBUG"
+////        , "logging.level.com.siukatech.poc.react.backend.module.core: TRACE"
+//        , "logging.level.com.siukatech.poc.react.backend.module.core: DEBUG"
 //        , "logging.level.com.siukatech.poc.react.backend.app: DEBUG"
 //})
 @TestPropertySource(
@@ -38,7 +38,7 @@ import java.util.List;
 //        , "oauth2-client-redirect-uri=http://redirect-host-name/redirect"
 //        , "spring.profiles.active=dev"
 //        , "logging.level.org.springframework.web: TRACE"
-//        , "logging.level.com.siukatech.poc.react.backend.core: DEBUG"
+//        , "logging.level.com.siukatech.poc.react.backend.module.core: DEBUG"
 //}
         locations = {"classpath:abstract-unit-tests.properties"}
 )

@@ -7,14 +7,14 @@ import org.springframework.context.annotation.FilterType;
 @Configuration
 // https://www.concretepage.com/spring/spring-component-scan-include-and-exclude-filter-example
 @ComponentScan(value = {
-        "com.siukatech.poc.react.backend.core.web"
-        , "com.siukatech.poc.react.backend.core.data"
-        , "com.siukatech.poc.react.backend.core.business"
+        "com.siukatech.poc.react.backend.module.core.web"
+        , "com.siukatech.poc.react.backend.module.core.data"
+        , "com.siukatech.poc.react.backend.module.core.business"
 }
         , excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX
 //          , classes = IUserService.class
 //          , pattern = "com.concretepage.*.*Util"
-        , pattern = "com.siukatech.poc.react.backend.core.web.controller.*"
+        , pattern = "com.siukatech.poc.react.backend.module.core.web.controller.*"
 ))
 //@Import({
 //        GlobalExceptionHandler.class

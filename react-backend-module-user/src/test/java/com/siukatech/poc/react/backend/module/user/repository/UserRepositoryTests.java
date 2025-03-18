@@ -20,7 +20,7 @@ import java.util.Set;
 @DataJpaTest
 //        (properties = {
 ////                "logging.level.org.springframework.web=TRACE"
-////                , "logging.level.com.siukatech.poc.react.backend.core=TRACE"
+////                , "logging.level.com.siukatech.poc.react.backend.module.core=TRACE"
 //                "spring.jpa.show-sql: true"
 //                , "spring.jpa.properties.hibernate.format_sql: true"
 //                , "logging.level.org.springframework.data: TRACE"
@@ -29,7 +29,7 @@ import java.util.Set;
 @TestPropertySource(properties = {
         "logging.level.org.hibernate.SQL=DEBUG"
         , "logging.level.org.hibernate.orm.jdbc.bind=TRACE"
-        , "logging.level.com.siukatech.poc.react.backend.core.data.listener=INFO"
+        , "logging.level.com.siukatech.poc.react.backend.module.core.data.listener=INFO"
 })
 public class UserRepositoryTests extends AbstractJpaTests {
 

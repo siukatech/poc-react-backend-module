@@ -18,7 +18,7 @@ import org.springframework.test.context.jdbc.Sql;
 @TestPropertySource(properties = {
         "logging.level.org.hibernate.SQL=DEBUG"
         , "logging.level.org.hibernate.orm.jdbc.bind=TRACE"
-        , "logging.level.com.siukatech.poc.react.backend.core.data.listener=INFO"
+        , "logging.level.com.siukatech.poc.react.backend.module.core.data.listener=INFO"
         , "logging.level.org.springframework.jdbc.datasource.init=INFO"
 //        // Reference:
 //        // https://spring.io/blog/2024/08/23/structured-logging-in-spring-boot-3-4
