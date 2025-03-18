@@ -120,8 +120,12 @@ dependencies {
     api 'commons-io:commons-io:2.15.1'
 
     api 'org.modelmapper:modelmapper:3.1.1'
-    api 'org.hibernate:hibernate-validator:6.2.0.cr1'
+
 //	api 'com.google.code.gson:gson:2.10.1'
+
+//    api 'org.hibernate.validator:hibernate-validator:6.2.0.CR1'
+    api 'org.hibernate.validator:hibernate-validator:9.0.0.CR1'
+    api 'org.jboss.logging:jboss-logging:3.6.1.Final'
 
     api 'io.swagger.core.v3:swagger-core:2.2.20'
     api 'io.swagger.core.v3:swagger-annotations:2.2.20'
@@ -236,6 +240,12 @@ tasks.withType(JavaCompile).configureEach {
 //    ]
 //}
 
+bootJar {
+    enabled = false
+}
+jar {
+    enabled = true
+}
 
 tasks.named('test') {
     useJUnitPlatform()

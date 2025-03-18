@@ -41,29 +41,36 @@ repositories {
     }
 }
 
-ext {
-    mapstructVersion = '1.6.0.RC1'
-    embeddedRedisVersion = '1.4.3'
-    springBootVersion = "${ReactBackendUtil.extractSpringBootVersion()}" as GStringImpl
-    springSecurityVersion = "${ReactBackendUtil.extractSpringSecurityVersion()}" as GStringImpl
-    openapiGeneratorVersion = "${ReactBackendUtil.extractOpenapiGeneratorVersion()}" as GStringImpl
-}
-
 //// define react-backend-module version
 ////def coreProjectVersion = '0.0.1-SNAPSHOT'
 //ext {
 //    coreProjectVersion = '0.0.1-SNAPSHOT'
 //    mapstructVersion = '1.6.0.RC1'
 //}
+ext {
+    lombokVersion = '1.18.30'
+    mapstructVersion = '1.6.0.RC1'
+    lombokMapstructBindingVersion = '0.2.0'
+    embeddedRedisVersion = '1.4.3'
+//    springBootVersion = '3.2.1'
+//    springSecurityVersion = '6.2.1'
+//    springBootVersion = "${ReactBackendPlugin.SPRING_BOOT_VERSION}"
+//    springSecurityVersion = "${ReactBackendPlugin.SPRING_SECURITY_VERSION}"
+//    openapiGeneratorVersion = "${ReactBackendPlugin.OPENAPI_GENERATOR_VERSION}"
+    springBootVersion = "${ReactBackendUtil.extractSpringBootVersion()}" as GStringImpl
+    springSecurityVersion = "${ReactBackendUtil.extractSpringSecurityVersion()}" as GStringImpl
+    openapiGeneratorVersion = "${ReactBackendUtil.extractOpenapiGeneratorVersion()}" as GStringImpl
+}
 
 dependencies {
     api project(':react-backend-module-core')
 
 //    api "org.mapstruct:mapstruct:${mapstructVersion}"
-    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     testImplementation testFixtures(project(':react-backend-module-core'))
     testFixturesApi testFixtures(project(':react-backend-module-core'))
@@ -77,6 +84,67 @@ dependencies {
 //    options.compilerArgs.add("-parameters")
 //}
 
+bootJar {
+    enabled = false
+}
+jar {
+    enabled = true
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// jacoco
+jacocoTestReport {
+    dependsOn(test)
+    reports {
+        csv.required = false
+        html.required = false
+        xml.required = true
+    }
+}
+check {
+    dependsOn(jacocoTestReport)
+}
+
+
+// disable publishing for jenkins testing
+publishing {
+    publications {
+        privateMaven(MavenPublication) {
+            def artifactIdStr = "$project.name"
+            groupId "$project.group"
+            version "$project.version"
+            artifactId "$artifactIdStr"
+//			from components.javaPlatform
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = "$artifactId"
+                description = "$artifactId"
+            }
+
+        }
+    }
+    if (project.hasProperty("platformSnapshotUri")) {
+        repositories {
+//			def publishingUri = project.hasProperty("platformSnapshotUri") ? "$platformSnapshotUri" : ""
+            maven {
+                name = 'platformSnapshot'
+                allowInsecureProtocol = true
+                credentials(PasswordCredentials)
+                url = uri("$platformSnapshotUri")
+            }
+        }
+    }
+}
+// disable publishing for jenkins testing
+
