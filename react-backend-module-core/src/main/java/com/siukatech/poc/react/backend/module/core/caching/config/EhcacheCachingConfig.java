@@ -29,8 +29,23 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
     @Value("${spring.cache.ehcache.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
+    @Bean
+    public MutableConfiguration<String, Object> mutableConfiguration() {
+        MutableConfiguration<String, Object> configuration = new MutableConfiguration<>();
+        configuration
+                .setExpiryPolicyFactory(
+                        CreatedExpiryPolicy.factoryOf(
+                                new Duration(TimeUnit.SECONDS, timeToLive.getSeconds())
+                        )
+                )
+                .setTypes(String.class, Object.class)
+                .setStoreByValue(false)
+        ;
+        return configuration;
+    }
+
     @Bean(name = "cacheManager")
-    public CacheManager ehcacheCacheManager() {
+    public CacheManager ehcacheCacheManager(MutableConfiguration<String, Object> mutableConfiguration) {
 //        CacheManagerBuilder builder = CacheManagerBuilder.newCacheManagerBuilder();
 //        org.ehcache.CacheManager ehcacheCacheManager = builder.build();
 //        javax.cache.CacheManager jCacheManager = ehcacheCacheManager.
@@ -39,21 +54,13 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
         CachingProvider cachingProvider = Caching.getCachingProvider("org.ehcache.jsr107.EhcacheCachingProvider");
         javax.cache.CacheManager ehcacheCacheManager = cachingProvider.getCacheManager();
         //
-
-        MutableConfiguration<String, Object> configuration = new MutableConfiguration<>();
-        configuration
-                .setTypes(String.class, Object.class)
-                .setStoreByValue(false)
-                .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, timeToLive.getSeconds())))
-                ;
-        //
         this.getCacheNameListWithDefaults().forEach(cacheName -> {
             log.debug("ehcacheCacheManager - cacheName: [{}]", cacheName);
-            ehcacheCacheManager.createCache(cacheName, configuration);
+            ehcacheCacheManager.createCache(cacheName, mutableConfiguration);
         });
         //
-        CacheManager cacheManager = new JCacheCacheManager(ehcacheCacheManager);
-        return cacheManager;
+        JCacheCacheManager jCacheCacheManager = new JCacheCacheManager(ehcacheCacheManager);
+        return jCacheCacheManager;
     }
 
 }

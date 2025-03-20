@@ -9,6 +9,8 @@ import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.cache.configuration.MutableConfiguration;
+
 /**
  * Reference:
  * https://baeldung.com/spring-cache-tutorial
@@ -29,7 +31,8 @@ public class SimpleCachingConfig extends DefaultCachingConfig {
         log.debug("simpleCacheManager - this.getCacheNameListWithDefaults: [{}]"
                 , this.getCacheNameListWithDefaults());
         ConcurrentMapCacheManager concurrentMapCacheManager = new ConcurrentMapCacheManager(
-                this.getCacheNameListWithDefaults().toArray(String[]::new));
+//                this.getCacheNameListWithDefaults().toArray(String[]::new)
+        );
         return concurrentMapCacheManager;
     }
 
