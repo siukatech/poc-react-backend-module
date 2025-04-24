@@ -161,13 +161,13 @@ dependencies {
     api 'com.github.stuxuhai:jpinyin:1.1.7'
     api 'com.belerweb:pinyin4j:2.5.0'
 
+    api "org.mapstruct:mapstruct:${mapstructVersion}"
+
 //	api 'org.projectlombok:lombok:1.18.24'
 //	annotationProcessor 'org.projectlombok:lombok:1.18.24'
     api "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
-
-    api "org.mapstruct:mapstruct:${mapstructVersion}"
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
 //    testFixturesApi 'org.springframework.boot:spring-boot-starter-test'
@@ -185,10 +185,10 @@ dependencies {
 
     testImplementation "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     testFixturesApi "org.projectlombok:lombok:${lombokVersion}"
     testFixturesAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
     testFixturesAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
     testFixturesAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
