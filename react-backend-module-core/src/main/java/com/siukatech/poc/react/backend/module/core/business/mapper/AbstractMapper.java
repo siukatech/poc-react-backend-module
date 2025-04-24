@@ -12,8 +12,8 @@ public interface AbstractMapper {
     }
 
 //    @Named("unwrapOptional")
-    default <T> T unwrapOptional(Optional<T> objOptional) {
-        return objOptional == null ? null : objOptional.orElse(null);
+    default <T> T unwrapOptional(Optional<T> optional) {
+        return optional == null ? null : optional.orElse(null);
     }
 
 }

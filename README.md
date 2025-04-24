@@ -919,4 +919,87 @@ https://docs.spring.io/spring-boot/reference/io/caching.html#io.caching.provider
 
 
 
+# MapStruct
+The following dependencies MUST be declared in api, implementation, annotationProcessor, testImplementation, testAnnotationProcessor, testFixturesApi, testFixturesAnnotationProcessor.  
+```text
+api/implementation/testImplementation//testFixturesApi
+"org.mapstruct:mapstruct:${mapstructVersion}"
 
+annotationProcessor/testAnnotationProcessor/testFixturesAnnotationProcessor
+"org.mapstruct:mapstruct-processor:${mapstructVersion}"
+"org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+"org.mapstruct:mapstruct-processor:${mapstructVersion}"
+```
+
+## Optional
+Define the `wrap` and `unwrap` methods (wrapOptional, unwrapOptional) without the @Named annotation.  
+Then MapStruct can auto include the wrap and unwrap methods to the mapper implementation.  
+
+```java
+public interface AbstractMapper {
+
+    //    @Named("wrapOptional")
+    default <T> Optional<T> wrapOptional(T obj) {
+        return Optional.ofNullable(obj);
+    }
+
+    //    @Named("unwrapOptional")
+    default <T> T unwrapOptional(Optional<T> optional) {
+        return optional == null ? null : optional.orElse(null);
+    }
+
+}
+```
+
+Moreover, *** the source and target property names MUST be same.
+If property name is different, then @Mapping is required.
+```java
+public class SourceObjWithOptional {
+    //
+    // *** The target property name MUST be same as source property.
+    // Here both are "simpleData".
+    // If property name is different, then @Mapping is required.
+    //
+//    private Optional<SimpleData> simpleDataOptional;
+    private Optional<SourceSimpleData> simpleData;
+    private String name;
+    private Integer number;
+    private Optional<String> description1;
+}
+```
+```java
+public class TargetObjWithoutOptional {
+    //
+    // *** The target property name MUST be same as source property.
+    // Here both are "simpleData".
+    // If property name is different, then @Mapping is required.
+    //
+    private TargetSimpleData simpleData;
+    //    private Optional<String> nameOptional;
+    private Optional<String> name;
+    private Optional<Integer> numberOptional;
+    private String description2;
+}
+```
+```java
+@Mapper
+public interface SourceTargetMapper extends AbstractMapper {
+
+    TargetSimpleData toTargetSimpleData(SourceSimpleData sourceSimpleData);
+
+    SourceSimpleData toSourceSimpleData(TargetSimpleData targetSimpleData);
+
+////    @Mapping(source = "simpleDataOptional", target = "simpleData", qualifiedByName = {"wrapOptional"})
+////    @Mapping(source = "name", target = "nameOptional", qualifiedByName = {"wrapOptional"})
+    @Mapping(source = "number", target = "numberOptional")
+    @Mapping(source = "description1", target = "description2")
+    TargetObjWithoutOptional toTargetObjWithOptional(SourceObjWithOptional sourceObjWithOptional);
+
+////    @Mapping(source = "simpleData", target = "simpleDataOptional", qualifiedByName = {"unwrapOptional"})
+////    @Mapping(source = "nameOptional", target = "name", qualifiedByName = {"wrapOptional"})
+    @Mapping(source = "numberOptional", target = "number")
+    @Mapping(source = "description2", target = "description1")
+    SourceObjWithOptional toSourceObjWithOptional(TargetObjWithoutOptional targetObjWithoutOptional);
+
+}
+```
