@@ -8,7 +8,14 @@ import java.util.Optional;
 @Data
 @Builder
 public class SourceObjWithOptional {
-    private Optional<SimpleData> simpleDataOptional;
+    //
+    // *** The target property name MUST be same as source property.
+    // Here both are "simpleData".
+    // If property name is different, then @Mapping is required.
+    //
+//    private Optional<SimpleData> simpleDataOptional;
+    private Optional<SourceSimpleData> simpleData;
     private String name;
-    private String description1;
+    private Integer number;
+    private Optional<String> description1;
 }
