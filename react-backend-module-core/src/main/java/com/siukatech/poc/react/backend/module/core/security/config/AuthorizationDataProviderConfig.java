@@ -1,9 +1,7 @@
 package com.siukatech.poc.react.backend.module.core.security.config;
 
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
-import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataCacheKeyGenerator;
-import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
-import com.siukatech.poc.react.backend.module.core.security.provider.RemoteAuthorizationDataProvider;
+import com.siukatech.poc.react.backend.module.core.security.provider.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -82,8 +80,18 @@ public class AuthorizationDataProviderConfig {
     }
 
     @Bean
-    public AuthorizationDataCacheKeyGenerator authorizationDataCacheKeyGenerator() {
-        return new AuthorizationDataCacheKeyGenerator();
+    public AuthorizationDataDossierCacheKeyGenerator authorizationDataDossierCacheKeyGenerator() {
+        return new AuthorizationDataDossierCacheKeyGenerator();
+    }
+
+    @Bean
+    public AuthorizationDataPermissionCacheKeyGenerator authorizationDataPermissionCacheKeyGenerator() {
+        return new AuthorizationDataPermissionCacheKeyGenerator();
+    }
+
+    @Bean
+    public AuthorizationDataUserCacheKeyGenerator authorizationDataUserCacheKeyGenerator() {
+        return new AuthorizationDataUserCacheKeyGenerator();
     }
 
 }

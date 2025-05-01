@@ -252,7 +252,7 @@ public class MyControllerTests extends AbstractWebTests {
     public void test_getUserDossier_basic() throws Exception {
         // given
         UserDossierDto userDossierDto = this.userEntityTestDataHelper.prepareUserDossierDto_basic();
-        when(userService.findUserDossierByUserIdAndApplicationId(anyString(), anyString())).thenReturn(userDossierDto);
+        when(userService.findDossierByUserIdAndApplicationId(anyString(), anyString())).thenReturn(userDossierDto);
 
         // when
         RequestBuilder requestBuilder = MockMvcRequestBuilders

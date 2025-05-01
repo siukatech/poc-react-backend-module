@@ -22,9 +22,6 @@ import java.util.TimeZone;
 @Service
 public class UserService {
 
-    public static final String CACHE_KEY_findPermissionsByUserIdAndApplicationId
-            = "UserService.findPermissionsByUserIdAndApplicationId_";
-
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final UserPermissionRepository userPermissionRepository;
@@ -79,7 +76,7 @@ public class UserService {
         return userPermissionDtoList;
     }
 
-    public UserDossierDto findUserDossierByUserIdAndApplicationId(String targetUserId, String applicationId) {
+    public UserDossierDto findDossierByUserIdAndApplicationId(String targetUserId, String applicationId) {
         UserDto userDto = findUserByUserId(targetUserId);
         MyKeyDto myKeyDto = findKeyByUserId(targetUserId);
         List<UserPermissionDto> userPermissionDtoList = this.findPermissionsByUserIdAndApplicationId(targetUserId, applicationId);

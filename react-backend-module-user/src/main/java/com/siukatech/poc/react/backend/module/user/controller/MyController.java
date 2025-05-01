@@ -21,6 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * MyController is serving the user information with the incoming applicationId.
+ * We should use the UserService to retrieve data from database.
+ */
 @Slf4j
 @ProtectedApiV1Controller
 public class MyController {
@@ -106,13 +110,13 @@ public class MyController {
         String userId = authentication.getName();
         UserDossierDto userDossierDto = null;
         MyPermissionDto myPermissionDto = null;
-        List<UserPermissionDto> userPermissionDtoList = this.userService
-                .findPermissionsByUserIdAndApplicationId(userId, applicationId);
-        myPermissionDto = new MyPermissionDto(userId, userPermissionDtoList);
 //        if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
 //            userDossierDto = myAuthenticationToken.getUserDossierDto();
 //            myPermissionDto = new MyPermissionDto(userId, userDossierDto.getUserPermissionList());
 //        }
+        List<UserPermissionDto> userPermissionDtoList = this.userService
+                .findPermissionsByUserIdAndApplicationId(userId, applicationId);
+        myPermissionDto = new MyPermissionDto(userId, userPermissionDtoList);
 
         return ResponseEntity.ok(myPermissionDto);
     }
@@ -128,11 +132,17 @@ public class MyController {
                 , authentication, authenticationInSc, applicationId);
         String userId = authentication.getName();
         UserDossierDto userDossierDto = null;
-//        userDossierDto = this.userService
-//                .findUserDossierByUserIdAndApplicationId(userId, applicationId);
-        if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
-            userDossierDto = myAuthenticationToken.getUserDossierDto();
-        }
+        //
+        // We should query the database with the incoming applicationId here.
+        // This is because this api returns the permissions about the incoming applicationId (app).
+        // Not the permissions of this applicationId (user).
+        // So using the UserDossierDto in authenticationToken is INCORRECT!!!
+//        if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
+//            userDossierDto = myAuthenticationToken.getUserDossierDto();
+//        }
+        // We should use userService to resolve the UserDossierDto from database with the incoming applicationId.
+        userDossierDto = this.userService.findDossierByUserIdAndApplicationId(userId, applicationId);
+        //
 
         return ResponseEntity.ok(userDossierDto);
     }
@@ -148,11 +158,11 @@ public class MyController {
         String userId = authentication.getName();
         UserDossierDto userDossierDto = null;
         UserViewDto userViewDto = null;
-//        userViewDto = this.userService.findViewByUserId(userId);
-        if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
-            userDossierDto = myAuthenticationToken.getUserDossierDto();
-            userViewDto = UserMapper.INSTANCE.convertDtoToView(userDossierDto.getUserDto());
-        }
+//        if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
+//            userDossierDto = myAuthenticationToken.getUserDossierDto();
+//            userViewDto = UserMapper.INSTANCE.convertDtoToView(userDossierDto.getUserDto());
+//        }
+        userViewDto = this.userService.findViewByUserId(userId);
 
         return ResponseEntity.ok(userViewDto);
     }

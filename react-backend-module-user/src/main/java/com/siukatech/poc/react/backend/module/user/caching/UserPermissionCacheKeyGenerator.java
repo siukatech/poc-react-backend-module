@@ -13,12 +13,19 @@ public class UserPermissionCacheKeyGenerator implements KeyGenerator {
     @Override
     public Object generate(Object target, Method method, Object... params) {
         log.debug("generate - target: [{}], method: [{}], params: [{}]", target, method, params);
-        String targetUserId = (String) params[0];
-        String applicationId = (String) params[1];
-        String key = CACHE_KEY_findPermissionsByUserIdAndApplicationId + targetUserId + "_" + applicationId;
-        log.debug("generate - target: [{}], targetUserId: [{}], applicationId: [{}], key: [{}]"
-                , target, targetUserId, applicationId, key);
-        return key;
+        try {
+            String targetUserId = (String) params[0];
+            String applicationId = (String) params[1];
+            String key = (CACHE_KEY_findPermissionsByUserIdAndApplicationId + "%s_%s").formatted(targetUserId, applicationId);
+            log.debug("generate - target: [{}], targetUserId: [{}], applicationId: [{}], key: [{}]"
+                    , target, targetUserId, applicationId, key);
+            return key;
+        }
+        catch (Exception e) {
+            String message = "generate - params does not contain targetUserId and applicationId";
+            log.error(message);
+            throw new IllegalArgumentException(message, e);
+        }
     }
 
 }

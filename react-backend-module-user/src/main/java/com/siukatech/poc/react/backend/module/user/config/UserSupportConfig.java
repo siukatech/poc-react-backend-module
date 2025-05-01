@@ -6,6 +6,7 @@ import com.siukatech.poc.react.backend.module.user.provider.DatabaseAuthorizatio
 import com.siukatech.poc.react.backend.module.user.repository.UserPermissionRepository;
 import com.siukatech.poc.react.backend.module.user.repository.UserRepository;
 import com.siukatech.poc.react.backend.module.user.repository.UserViewRepository;
+import com.siukatech.poc.react.backend.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -28,19 +29,19 @@ public class UserSupportConfig {
     @Primary
     public AuthorizationDataProvider databaseAuthorizationDataProvider(
             AppCoreProp appCoreProp
-            , ModelMapper modelMapper
-//            , UserService userService
-            , UserRepository userRepository
-            , UserPermissionRepository userPermissionRepository
-            , UserViewRepository userViewRepository
+            , UserService userService
+//            , ModelMapper modelMapper
+//            , UserRepository userRepository
+//            , UserPermissionRepository userPermissionRepository
+//            , UserViewRepository userViewRepository
     ) {
         log.debug("databaseAuthorizationDataProvider");
         return new DatabaseAuthorizationDataProvider(appCoreProp
-                , modelMapper
-//                , userService
-                , userRepository
-                , userPermissionRepository
-                , userViewRepository
+                , userService
+//                , modelMapper
+//                , userRepository
+//                , userPermissionRepository
+//                , userViewRepository
         );
     }
 

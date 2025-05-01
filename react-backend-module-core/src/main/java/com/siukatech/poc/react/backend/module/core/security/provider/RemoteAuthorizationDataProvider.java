@@ -21,9 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataCacheKeyGenerator.CACHE_KEY_findPermissionsByUserIdAndTokenValue;
-import static com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataCacheKeyGenerator.CACHE_KEY_findUserByUserIdAndTokenValue;
-
 @Slf4j
 public class RemoteAuthorizationDataProvider implements AuthorizationDataProvider {
 
@@ -51,7 +48,7 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
 //    @Override
     @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}
 //            , key = "'" + CACHE_KEY_findUserByUserIdAndTokenValue + "' + #userId"
-            , key = "'" + CACHE_KEY_findUserByUserIdAndTokenValue + "' + #userId"
+            , keyGenerator = "authorizationDataUserCacheKeyGenerator"
     )
     public UserDto findUserByUserIdAndTokenValue(String userId, String tokenValue) {
         log.debug("findUserByUserIdAndTokenValue - start");
@@ -99,7 +96,9 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
 
 //    @Override
     @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}
-            , key = "'" + CACHE_KEY_findPermissionsByUserIdAndTokenValue + "' + #userId")
+//            , key = "'" + CACHE_KEY_findPermissionsByUserIdAndTokenValue + "' + #userId"
+            , keyGenerator = "authorizationDataPermissionCacheKeyGenerator"
+    )
     public List<UserPermissionDto> findPermissionsByUserIdAndTokenValue(String userId, String tokenValue) {
         log.debug("findPermissionsByUserIdAndTokenValue - start");
         List<UserPermissionDto> userPermissionDtoList = new ArrayList<>();
@@ -159,7 +158,7 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
     @Override
     @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findDossierByUserIdAndTokenValue + "' + #userId"
-            , keyGenerator = "authorizationDataCacheKeyGenerator"
+            , keyGenerator = "authorizationDataDossierCacheKeyGenerator"
     )
     public UserDossierDto findDossierByUserIdAndTokenValue(String userId, String tokenValue) {
         log.debug("findDossierByUserIdAndTokenValue - start");
@@ -167,7 +166,8 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
         //
         String myUserDossierUrl = this.appCoreProp.getMyUserDossierUrl();
         if (StringUtils.isNotEmpty(myUserDossierUrl)) {
-            UriComponentsBuilder myUserDossierUriBuilder = UriComponentsBuilder.fromUriString(myUserDossierUrl)
+            UriComponentsBuilder myUserDossierUriBuilder = UriComponentsBuilder
+                    .fromUriString(myUserDossierUrl)
                     .queryParam(PARAM_APPLICATION_ID, this.appCoreProp.getApplicationId());
             String myUserDossierUri = myUserDossierUriBuilder.encode().toUriString();
             HttpHeaders httpHeaders = new HttpHeaders();
