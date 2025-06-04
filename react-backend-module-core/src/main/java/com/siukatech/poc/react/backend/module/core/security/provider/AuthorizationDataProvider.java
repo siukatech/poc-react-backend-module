@@ -9,4 +9,6 @@ public interface AuthorizationDataProvider {
 
     UserDossierDto findDossierByUserIdAndTokenValue(String userId, String tokenValue);
 
+    void evictDossierCache();
+
 }

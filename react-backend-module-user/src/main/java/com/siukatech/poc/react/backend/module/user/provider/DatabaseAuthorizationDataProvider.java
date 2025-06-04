@@ -17,6 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -52,11 +53,11 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
 //        this.userViewRepository = userViewRepository;
     }
 
-//    @Override
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}
+    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findUserByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataUserCacheKeyGenerator"
     )
+//    @Override
     public UserDto findUserByUserIdAndTokenValue(String userId, String tokenValue) {
         log.debug("findByUserIdAndTokenValue - start, userId: [{}]", userId);
         UserDto userDto = userService.findUserByUserId(userId);
@@ -68,11 +69,11 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
         return userDto;
     }
 
-//    @Override
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}
+    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findPermissionsByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataPermissionCacheKeyGenerator"
     )
+//    @Override
     public List<UserPermissionDto> findPermissionsByUserIdAndTokenValue(String userId, String tokenValue) {
         log.debug("findPermissionsByUserIdAndTokenValue - start, userId: [{}]", userId);
         List<UserPermissionDto> userPermissionDtoList = userService
@@ -87,11 +88,11 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
         return userPermissionDtoList;
     }
 
-    @Override
     @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findDossierByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataDossierCacheKeyGenerator"
     )
+    @Override
     public UserDossierDto findDossierByUserIdAndTokenValue(String userId, String tokenValue) {
         log.debug("findDossierByUserIdAndTokenValue - start, userId: [{}]", userId);
         UserDossierDto userDossierDto = this.userService
@@ -109,6 +110,13 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
 //        UserDossierDto userDossierDto = new UserDossierDto(userDto, myKeyDto, userPermissionDtoList);
         log.debug("findDossierByUserIdAndTokenValue - end, userId: [{}]", userId);
         return userDossierDto;
+    }
+
+    @CacheEvict(value = {DefaultCachingConfig.CACHE_NAME_AUTH})
+    @Override
+    public void evictDossierCache() {
+        // do nothing
+        log.debug("evictDossierCache - cache is evicted");
     }
 
 }
