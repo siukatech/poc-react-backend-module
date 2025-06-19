@@ -115,19 +115,19 @@ public class UserControllerTests {
 
     private MyAuthenticationToken prepareMyAuthenticationToken_basic() {
         return prepareMyAuthenticationToken("app-user-01"
-                , UUID.randomUUID().toString(), this.userEntityTestDataHelper);
+                , UUID.randomUUID().toString(), StandardClaimNames.PREFERRED_USERNAME, this.userEntityTestDataHelper);
     }
 
     protected MyAuthenticationToken prepareMyAuthenticationToken(
-            String userId, String randomId, UserEntityTestDataHelper userEntityTestDataHelper) {
+            String userId, String randomId, String userNameAttribute, UserEntityTestDataHelper userEntityTestDataHelper) {
         UserDossierDto userDossierDto = userEntityTestDataHelper.prepareUserDossierDto_basic();
         List<GrantedAuthority> convertedAuthorities = new ArrayList<>();
         Map<String, Object> attributeMap = new HashMap<>();
-        attributeMap.put(StandardClaimNames.PREFERRED_USERNAME, userId);
+        attributeMap.put(userNameAttribute, userId);
         attributeMap.put(MyAuthenticationToken.ATTR_TOKEN_VALUE, "TOKEN");
         attributeMap.put(MyAuthenticationToken.ATTR_USER_ID, userId);
         attributeMap.put(MyAuthenticationToken.ATTR_USER_DOSSIER_DTO, userDossierDto);
-        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, StandardClaimNames.PREFERRED_USERNAME);
+        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, userNameAttribute);
         MyAuthenticationToken authenticationToken = new MyAuthenticationToken(oAuth2User, convertedAuthorities, "keycloak");
         return authenticationToken;
     }

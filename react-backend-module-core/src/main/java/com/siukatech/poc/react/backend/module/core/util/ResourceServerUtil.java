@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2Res
 
 import java.text.ParseException;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class ResourceServerUtil {
 
@@ -20,34 +21,59 @@ public class ResourceServerUtil {
         return signedJWT.getJWTClaimsSet().getIssuer();
     }
 
-    public static String getClientName(OAuth2ClientProperties oAuth2ClientProperties, String issuerUri) {
-        String clientName = oAuth2ClientProperties.getProvider().entrySet().stream()
+    public static Map.Entry<String, OAuth2ClientProperties.Provider> getProviderEntry(
+            OAuth2ClientProperties oAuth2ClientProperties, String issuerUri) {
+        Map.Entry<String, OAuth2ClientProperties.Provider> providerEntry = oAuth2ClientProperties
+                .getProvider().entrySet().stream()
                 .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUri))
-                .map(entry -> entry.getKey())
                 .findFirst()
-                .orElse(null)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "OAuth2ClientProperties.Provider not found, issuerUri: [%s]".formatted(issuerUri)))
                 ;
+        return providerEntry;
+    }
+
+    public static Map.Entry<String, OAuth2ResourceServerProperties.Jwt> getJwtEntry(
+            OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp, String issuerUri) {
+        Map.Entry<String, OAuth2ResourceServerProperties.Jwt> jwtEntry = oAuth2ResourceServerExtProp
+                .getJwt().entrySet().stream()
+                .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUri))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException(
+                        "OAuth2ResourceServerProperties.Jwt not found, issuerUri: [%s]".formatted(issuerUri)))
+                ;
+        return jwtEntry;
+    }
+
+    public static Map.Entry<String, OAuth2ResourceServerExtProp.Opaquetoken> getOpaqueTokenEntry(
+            OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp, String issuerUri) {
+        Map.Entry<String, OAuth2ResourceServerExtProp.Opaquetoken> opaqueTokenEntry = oAuth2ResourceServerExtProp
+                .getOpaquetoken().entrySet().stream()
+                .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUri))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException(
+                        "OAuth2ResourceServerExtProp.Opaquetoken not found, issuerUri: [%s]".formatted(issuerUri)))
+                ;
+        return opaqueTokenEntry;
+    }
+
+    public static String getClientName(OAuth2ClientProperties oAuth2ClientProperties, String issuerUri) {
+        Map.Entry<String, OAuth2ClientProperties.Provider> providerEntry = getProviderEntry(oAuth2ClientProperties, issuerUri);
+        String clientName = providerEntry.getKey();
         return clientName;
     }
 
-    public static String getClientName(
-            OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp, String issuerUri) {
+    public static String getClientName(OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp, String issuerUri) {
         String clientName = null;
         if (oAuth2ResourceServerExtProp.getJwt() != null) {
-            clientName = oAuth2ResourceServerExtProp.getJwt().entrySet().stream()
-                    .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUri))
-                    .map(entry -> entry.getKey())
-                    .findFirst()
-                    .orElse(null)
-                    ;
+            Map.Entry<String, OAuth2ResourceServerProperties.Jwt> jwtEntry =
+                    getJwtEntry(oAuth2ResourceServerExtProp, issuerUri);
+            clientName = jwtEntry.getKey();
         }
         else if (oAuth2ResourceServerExtProp.getOpaquetoken() != null) {
-            clientName = oAuth2ResourceServerExtProp.getOpaquetoken().entrySet().stream()
-                    .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUri))
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .orElse(null)
-            ;
+            Map.Entry<String, OAuth2ResourceServerExtProp.Opaquetoken> opaquetokenEntry =
+                    getOpaqueTokenEntry(oAuth2ResourceServerExtProp, issuerUri);
+            clientName = opaquetokenEntry.getKey();
         }
         return clientName;
     }
@@ -64,25 +90,19 @@ public class ResourceServerUtil {
     }
 
     public static String getIssuerUri(
-            OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp, String issuerUriSrc) {
-        String issuerUri = null;
+            OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp, String issuerUri) {
+        String issuerUriOut = null;
         if (oAuth2ResourceServerExtProp.getJwt() != null) {
-            issuerUri = oAuth2ResourceServerExtProp.getJwt().entrySet().stream()
-                    .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUriSrc))
-                    .map(entry -> entry.getValue().getIssuerUri())
-                    .findFirst()
-                    .orElse(null)
-            ;
+            Map.Entry<String, OAuth2ResourceServerProperties.Jwt> jwtEntry =
+                    getJwtEntry(oAuth2ResourceServerExtProp, issuerUri);
+            issuerUriOut = jwtEntry.getValue().getIssuerUri();
         }
         else if (oAuth2ResourceServerExtProp.getOpaquetoken() != null) {
-            issuerUri = oAuth2ResourceServerExtProp.getOpaquetoken().entrySet().stream()
-                    .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUriSrc))
-                    .map(entry -> entry.getValue().getIssuerUri())
-                    .findFirst()
-                    .orElse(null)
-            ;
+            Map.Entry<String, OAuth2ResourceServerExtProp.Opaquetoken> opaquetokenEntry =
+                    getOpaqueTokenEntry(oAuth2ResourceServerExtProp, issuerUri);
+            issuerUriOut = opaquetokenEntry.getValue().getIssuerUri();
         }
-        return issuerUri;
+        return issuerUriOut;
     }
 
 }

@@ -13,13 +13,18 @@ import java.util.Collection;
 @Deprecated
 public class KeycloakJwtAuthentication extends JwtAuthenticationToken {
 
-    public KeycloakJwtAuthentication(Jwt jwt, Collection<? extends GrantedAuthority> authorities) {
+    private String userNameAttribute;
+
+    public KeycloakJwtAuthentication(Jwt jwt, Collection<? extends GrantedAuthority> authorities, String userNameAttribute) {
         super(jwt, authorities);
+        this.userNameAttribute = userNameAttribute;
     }
     //Note that this time getName() is overriden instead of getPrincipal()
     @Override
     public String getName() {
-        return getToken().getClaimAsString(StandardClaimNames.PREFERRED_USERNAME);
+        // Add userNameAttribute to constructor and use this as key to get from token
+        String name = getToken().getClaimAsString(this.userNameAttribute);
+        return name;
     }
 
 }
