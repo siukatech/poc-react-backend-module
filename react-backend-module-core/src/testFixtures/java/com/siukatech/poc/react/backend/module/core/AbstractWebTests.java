@@ -70,21 +70,22 @@ public abstract class AbstractWebTests extends AbstractUnitTests {
     protected UsernamePasswordAuthenticationToken prepareUsernamePasswordAuthenticationToken(String username) {
         List<GrantedAuthority> convertedAuthorities = new ArrayList<>();
         UserDetails userDetails = new User(username, "", convertedAuthorities);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
         return authenticationToken;
     }
 
     protected MyAuthenticationToken prepareMyAuthenticationToken(
-            String userId, String randomId, UserDtoTestDataHelper userDtoTestDataHelper) {
+            String userId, String randomId, String userNameAttribute, UserDtoTestDataHelper userDtoTestDataHelper) {
         UserDossierDto userDossierDto = userDtoTestDataHelper.prepareUserDossierDto_basic();
         List<GrantedAuthority> convertedAuthorities = new ArrayList<>();
         Map<String, Object> attributeMap = new HashMap<>();
-        attributeMap.put(StandardClaimNames.PREFERRED_USERNAME, userId);
+        attributeMap.put(userNameAttribute, userId);
         attributeMap.put(MyAuthenticationToken.ATTR_TOKEN_VALUE, "TOKEN");
         attributeMap.put(MyAuthenticationToken.ATTR_USER_ID, userId);
         attributeMap.put(MyAuthenticationToken.ATTR_USER_DOSSIER_DTO, userDossierDto);
-        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, StandardClaimNames.PREFERRED_USERNAME);
-        MyAuthenticationToken authenticationToken = new MyAuthenticationToken(oAuth2User, convertedAuthorities, "keycloak");
+        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, userNameAttribute);
+        MyAuthenticationToken authenticationToken = new MyAuthenticationToken(oAuth2User, convertedAuthorities, CLIENT_NAME);
         return authenticationToken;
     }
 

@@ -144,9 +144,6 @@ public class AuthControllerTests extends AbstractWebTests {
 ////    @Autowired
 //    private InMemoryClientRegistrationRepository clientRegistrationRepository;
 
-    private final String CLIENT_NAME_KEYCLOAK = "keycloak";
-
-
     private TokenRes prepareTokenRes() {
         TokenRes tokenRes = new TokenRes("accessToken"
                 , "refreshToken", "expiresIn"
@@ -177,14 +174,14 @@ public class AuthControllerTests extends AbstractWebTests {
 //        provider.setUserInfoAuthenticationMethod("");
 //        provider.setUserNameAttribute("");
 //        oAuth2ClientProperties = new OAuth2ClientProperties();
-//        oAuth2ClientProperties.getRegistration().put("keycloak", registration);
-//        oAuth2ClientProperties.getProvider().put("keycloak", provider);
+//        oAuth2ClientProperties.getRegistration().put(CLIENT_NAME, registration);
+//        oAuth2ClientProperties.getProvider().put(CLIENT_NAME, provider);
     }
 
     @Test
     public void test_doAuthCodeLogin_basic() throws Exception {
         // given
-        String clientName = CLIENT_NAME_KEYCLOAK;
+        String clientName = CLIENT_NAME;
         String codeChallenge = null;
         String codeVerifier = EncryptionUtils.generateCodeVerifier();
         codeChallenge = EncryptionUtils.generateCodeChallenge(codeVerifier);
@@ -210,7 +207,7 @@ public class AuthControllerTests extends AbstractWebTests {
     @Test
     public void test_doAuthCodeToken_basic() throws Exception {
         // given
-        String clientName = CLIENT_NAME_KEYCLOAK;
+        String clientName = CLIENT_NAME;
         String code = "this-is-an-unit-test-code";
         String codeVerifier = null;
         codeVerifier = EncryptionUtils.generateCodeVerifier();
@@ -241,7 +238,7 @@ public class AuthControllerTests extends AbstractWebTests {
     @Test
     public void test_doPasswordLogin_basic() throws Exception {
         // given
-        String clientName = CLIENT_NAME_KEYCLOAK;
+        String clientName = CLIENT_NAME;
         LoginForm loginForm = new LoginForm();
         loginForm.setUsername("username");
         loginForm.setPassword("password");
@@ -272,10 +269,10 @@ public class AuthControllerTests extends AbstractWebTests {
     @Test
     public void test_doAuthTokenRefresh_basic() throws Exception {
         // given
-        String clientName = CLIENT_NAME_KEYCLOAK;
+        String clientName = CLIENT_NAME;
         RefreshTokenForm refreshTokenForm = new RefreshTokenForm();
         refreshTokenForm.setAccessToken("app-user-01");
-        refreshTokenForm.setRefreshToken("keycloak");
+        refreshTokenForm.setRefreshToken(clientName);
         String refreshTokenFormStr = this.objectMapperForTests.writeValueAsString(refreshTokenForm);
 //        when(oauth2ClientRestTemplate.exchange(anyString()
 //                , eq(HttpMethod.POST), any(HttpEntity.class), eq(TokenRes.class)))

@@ -36,9 +36,11 @@ public class MyJwtAuthenticationConverter implements Converter<Jwt, AbstractAuth
     private final OAuth2ClientProperties oAuth2ClientProperties;
 
     public MyJwtAuthenticationConverter(
-            JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter,
-//            UserService userService,
-            AuthorizationDataProvider authorizationDataProvider, OAuth2ClientProperties oAuth2ClientProperties) {
+            JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter
+//            , UserService userService
+            , AuthorizationDataProvider authorizationDataProvider
+            , OAuth2ClientProperties oAuth2ClientProperties
+    ) {
         this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
 //        this.userService = userService;
         this.authorizationDataProvider = authorizationDataProvider;
@@ -48,7 +50,15 @@ public class MyJwtAuthenticationConverter implements Converter<Jwt, AbstractAuth
     @Override
     public AbstractAuthenticationToken convert(Jwt source) {
         // subject is the user-id
-        String userId = source.getClaimAsString(StandardClaimNames.PREFERRED_USERNAME);
+        String issuerUri = source.getIssuer().toString();
+        Map.Entry<String, OAuth2ClientProperties.Provider> providerEntry =
+                ResourceServerUtil.getProviderEntry(oAuth2ClientProperties, issuerUri);
+        String clientName = providerEntry.getKey();
+        OAuth2ClientProperties.Provider provider = providerEntry.getValue();
+        // Use Provider.user-name-attribute instead of hard-coded preferred_username
+        // StandardClaimNames.PREFERRED_USERNAME
+        String userNameAttribute = provider.getUserNameAttribute();
+        String userId = source.getClaimAsString(userNameAttribute);
         String tokenValue = source.getTokenValue();
         log.debug("convert - userId: [" + userId
                 + "], source.getId: [" + source.getId()
@@ -63,11 +73,8 @@ public class MyJwtAuthenticationConverter implements Converter<Jwt, AbstractAuth
                 + "], tokenValue: [" + tokenValue
                 + "]");
         //
-        String issuerUri = source.getIssuer().toString();
-        String clientName = ResourceServerUtil.getClientName(oAuth2ClientProperties, issuerUri);
-        //
-        log.debug("convert - userId: [{}], issuerUri: [{}], clientName: [{}]"
-                , userId, issuerUri, clientName);
+        log.debug("convert - userId: [{}], issuerUri: [{}], clientName: [{}], userNameAttribute: [{}]"
+                , userId, issuerUri, clientName, userNameAttribute);
         //
         List<GrantedAuthority> convertedAuthorities = new ArrayList<>();
         // Extract authorities from jwt
@@ -90,7 +97,8 @@ public class MyJwtAuthenticationConverter implements Converter<Jwt, AbstractAuth
         userDto = userDossierDto.getUserDto();
         userPermissionDtoList = userDossierDto.getUserPermissionList();
 
-        log.debug("convert - userId: [{}], userPermissionDtoList.size: [{}]", userId, userPermissionDtoList.size());
+        log.debug("convert - userId: [{}], userPermissionDtoList.size: [{}]"
+                , userId, userPermissionDtoList.size());
         userPermissionDtoList.forEach(userPermissionDto -> {
             convertedAuthorities.add(MyGrantedAuthority.builder()
                             .userRoleId(userPermissionDto.getUserRoleId())
@@ -105,25 +113,30 @@ public class MyJwtAuthenticationConverter implements Converter<Jwt, AbstractAuth
         // Extract claims from jwt
         attributeMap.putAll(source.getClaims());
         //
-        attributeMap.put(StandardClaimNames.PREFERRED_USERNAME, userId);
-        attributeMap.put(MyAuthenticationToken.ATTR_TOKEN_VALUE, tokenValue);
+        attributeMap.put(userNameAttribute, userId);
+        attributeMap.put(MyAuthenticationToken.ATTR_USER_ID, userId);
 //        attributeMap.put(MyAuthenticationToken.ATTR_USER_ID, userDto.getId());
+        attributeMap.put(MyAuthenticationToken.ATTR_TOKEN_VALUE, tokenValue);
 //        attributeMap.put(MyAuthenticationToken.ATTR_PUBLIC_KEY, userDto.getPublicKey());
         attributeMap.put(MyAuthenticationToken.ATTR_USER_DOSSIER_DTO, userDossierDto);
 //        }
-        log.debug("convert - userId: [{}], convertedAuthorities: [{}]"
-                        + ", attributeMap.containsKey(PREFERRED_USERNAME): [{}]"
+        log.debug("convert - userId: [{}]"
+                        + ", convertedAuthorities: [{}], userNameAttribute: [{}]"
+                        + ", attributeMap.containsKey(userNameAttribute): [{}]"
+                        + ", attributeMap.containsKey(ATTR_USER_ID): [{}]"
                         + ", attributeMap.containsKey(ATTR_TOKEN_VALUE): [{}]"
                         + ", attributeMap.containsKey(ATTR_USER_DOSSIER_DTO): [{}]"
                 , userId
                 , convertedAuthorities
-                , attributeMap.containsKey(StandardClaimNames.PREFERRED_USERNAME)
+                , userNameAttribute
+                , attributeMap.containsKey(userNameAttribute)
+                , attributeMap.containsKey(MyAuthenticationToken.ATTR_USER_ID)
                 , attributeMap.containsKey(MyAuthenticationToken.ATTR_TOKEN_VALUE)
                 , attributeMap.containsKey(MyAuthenticationToken.ATTR_USER_DOSSIER_DTO)
         );
 
-        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, StandardClaimNames.PREFERRED_USERNAME);
-//        OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(oAuth2User, convertedAuthorities, "keycloak");
+        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, userNameAttribute);
+//        OAuth2AuthenticationToken authenticationToken = new OAuth2AuthenticationToken(oAuth2User, convertedAuthorities, clientName);
         MyAuthenticationToken authenticationToken = new MyAuthenticationToken(oAuth2User, convertedAuthorities, clientName);
         return authenticationToken;
     }

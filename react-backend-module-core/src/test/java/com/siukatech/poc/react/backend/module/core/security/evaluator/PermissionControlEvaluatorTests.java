@@ -52,9 +52,9 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         return authorities;
     }
 
-    private Map<String, Object> getAttributeMap() {
+    private Map<String, Object> getAttributeMap(String userNameAttribute) {
         Map<String, Object> attributeMap = new HashMap<>();
-        attributeMap.put(StandardClaimNames.PREFERRED_USERNAME, "app-user-01");
+        attributeMap.put(userNameAttribute, "app-user-01");
         attributeMap.put(MyAuthenticationToken.ATTR_TOKEN_VALUE, "tokenValue");
         attributeMap.put(MyAuthenticationToken.ATTR_USER_ID, 1L);
         attributeMap.put(MyAuthenticationToken.ATTR_PUBLIC_KEY, "public-key");
@@ -67,9 +67,9 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         Method method = ClassUtils.getMethod(ProtectedUrlController.class, "authorized");
         HandlerMethod handlerMethod = new HandlerMethod(new ProtectedUrlController(), method);
         List<MyGrantedAuthority> authorities = getGrantAuthorityList();
-        Map<String, Object> attributeMap = getAttributeMap();
-        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, StandardClaimNames.PREFERRED_USERNAME);
-        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), "keycloak");
+        Map<String, Object> attributeMap = getAttributeMap(USER_NAME_ATTRIBUTE);
+        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
         boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
@@ -84,9 +84,9 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         Method method = ClassUtils.getMethod(RestUrlController.class, "authorized");
         HandlerMethod handlerMethod = new HandlerMethod(new RestUrlController(), method);
         List<MyGrantedAuthority> authorities = getGrantAuthorityList();
-        Map<String, Object> attributeMap = getAttributeMap();
-        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, StandardClaimNames.PREFERRED_USERNAME);
-        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), "keycloak");
+        Map<String, Object> attributeMap = getAttributeMap(USER_NAME_ATTRIBUTE);
+        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
         boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
@@ -101,9 +101,9 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         Method method = ClassUtils.getMethod(WebController.class, "authorized", Principal.class, Model.class);
         HandlerMethod handlerMethod = new HandlerMethod(new WebController(), method);
         List<MyGrantedAuthority> authorities = getGrantAuthorityList();
-        Map<String, Object> attributeMap = getAttributeMap();
-        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, StandardClaimNames.PREFERRED_USERNAME);
-        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), "keycloak");
+        Map<String, Object> attributeMap = getAttributeMap(USER_NAME_ATTRIBUTE);
+        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 //
 //        // when
 //        boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
@@ -125,8 +125,8 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         // given
         Method method = ClassUtils.getMethod(ProtectedUrlController.class, "accessDenied");
         HandlerMethod handlerMethod = new HandlerMethod(new ProtectedUrlController(), method);
-        OAuth2User principal = new DefaultOAuth2User(getGrantAuthorityList(), getAttributeMap(), StandardClaimNames.PREFERRED_USERNAME);
-        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), "keycloak");
+        OAuth2User principal = new DefaultOAuth2User(getGrantAuthorityList(), getAttributeMap(USER_NAME_ATTRIBUTE), USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
@@ -142,8 +142,8 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         // given
         Method method = ClassUtils.getMethod(RestUrlController.class, "accessDenied");
         HandlerMethod handlerMethod = new HandlerMethod(new RestUrlController(), method);
-        OAuth2User principal = new DefaultOAuth2User(getGrantAuthorityList(), getAttributeMap(), StandardClaimNames.PREFERRED_USERNAME);
-        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), "keycloak");
+        OAuth2User principal = new DefaultOAuth2User(getGrantAuthorityList(), getAttributeMap(USER_NAME_ATTRIBUTE), USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {

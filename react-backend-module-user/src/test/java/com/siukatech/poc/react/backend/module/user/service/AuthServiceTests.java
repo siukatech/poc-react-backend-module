@@ -53,9 +53,6 @@ import static org.mockito.Mockito.doReturn;
 })
 public class AuthServiceTests extends AbstractUnitTests {
 
-    private final String CLIENT_NAME = "keycloak";
-
-
 //    @Autowired
 //    private RegistrationConfig registrationConfig;
 //    @Autowired

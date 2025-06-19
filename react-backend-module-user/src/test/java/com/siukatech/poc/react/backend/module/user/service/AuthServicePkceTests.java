@@ -57,9 +57,6 @@ import static org.mockito.Mockito.doReturn;
 })
 public class AuthServicePkceTests extends AbstractUnitTests {
 
-    private final String CLIENT_NAME = "keycloak";
-
-
     /**
      * This is the OAuth2ClientProperties initiated with @TestPropertySource
      */

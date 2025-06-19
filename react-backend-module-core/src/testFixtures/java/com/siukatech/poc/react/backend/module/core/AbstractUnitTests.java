@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
@@ -43,6 +44,9 @@ import java.util.List;
         locations = {"classpath:abstract-unit-tests.properties"}
 )
 public abstract class AbstractUnitTests {
+
+    public static final String USER_NAME_ATTRIBUTE = StandardClaimNames.PREFERRED_USERNAME;
+    public static final String CLIENT_NAME = "keycloak";
 
     protected static final org.slf4j.Logger log = LoggerFactory.getLogger(AbstractUnitTests.class);
 

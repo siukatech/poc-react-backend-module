@@ -45,6 +45,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static com.siukatech.poc.react.backend.module.core.AbstractUnitTests.CLIENT_NAME;
+import static com.siukatech.poc.react.backend.module.core.AbstractUnitTests.USER_NAME_ATTRIBUTE;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -115,20 +117,20 @@ public class UserControllerTests {
 
     private MyAuthenticationToken prepareMyAuthenticationToken_basic() {
         return prepareMyAuthenticationToken("app-user-01"
-                , UUID.randomUUID().toString(), this.userEntityTestDataHelper);
+                , UUID.randomUUID().toString(), USER_NAME_ATTRIBUTE, this.userEntityTestDataHelper);
     }
 
     protected MyAuthenticationToken prepareMyAuthenticationToken(
-            String userId, String randomId, UserEntityTestDataHelper userEntityTestDataHelper) {
+            String userId, String randomId, String userNameAttribute, UserEntityTestDataHelper userEntityTestDataHelper) {
         UserDossierDto userDossierDto = userEntityTestDataHelper.prepareUserDossierDto_basic();
         List<GrantedAuthority> convertedAuthorities = new ArrayList<>();
         Map<String, Object> attributeMap = new HashMap<>();
-        attributeMap.put(StandardClaimNames.PREFERRED_USERNAME, userId);
+        attributeMap.put(userNameAttribute, userId);
         attributeMap.put(MyAuthenticationToken.ATTR_TOKEN_VALUE, "TOKEN");
         attributeMap.put(MyAuthenticationToken.ATTR_USER_ID, userId);
         attributeMap.put(MyAuthenticationToken.ATTR_USER_DOSSIER_DTO, userDossierDto);
-        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, StandardClaimNames.PREFERRED_USERNAME);
-        MyAuthenticationToken authenticationToken = new MyAuthenticationToken(oAuth2User, convertedAuthorities, "keycloak");
+        OAuth2User oAuth2User = new DefaultOAuth2User(convertedAuthorities, attributeMap, userNameAttribute);
+        MyAuthenticationToken authenticationToken = new MyAuthenticationToken(oAuth2User, convertedAuthorities, CLIENT_NAME);
         return authenticationToken;
     }
 
