@@ -75,9 +75,13 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
     )
 //    @Override
     public List<UserPermissionDto> findPermissionsByUserIdAndTokenValue(String userId, String tokenValue) {
-        log.debug("findPermissionsByUserIdAndTokenValue - start, userId: [{}]", userId);
+        String applicationId = appCoreProp.getApplicationId();
+        applicationId = null; // all applications
+        log.debug("findPermissionsByUserIdAndTokenValue - start"
+                        + ", userId: [{}], applicationId: [{}], appCoreProp.getApplicationId: [{}]"
+                , userId, applicationId, appCoreProp.getApplicationId());
         List<UserPermissionDto> userPermissionDtoList = userService
-                .findPermissionsByUserIdAndApplicationId(userId, appCoreProp.getApplicationId());
+                .findPermissionsByUserIdAndApplicationId(userId, applicationId);
 //        List<UserPermissionEntity> userPermissionEntityList = this.userPermissionRepository
 //                .findByUserIdAndApplicationId(userId, appCoreProp.getApplicationId());
 //        List<UserPermissionDto> userPermissionDtoList = userPermissionEntityList.stream()
@@ -94,9 +98,13 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
     )
     @Override
     public UserDossierDto findDossierByUserIdAndTokenValue(String userId, String tokenValue) {
-        log.debug("findDossierByUserIdAndTokenValue - start, userId: [{}]", userId);
+        String applicationId = appCoreProp.getApplicationId();
+        applicationId = null; // all applications
+        log.debug("findDossierByUserIdAndTokenValue - start"
+                        + ", userId: [{}], applicationId: [{}], appCoreProp.getApplicationId: [{}]"
+                , userId, applicationId, appCoreProp.getApplicationId());
         UserDossierDto userDossierDto = this.userService
-                .findDossierByUserIdAndApplicationId(userId, appCoreProp.getApplicationId());
+                .findDossierByUserIdAndApplicationId(userId, applicationId);
 //        UserEntity userEntity = this.userRepository.findByUserId(userId)
 //                .orElseThrow(() -> new EntityNotFoundException("User not found [%s]".formatted(userId)));
 //        UserDto userDto = this.modelMapper.map(userEntity, UserDto.class);

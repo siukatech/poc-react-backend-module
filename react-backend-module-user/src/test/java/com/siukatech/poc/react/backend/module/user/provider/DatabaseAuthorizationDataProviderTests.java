@@ -27,8 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @Slf4j
@@ -101,7 +100,7 @@ public class DatabaseAuthorizationDataProviderTests extends AbstractUnitTests {
 ////                , isNull()
 //                , anyString()
 //        )).thenReturn(userPermissionEntityList);
-        when(this.userService.findPermissionsByUserIdAndApplicationId(anyString(), anyString()))
+        when(this.userService.findPermissionsByUserIdAndApplicationId(anyString(), nullable(String.class)))
                 .thenReturn(userPermissionDtoListMock);
 
         // when
@@ -132,7 +131,7 @@ public class DatabaseAuthorizationDataProviderTests extends AbstractUnitTests {
 ////                , isNull()
 //                , anyString()
 //        )).thenReturn(userPermissionEntityList);
-        when(this.userService.findDossierByUserIdAndApplicationId(anyString(), anyString()))
+        when(this.userService.findDossierByUserIdAndApplicationId(anyString(), nullable(String.class)))
                 .thenReturn(userDossierDtoMock);
 
         // when

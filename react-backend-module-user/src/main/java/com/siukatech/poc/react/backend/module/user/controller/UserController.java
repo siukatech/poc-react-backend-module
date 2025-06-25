@@ -25,13 +25,13 @@ public class UserController {
     @PostMapping("/users/{targetUserId}/user-info")
     @PermissionControl(appResourceId = "core.user.getUserInfo", accessRight = "view")
     public ResponseEntity getUserInfo(@PathVariable
-//                                                 // after upgrade to springboot >= 3.2.1
-//                                                 // this can be fixed by update build.gradle or adding maven plugin
-//                                                 // https://stackoverflow.com/a/77691302
-//                                                 // https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#parameter-name-retention
-//                                                 (name = "targetUserId")
-                                         String targetUserId
-                                      , Authentication authentication
+//             // after upgrade to springboot >= 3.2.1
+//             // this can be fixed by update build.gradle or adding maven plugin
+//             // https://stackoverflow.com/a/77691302
+//             // https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#parameter-name-retention
+//             (name = "targetUserId")
+             String targetUserId
+          , Authentication authentication
     ) {
         UserDossierDto userDossierDto = null;
         UserDto userDto = null;

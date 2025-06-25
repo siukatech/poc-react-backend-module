@@ -101,7 +101,10 @@ public class MyController {
     @GetMapping("/my/permission-info")
     @PermissionControl(appResourceId = "core.my.getPermissionInfo", accessRight = "view")
     public ResponseEntity getPermissionInfo(@RequestHeader HttpHeaders httpHeaders
-            , @RequestParam(required = true) String applicationId
+            , @RequestParam
+//            (required = true)
+            (required = false)
+            String applicationId
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);
@@ -124,7 +127,10 @@ public class MyController {
     @GetMapping("/my/user-dossier")
     @PermissionControl(appResourceId = "core.my.getUserDossier", accessRight = "view")
     public ResponseEntity getUserDossier(@RequestHeader HttpHeaders httpHeaders
-            , @RequestParam(required = true) String applicationId
+            , @RequestParam
+//             (required = true)
+             (required = false)
+             String applicationId
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);

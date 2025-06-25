@@ -34,7 +34,9 @@ public interface UserPermissionRepository extends JpaRepository<UserPermissionEn
             "and a.application_id = ar.application_id " +
             "where 1=1 " +
             "and u.user_id = :userId " +
-            "and a.application_id = :applicationId " +
+            "and (:applicationId is null " +
+              "or (:applicationId is not null and a.application_id = :applicationId) " +
+            ") " +
             ") as xxx1 " +
             "";
     @Query(value = SQL_FIND_BY_USER_ID_AND_APPLICATION_ID

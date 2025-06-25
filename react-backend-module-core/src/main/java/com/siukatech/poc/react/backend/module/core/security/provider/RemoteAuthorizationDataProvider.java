@@ -104,11 +104,13 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
         log.debug("findPermissionsByUserIdAndTokenValue - start");
         List<UserPermissionDto> userPermissionDtoList = new ArrayList<>();
         //
+        String applicationId = this.appCoreProp.getApplicationId();
         String myPermissionInfoUrl = this.appCoreProp.getMyPermissionInfoUrl();
         if (StringUtils.isNotEmpty(myPermissionInfoUrl)) {
             UriComponentsBuilder myPermissionInfoUriBuilder = UriComponentsBuilder
                     .fromUriString(myPermissionInfoUrl)
-                    .queryParam(PARAM_APPLICATION_ID, this.appCoreProp.getApplicationId());
+//                    .queryParam(PARAM_APPLICATION_ID, applicationId)
+                    ;
             String myPermissionInfoUri = myPermissionInfoUriBuilder.encode().toUriString();
             HttpHeaders httpHeaders = new HttpHeaders();
             prepareHttpHeaders(httpHeaders, tokenValue);
@@ -122,11 +124,12 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
                     );
             MyPermissionDto myPermissionDto = responseEntity.getBody();
             log.debug("findPermissionsByUserIdAndTokenValue - userId: [{}]"
+                            + ", applicationId: [{}]"
                             + ", myPermissionInfoUri: [{}]"
                             + ", userPermissionInfoDto.getUserId: [{}]"
                             + ", userPermissionDtoList.size: [{}]"
 //                + ", responseEntity.getBody.toString: [{}]"
-                    , userId, myPermissionInfoUri
+                    , userId, applicationId, myPermissionInfoUri
                     , (Objects.isNull(myPermissionDto) ? "NULL" : myPermissionDto.getUserId())
                     , (Objects.isNull(myPermissionDto) ? "NULL" : myPermissionDto.getUserPermissionList().size())
 //                , responseEntity.getBody().toString()
@@ -165,11 +168,13 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
         log.debug("findDossierByUserIdAndTokenValue - start");
         UserDossierDto userDossierDto = null;
         //
+        String applicationId = this.appCoreProp.getApplicationId();
         String myUserDossierUrl = this.appCoreProp.getMyUserDossierUrl();
         if (StringUtils.isNotEmpty(myUserDossierUrl)) {
             UriComponentsBuilder myUserDossierUriBuilder = UriComponentsBuilder
                     .fromUriString(myUserDossierUrl)
-                    .queryParam(PARAM_APPLICATION_ID, this.appCoreProp.getApplicationId());
+//                    .queryParam(PARAM_APPLICATION_ID, applicationId)
+                    ;
             String myUserDossierUri = myUserDossierUriBuilder.encode().toUriString();
             HttpHeaders httpHeaders = new HttpHeaders();
             prepareHttpHeaders(httpHeaders, tokenValue);
@@ -180,10 +185,12 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
                     , UserDossierDto.class
             );
             userDossierDto = responseEntity.getBody();
-            log.debug("findDossierByUserIdAndTokenValue - userId: [{}], myUserDossierUri: [{}]"
+            log.debug("findDossierByUserIdAndTokenValue - userId: [{}]"
+                            + ", applicationId: [{}]"
+                            + ", myUserDossierUri: [{}]"
                             + ", userDossierDto.getUserDto: [{}]"
                             + ", userDossierDto.getUserPermissionList.size: [{}]"
-                    , userId, myUserDossierUri
+                    , userId, applicationId, myUserDossierUri
                     , (Objects.isNull(userDossierDto) ? "NULL" : userDossierDto.getUserDto())
                     , (Objects.isNull(userDossierDto) ? "NULL" : userDossierDto.getUserPermissionList().size())
             );
