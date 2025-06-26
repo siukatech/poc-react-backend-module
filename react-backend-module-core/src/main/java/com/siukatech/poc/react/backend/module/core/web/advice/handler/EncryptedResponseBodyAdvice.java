@@ -7,6 +7,7 @@ import com.siukatech.poc.react.backend.module.core.business.form.encrypted.Encry
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.web.context.EncryptedBodyContext;
 import com.siukatech.poc.react.backend.module.core.web.advice.helper.EncryptedBodyAdviceHelper;
+import com.siukatech.poc.react.backend.module.core.web.context.EncryptedBodyContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -16,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
@@ -103,6 +106,10 @@ public class EncryptedResponseBodyAdvice implements ResponseBodyAdvice {
                 + "], encryptedBodyDetail.encryptedInfoModel.key: [" + (encryptedDetail == null ? "NULL" : encryptedDetail.encryptedInfo().key())
                 + "], encryptedRsaDataBase64: [" + encryptedRsaDataBase64
                 + "]");
+
+        EncryptedBodyContext encryptedBodyContextForDebug = this.resolveEncryptedBodyContext();
+        log.debug("beforeBodyWrite - encryptedBodyContextForDebug: [{}]", encryptedBodyContextForDebug);
+
 //        if (userEntity == null) {
 //            String finalUserId = userId;
 //            userEntity = this.userRepository.findByUserId(userId)
@@ -189,4 +196,14 @@ public class EncryptedResponseBodyAdvice implements ResponseBodyAdvice {
             throw new RuntimeException(e);
         }
     }
+
+    public EncryptedBodyContext resolveEncryptedBodyContext() {
+        EncryptedBodyContext encryptedBodyContext = (EncryptedBodyContext) RequestContextHolder
+                .currentRequestAttributes()
+                .getAttribute(
+                        EncryptedBodyContext.CONTEXT_NAME, RequestAttributes.SCOPE_REQUEST
+                );
+        return encryptedBodyContext;
+    }
+
 }

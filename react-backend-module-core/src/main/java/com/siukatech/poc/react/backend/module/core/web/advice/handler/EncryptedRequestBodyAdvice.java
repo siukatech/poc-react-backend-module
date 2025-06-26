@@ -5,8 +5,9 @@ import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.form.encrypted.EncryptedDetail;
 import com.siukatech.poc.react.backend.module.core.business.form.encrypted.EncryptedInfo;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
-import com.siukatech.poc.react.backend.module.core.web.context.EncryptedBodyContext;
 import com.siukatech.poc.react.backend.module.core.web.advice.helper.EncryptedBodyAdviceHelper;
+import com.siukatech.poc.react.backend.module.core.web.context.EncryptedBodyContext;
+import com.siukatech.poc.react.backend.module.core.web.context.EncryptedBodyContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -17,12 +18,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.UUID;
 
 /**
  * Reference:
@@ -170,6 +174,9 @@ public class EncryptedRequestBodyAdvice extends RequestBodyAdviceAdapter {
 //            this.encryptedBodyContext.setUserEntity(userEntity);
             this.encryptedBodyContext.setMyKeyDto(myKeyDto);
             this.encryptedBodyContext.setEncryptedDetail(encryptedDetail);
+            this.encryptedBodyContext.setObjectId(UUID.randomUUID().toString());
+
+            this.prepareEncryptedBodyContext(myKeyDto, encryptedDetail);
 
 //            byte[] decryptedData = body;
 //            log.debug("beforeBodyRead - body: [" + new String(decryptedData) + "]");
@@ -204,4 +211,15 @@ public class EncryptedRequestBodyAdvice extends RequestBodyAdviceAdapter {
                 + "]");
         return body;
     }
+
+    public void prepareEncryptedBodyContext(MyKeyDto myKeyDto, EncryptedDetail encryptedDetail) {
+        EncryptedBodyContext encryptedBodyContext = new EncryptedBodyContext();
+        encryptedBodyContext.setMyKeyDto(myKeyDto);
+        encryptedBodyContext.setEncryptedDetail(encryptedDetail);
+        encryptedBodyContext.setObjectId(UUID.randomUUID().toString());
+        RequestAttributes currentRequestAttributes = RequestContextHolder.currentRequestAttributes();
+        currentRequestAttributes.setAttribute(EncryptedBodyContext.CONTEXT_NAME, encryptedBodyContext, RequestAttributes.SCOPE_REQUEST);
+        RequestContextHolder.setRequestAttributes(currentRequestAttributes);
+    }
+
 }
