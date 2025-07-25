@@ -4,6 +4,10 @@ import org.mapstruct.Named;
 
 import java.util.Optional;
 
+/**
+ * The @Named annotation is unnecessary.
+ * After the removal of @Named annotation, Mapstruct can generate implementation class correctly.
+ */
 public interface AbstractMapper {
 
 //    @Named("wrapOptional")
