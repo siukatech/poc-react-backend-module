@@ -6,12 +6,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Slf4j
 @Data
-@Configuration
+//@Configuration
+@Component
 @ConfigurationProperties("spring.security.oauth2.resource-server")
 public class OAuth2ResourceServerExtProp implements InitializingBean {
     private Map<String, OAuth2ResourceServerProperties.Jwt> jwt;
