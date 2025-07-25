@@ -34,6 +34,7 @@ public class ApplicationEntity extends AbstractEntity<String> {
     @Column(name = "name")
     private String name;
 
+    // FIXME, Remove OneToMany
     @ToString.Exclude
     @OneToMany(mappedBy = "applicationEntity"
 //            , fetch = FetchType.EAGER
@@ -41,6 +42,7 @@ public class ApplicationEntity extends AbstractEntity<String> {
 //    @Fetch(FetchMode.SUBSELECT)
     private List<AppResourceEntity> appResourceEntities;
 
+    // FIXME, Remove OneToMany
     @ToString.Exclude
     @OneToMany(mappedBy = "applicationEntity", fetch = FetchType.EAGER)
     private List<UserPermissionJpaEntity> userPermissionJpaEntities;

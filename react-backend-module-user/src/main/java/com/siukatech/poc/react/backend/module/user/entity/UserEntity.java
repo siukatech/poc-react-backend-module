@@ -45,6 +45,7 @@ import java.util.List;
 )
 public class UserEntity extends AbstractUserEntity {
 
+    // FIXME, Remove OneToMany
     @ToString.Exclude
     @OneToMany(mappedBy = "userEntity", fetch = FetchType.EAGER)
     private List<UserRoleUserEntity> userRoleUserEntities;

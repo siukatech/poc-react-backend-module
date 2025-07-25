@@ -34,6 +34,7 @@ public class AppResourceEntity extends AbstractEntity<String> {
     @JoinColumn(name = "application_id", referencedColumnName = "application_id")
     private ApplicationEntity applicationEntity;
 
+    // Removed, OneToMany
 //    @ToString.Exclude
 //    @OneToMany(mappedBy = "appResourceEntity", fetch = FetchType.EAGER)
 //    private List<UserPermissionJpaEntity> userPermissionJpaEntities;

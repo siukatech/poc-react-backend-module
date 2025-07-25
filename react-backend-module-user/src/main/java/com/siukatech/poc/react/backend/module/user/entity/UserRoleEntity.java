@@ -36,10 +36,12 @@ public class UserRoleEntity extends AbstractEntity<String> {
     @Column(name = "name")
     private String name;
 
+    // FIXME, Remove OneToMany
     @ToString.Exclude
     @OneToMany(mappedBy = "userRoleEntity", fetch = FetchType.EAGER)
     private List<UserRoleUserEntity> userRoleUserEntities;
 
+    // FIXME, Remove OneToMany
     @ToString.Exclude
     @OneToMany(mappedBy = "userRoleEntity", fetch = FetchType.EAGER)
     private List<UserPermissionJpaEntity> userPermissionJpaEntities;
