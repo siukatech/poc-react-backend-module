@@ -28,8 +28,8 @@ public class AddressService {
     }
 
     @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}, key = "#addressId")
-    public AddressModel getAddressModelById(String addressId) {
-        log.debug("getAddressModelById - addressId: [{}]", addressId);
+    public AddressModel getAddressModelById(String addressId, String label) {
+        log.debug("getAddressModelById - label: [{}], addressId: [{}]", label, addressId);
         AddressModel addressModel = this.addressModelMap.get(addressId);
         return addressModel;
     }

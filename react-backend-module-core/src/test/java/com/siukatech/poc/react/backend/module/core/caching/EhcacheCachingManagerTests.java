@@ -3,12 +3,19 @@ package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
 import com.siukatech.poc.react.backend.module.core.caching.config.EhcacheCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.model.AddressModel;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestComponent;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.List;
 
@@ -108,7 +115,7 @@ public class EhcacheCachingManagerTests extends AbstractCachingManagerTests {
 //        assertThat(addressCache02.toString()).isEqualTo(addressModel01.toString());
 ////        assertThat(addressCache02b.toString()).isEqualTo(addressCache01.toString());
 //        assertThat(addressCache02b.toString()).isEqualTo(addressModel02.toString());
-        super.test_getAddressModelById_basic();
+        super.test_getAddressModelById_basic(true);
     }
 
     @Test
@@ -156,7 +163,7 @@ public class EhcacheCachingManagerTests extends AbstractCachingManagerTests {
 //        assertThat(addressCache01.toString()).isEqualTo(addressCache02.toString());
 //        assertThat(addressCache02.toString()).isEqualTo(addressModel01.toString());
 //        assertThat(addressCache02b.toString()).isEqualTo(addressModel02.toString());
-        super.test_getAddressModelById_ttl_exceeded_1s(1000L);
+        super.test_getAddressModelById_ttl_exceeded_1s(1000L, true);
     }
 
 }

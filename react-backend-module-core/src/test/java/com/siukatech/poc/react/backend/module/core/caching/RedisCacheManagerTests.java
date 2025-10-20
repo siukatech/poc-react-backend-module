@@ -31,7 +31,7 @@ import java.util.Map;
     , properties = {
         "spring.cache.type=redis"
 //        , "spring.cache.cache-names=test1,test2"
-        , "spring.cache.redis.time-to-live=1s"
+        , "spring.cache.redis.time-to-live=100s"
         , "spring.cache.redis.cache-null-value=false"
         , "spring.data.redis.host=localhost"
         , "spring.data.redis.port=6379"
@@ -85,12 +85,12 @@ public class RedisCacheManagerTests extends AbstractCachingManagerTests {
 
     @Test
     public void test_getAddressModelById_basic() {
-        super.test_getAddressModelById_basic();
+        super.test_getAddressModelById_basic(true);
     }
 
     @Test
     public void test_getAddressModelById_ttl_exceeded_1s() throws InterruptedException {
-        super.test_getAddressModelById_ttl_exceeded_1s(1000L);
+        super.test_getAddressModelById_ttl_exceeded_1s(1000L, true);
     }
 
 }

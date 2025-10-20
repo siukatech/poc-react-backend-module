@@ -18,7 +18,7 @@ import java.util.List;
     , properties = {
         "spring.cache.type=simple"
         , "spring.cache.cache-names=test1,test2"
-//        , "spring.cache.redis.time-to-live=1s"
+//        , "spring.cache.redis.time-to-live=100s"
         , "logging.level.root=INFO"
         , "logging.level.com.siukatech.poc.react.backend.module.core.caching=DEBUG"
     }
@@ -100,7 +100,7 @@ public class SimpleCacheManagerTests extends AbstractCachingManagerTests {
 //        assertThat(addressCache02.toString()).isEqualTo(addressModel01.toString());
 ////        assertThat(addressCache02b.toString()).isEqualTo(addressCache01.toString());
 //        assertThat(addressCache02b.toString()).isEqualTo(addressModel02.toString());
-        super.test_getAddressModelById_basic();
+        super.test_getAddressModelById_basic(true);
     }
 
     // No time to live for SimpleCacheManager
