@@ -308,6 +308,7 @@ public class WebSecurityConfig {
         );
 //        http.oauth2ResourceServer(Customizer.withDefaults());
 
+        // Add exceptionHandlerFilter before BearerTokenAuthenticationFilter
         http.addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class);
         http.addFilterAfter(authorizationDataFilter, BasicAuthenticationFilter.class);
 
