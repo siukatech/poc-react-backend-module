@@ -2,6 +2,7 @@ package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
 import com.siukatech.poc.react.backend.module.core.caching.config.SimpleCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
@@ -12,7 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 
 @Slf4j
-@SpringBootTest(classes = {SimpleCachingConfig.class
+@SpringBootTest(classes = {
+        CacheExceptionHandler.class
+        , SimpleCachingConfig.class
         , AddressService.class
     }
     , properties = {

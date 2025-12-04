@@ -1,19 +1,21 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
+import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachingConfigurer;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
 //@EnableCaching  // This is not working.
-public abstract class DefaultCachingConfig implements InitializingBean {
+public abstract class DefaultCachingConfig implements InitializingBean, CachingConfigurer {
 
     public static final String CACHE_NAME_DEFAULT = "default";
     public static final String CACHE_NAME_AUTH = "auth";
@@ -26,6 +28,11 @@ public abstract class DefaultCachingConfig implements InitializingBean {
     @Value("${spring.cache.cache-names:" + CACHE_NAME_DEFAULT + "}")
     private List<String> cacheNames;
     private List<String> cacheNameListWithDefaults;
+    private final CacheExceptionHandler cacheExceptionHandler;
+
+    protected DefaultCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
+        this.cacheExceptionHandler = cacheExceptionHandler;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -45,4 +52,8 @@ public abstract class DefaultCachingConfig implements InitializingBean {
         return this.cacheNameListWithDefaults;
     }
 
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return this.cacheExceptionHandler;
+    }
 }

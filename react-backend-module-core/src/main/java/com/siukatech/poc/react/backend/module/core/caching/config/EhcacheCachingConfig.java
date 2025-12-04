@@ -1,10 +1,13 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
+import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +31,10 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
      */
     @Value("${spring.cache.ehcache.time-to-live:10m}")
     private java.time.Duration timeToLive;
+
+    public EhcacheCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
+        super(cacheExceptionHandler);
+    }
 
     @Bean
     public MutableConfiguration<String, Object> mutableConfiguration() {

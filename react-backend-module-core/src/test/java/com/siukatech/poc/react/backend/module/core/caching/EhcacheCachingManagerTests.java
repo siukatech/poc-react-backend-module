@@ -3,6 +3,7 @@ package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
 import com.siukatech.poc.react.backend.module.core.caching.config.EhcacheCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
 import com.siukatech.poc.react.backend.module.core.caching.model.AddressModel;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,9 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.List;
 
 @Slf4j
-@SpringBootTest(classes = {EhcacheCachingConfig.class
+@SpringBootTest(classes = {
+        CacheExceptionHandler.class
+        , EhcacheCachingConfig.class
         , AddressService.class
     }
     , properties = {

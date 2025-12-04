@@ -1,14 +1,16 @@
 package com.siukatech.poc.react.backend.module.core.caching;
 
-import com.siukatech.poc.react.backend.module.core.caching.config.EhcacheCachingConfig;
-import com.siukatech.poc.react.backend.module.core.caching.config.SimpleCachingConfig;
-import com.siukatech.poc.react.backend.module.core.caching.config.RedisCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.config.*;
+import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
 import org.springframework.context.annotation.Import;
 
 @Import({
-        SimpleCachingConfig.class
+        CacheExceptionHandler.class
+        , SimpleCachingConfig.class
         , EhcacheCachingConfig.class
         , RedisCachingConfig.class
+        , CaffeineCachingConfig.class
+        , CaffeineRedisCachingConfig.class
 })
 public class CachingConfigImport {
 }

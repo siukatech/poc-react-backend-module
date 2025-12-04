@@ -1,25 +1,19 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
+import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.CaffeineCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.cache.jcache.JCacheCacheManager;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.cache.Caching;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.spi.CachingProvider;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Reference:
@@ -36,7 +30,9 @@ public class CaffeineCachingConfig extends DefaultCachingConfig {
 
     private final CaffeineCachingHelper caffeineCachingHelper;
 
-    public CaffeineCachingConfig(CaffeineCachingHelper caffeineCachingHelper) {
+    public CaffeineCachingConfig(CaffeineCachingHelper caffeineCachingHelper
+            , CacheExceptionHandler cacheExceptionHandler) {
+        super(cacheExceptionHandler);
         this.caffeineCachingHelper = caffeineCachingHelper;
     }
 
