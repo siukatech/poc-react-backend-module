@@ -31,6 +31,7 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
 
     @Bean
     public MutableConfiguration<String, Object> mutableConfiguration() {
+        log.debug("ehcacheCacheManager - timeToLive.getSeconds: [{}]", timeToLive.getSeconds());
         MutableConfiguration<String, Object> configuration = new MutableConfiguration<>();
         configuration
                 .setExpiryPolicyFactory(
@@ -40,6 +41,8 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
                 )
                 .setTypes(String.class, Object.class)
                 .setStoreByValue(false)
+                .setStatisticsEnabled(true)
+                .setManagementEnabled(true)
         ;
         return configuration;
     }

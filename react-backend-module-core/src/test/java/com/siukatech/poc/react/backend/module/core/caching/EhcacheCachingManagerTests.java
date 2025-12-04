@@ -7,6 +7,7 @@ import com.siukatech.poc.react.backend.module.core.caching.model.AddressModel;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,11 @@ public class EhcacheCachingManagerTests extends AbstractCachingManagerTests {
     public void setup2() {
         log.debug("setup2");
         super.setup_cacheManager();
+    }
+
+    @AfterAll
+    public static void teardown() {
+
     }
 
     @Test

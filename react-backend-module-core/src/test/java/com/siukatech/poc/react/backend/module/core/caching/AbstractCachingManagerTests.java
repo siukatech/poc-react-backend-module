@@ -59,18 +59,18 @@ public abstract class AbstractCachingManagerTests extends AbstractUnitTests {
                 , "street-01"
                 , "district-01"
         );
-        log.debug("test_getAddressModelById - saveAddressModel - 1, hasAssertion: [{}] - before", hasAssertion);
+        log.debug("test_getAddressModelById - saveAddressModel - 1, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
         this.addressService.saveAddressModel(addressModel01);
-        log.debug("test_getAddressModelById - saveAddressModel - 1, hasAssertion: [{}] - after, addressModel01: [{}]", hasAssertion, addressModel01);
+        log.debug("test_getAddressModelById - saveAddressModel - 1, isTtlExceeded: [{}], hasAssertion: [{}] - after, addressModel01: [{}]", isTtlExceeded, hasAssertion, addressModel01);
 
         // when
-        log.debug("test_getAddressModelById - getAddressModelById - 1, hasAssertion: [{}] - before", hasAssertion);
+        log.debug("test_getAddressModelById - getAddressModelById - 1, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
         AddressModel addressCache01 = this.addressService.getAddressModelById(addressId, "1");
-        log.debug("test_getAddressModelById - getAddressModelById - 1, hasAssertion: [{}] - after, addressCache01: [{}]", hasAssertion, addressCache01);
+        log.debug("test_getAddressModelById - getAddressModelById - 1, isTtlExceeded: [{}], hasAssertion: [{}] - after, addressCache01: [{}]", isTtlExceeded, hasAssertion, addressCache01);
         //
         Cache cacheDefault = this.cacheManager.getCache("default");
         Object cachedObject01 = cacheDefault == null ? null : cacheDefault.get(addressId);
-        log.debug("test_getAddressModelById - cacheDefault - 1, hasAssertion: [{}] - cachedObject01: [{}]", hasAssertion, cachedObject01);
+        log.debug("test_getAddressModelById - cacheDefault - 1, isTtlExceeded: [{}], hasAssertion: [{}] - cachedObject01: [{}]", isTtlExceeded, hasAssertion, cachedObject01);
         //
         AddressModel addressModel02 = new AddressModel(
                 addressId
@@ -78,49 +78,65 @@ public abstract class AbstractCachingManagerTests extends AbstractUnitTests {
                 , "street-02"
                 , "district-02"
         );
-        log.debug("test_getAddressModelById - saveAddressModel - 2, hasAssertion: [{}] - before", hasAssertion);
+        log.debug("test_getAddressModelById - saveAddressModel - 2, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
         this.addressService.saveAddressModel(addressModel02);
-        log.debug("test_getAddressModelById - saveAddressModel - 2, hasAssertion: [{}] - after, addressModel02: [{}]", hasAssertion, addressModel02);
+        log.debug("test_getAddressModelById - saveAddressModel - 2, isTtlExceeded: [{}], hasAssertion: [{}] - after, addressModel02: [{}]", isTtlExceeded, hasAssertion, addressModel02);
         //
-        log.debug("test_getAddressModelById - getAddressModelById - 2, hasAssertion: [{}] - before", hasAssertion);
+        log.debug("test_getAddressModelById - getAddressModelById - 2, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
         AddressModel addressCache02 = this.addressService.getAddressModelById(addressId, "2");
-        log.debug("test_getAddressModelById - getAddressModelById - 2, hasAssertion: [{}] - after, addressCache02: [{}]", hasAssertion, addressCache02);
+        log.debug("test_getAddressModelById - getAddressModelById - 2, isTtlExceeded: [{}], hasAssertion: [{}] - after, addressCache02: [{}]", isTtlExceeded, hasAssertion, addressCache02);
         //
-        log.debug("test_getAddressModelById - printAddressModelMap - 2, hasAssertion: [{}] - before", hasAssertion);
+        log.debug("test_getAddressModelById - printAddressModelMap - 2, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
         this.addressService.printAddressModelMap();
-        log.debug("test_getAddressModelById - printAddressModelMap - 2, hasAssertion: [{}] - after", hasAssertion);
+        log.debug("test_getAddressModelById - printAddressModelMap - 2, isTtlExceeded: [{}], hasAssertion: [{}] - after", isTtlExceeded, hasAssertion);
         //
         if (!isTtlExceeded) {
-            log.debug("test_getAddressModelById - evictAllCacheValues - 2, hasAssertion: [{}] - before", hasAssertion);
+            log.debug("test_getAddressModelById - evictAllCacheValues - 2, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
             this.addressService.evictAllCacheValues();
-            log.debug("test_getAddressModelById - evictAllCacheValues - 2, hasAssertion: [{}] - after", hasAssertion);
+            log.debug("test_getAddressModelById - evictAllCacheValues - 2, isTtlExceeded: [{}], hasAssertion: [{}] - after", isTtlExceeded, hasAssertion);
         }
         else {
             try {
-                log.debug("test_getAddressModelById - Thread.sleep - 2, hasAssertion: [{}] - before - definedTtl: [{}]", hasAssertion, definedTtl);
+                log.debug("test_getAddressModelById - Thread.sleep - 2, isTtlExceeded: [{}], hasAssertion: [{}] - before - definedTtl: [{}]", isTtlExceeded, hasAssertion, definedTtl);
                 Thread.sleep(definedTtl + 500);
-                log.debug("test_getAddressModelById - Thread.sleep - 2, hasAssertion: [{}] - after", hasAssertion);
+                log.debug("test_getAddressModelById - Thread.sleep - 2, isTtlExceeded: [{}], hasAssertion: [{}] - after", isTtlExceeded, hasAssertion);
             }
             catch (InterruptedException e) {
                 log.error(e.getMessage(), e);
             }
         }
         //
-        log.info("test_getAddressModelById - getAddressModelById - 3, hasAssertion: [{}] - before", hasAssertion);
+        log.info("test_getAddressModelById - getAddressModelById - 3, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
         AddressModel addressCache02b = this.addressService.getAddressModelById(addressId, "3");
-        log.info("test_getAddressModelById - getAddressModelById - 3, hasAssertion: [{}] - after, addressCache02b: [{}]", hasAssertion, addressCache02b);
+        log.info("test_getAddressModelById - getAddressModelById - 3, isTtlExceeded: [{}], hasAssertion: [{}] - after, addressCache02b: [{}]", isTtlExceeded, hasAssertion, addressCache02b);
         //
-        log.info("test_getAddressModelById - printAddressModelMap - 3, hasAssertion: [{}] - before", hasAssertion);
+        log.info("test_getAddressModelById - printAddressModelMap - 3, isTtlExceeded: [{}], hasAssertion: [{}] - before", isTtlExceeded, hasAssertion);
         this.addressService.printAddressModelMap();
-        log.debug("test_getAddressModelById - printAddressModelMap - 3, hasAssertion: [{}] - after", hasAssertion);
+        log.debug("test_getAddressModelById - printAddressModelMap - 3, isTtlExceeded: [{}], hasAssertion: [{}] - after", isTtlExceeded, hasAssertion);
 
         // then
         if (hasAssertion) {
             // assertThat(actual).isEqualTo(expected)
             assertThat(addressCache01.toString()).isEqualTo(addressCache02.toString());
             assertThat(addressCache02.toString()).isEqualTo(addressModel01.toString());
-//        assertThat(addressCache02b.toString()).isEqualTo(addressCache01.toString());
-            assertThat(addressCache02b.toString()).isEqualTo(addressModel02.toString());
+            if (!isTtlExceeded) {
+                // cache evicted
+                // the addressCache02b resolved from addressService.getAddressModelById
+                // no cache, value is same as database
+                assertThat(addressCache02b.toString()).isEqualTo(addressModel02.toString());
+            }
+            else {
+//                // cache existed - not expired
+//                // the definedTtl should be different with the configuration like 'spring.cache.redis.time-to-live=2s'
+//                // the addressCache02b resolved from addressService.getAddressModelById
+//                // having cache, value is same as cache
+//                assertThat(addressCache02b.toString()).isEqualTo(addressCache01.toString());
+                //
+                // actually cache should be expired
+                // the addressCache02b resolved from addressService.getAddressModelById
+                // no cache, value is same as database
+                assertThat(addressCache02b.toString()).isEqualTo(addressModel02.toString());
+            }
         }
     }
 

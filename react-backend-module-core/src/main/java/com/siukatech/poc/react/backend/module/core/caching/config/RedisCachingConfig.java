@@ -110,6 +110,7 @@ public class RedisCachingConfig extends DefaultCachingConfig {
 
     @Bean(name = "cacheManager")
     public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+        log.debug("redisCacheManager - timeToLive.getSeconds: [{}]", timeToLive.getSeconds());
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
                 .defaultCacheConfig()
                 .entryTtl(this.timeToLive);
