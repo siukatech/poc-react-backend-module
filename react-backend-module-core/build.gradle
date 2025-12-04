@@ -89,6 +89,7 @@ dependencies {
 //    api 'org.springframework:spring-context-support'
     api 'javax.cache:cache-api:1.1.1'
     api 'org.ehcache:ehcache:3.10.8'
+    api 'com.github.ben-manes.caffeine:caffeine:3.2.3'
 
     api 'org.springframework.boot:spring-boot-starter-data-redis'
 //	api 'org.springframework.data:spring-data-redis'
@@ -116,7 +117,7 @@ dependencies {
 ////	api 'io.opentelemetry:opentelemetry-sdk'
 //	api 'io.opentelemetry:opentelemetry-context'
 
-    api 'org.apache.commons:commons-lang3:3.12.0'
+    api 'org.apache.commons:commons-lang3:3.18.0'
     api 'commons-io:commons-io:2.15.1'
 
     api 'org.modelmapper:modelmapper:3.1.1'
@@ -142,7 +143,7 @@ dependencies {
 //    api 'org.apache.httpcomponents.core5:httpcore5:5.2.4'
 //    api 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
     api 'org.apache.httpcomponents.core5:httpcore5:5.3.1'
-    api 'org.apache.httpcomponents.client5:httpclient5:5.4.1'
+    api 'org.apache.httpcomponents.client5:httpclient5:5.4.3'
 
     api 'commons-codec:commons-codec:1.17.0'
 

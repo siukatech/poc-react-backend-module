@@ -1,9 +1,10 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -11,13 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
-
-import javax.cache.configuration.MutableConfiguration;
-import java.util.Objects;
 
 
 @Slf4j
@@ -76,14 +72,17 @@ public class RedisCachingConfig extends DefaultCachingConfig {
      */
     @Bean
     public RedisTemplate<?, ?> redisTemplate(
-            RedisConnectionFactory connectionFactory
-//            , ObjectMapper objectMapper
+            RedisConnectionFactory redisConnectionFactory
+            , RedisCachingHelper redisCachingHelper
+            , ObjectMapper objectMapper
     ) {
-        RedisTemplate<byte[], byte[]> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-//        template.setKeySerializer(new StringRedisSerializer());
-////        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-//        template.setValueSerializer(new JdkSerializationRedisSerializer());
+//        RedisTemplate<byte[], byte[]> template = new RedisTemplate<>();
+//        template.setConnectionFactory(redisConnectionFactory);
+////        template.setKeySerializer(new StringRedisSerializer());
+//////        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
+////        template.setValueSerializer(new JdkSerializationRedisSerializer());
+        RedisTemplate<byte[], byte[]> template = redisCachingHelper
+                .resolveRedisTemplate(redisConnectionFactory, objectMapper);
         return template;
     }
 

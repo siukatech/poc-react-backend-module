@@ -1,7 +1,9 @@
 package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.caching.config.RedisCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.redis.TestRedisConfig;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ import java.util.Map;
 @Slf4j
 @SpringBootTest(classes = {RedisCachingConfig.class
         , AddressService.class
+        , RedisCachingHelper.class
+        , ObjectMapper.class
     }
     , properties = {
         "spring.cache.type=redis"

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -36,6 +37,9 @@ public class MapperConfig {
                 .serializationInclusion(JsonInclude.Include.NON_NULL)
                 .serializationInclusion(JsonInclude.Include.NON_EMPTY)
 //                .configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+                .serializationInclusion(JsonInclude.Include.NON_ABSENT)
+
+                .addModule(new Jdk8Module())
 
                 // here is configured for encrypted data in EncryptedRequestBodyAdvice and EncryptedResponseBodyAdvice
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)

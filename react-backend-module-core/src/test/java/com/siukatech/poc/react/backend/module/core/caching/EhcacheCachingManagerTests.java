@@ -44,6 +44,7 @@ public class EhcacheCachingManagerTests extends AbstractCachingManagerTests {
 //    @Autowired
 //    private AddressService addressService;
 
+
     @BeforeEach
     public void setup() {
         this.initMemoryAppender(
