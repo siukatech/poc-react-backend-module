@@ -60,6 +60,7 @@ public class CaffeineRedisCachingConfig extends DefaultCachingConfig {
 
         CompositeCacheManager compositeCacheManager =
                 new CompositeCacheManager(caffeineCacheManager, redisCacheManager);
+//                new CompositeCacheManager(redisCacheManager, caffeineCacheManager);
         compositeCacheManager.setFallbackToNoOpCache(false);
 
         return compositeCacheManager;

@@ -229,6 +229,7 @@ public class WebSecurityConfig {
                                 , AntPathRequestMatcher.antMatcher("/login")
                                 , AntPathRequestMatcher.antMatcher("/logout")
                                 , AntPathRequestMatcher.antMatcher("/error")
+                                , AntPathRequestMatcher.antMatcher("/actuator/**")
 
                                 // Only /v*/public/** is allowed to permit without security checking
 //                                , AntPathRequestMatcher.antMatcher("/v*" + PublicController.REQUEST_MAPPING_URI_PREFIX + "/**")
