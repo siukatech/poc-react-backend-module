@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @EnableReactBackend
-@Import(value = {
+@Import({
         UserSupportConfig.class
 })
 public @interface EnableUserSupport {

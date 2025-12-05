@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 // The following @ContextConfiguration and @Import are not working with MockitoExtension.
 // Use @Import to add Config class, @ContextConfiguration is not working
 ////@ContextConfiguration(classes = {WebConfig.class})
-//@Import(value = {UserServiceTests.TestConfig.class})
+//@Import({UserServiceTests.TestConfig.class})
 public class UserServiceTests extends AbstractUnitTests {
 
     @InjectMocks

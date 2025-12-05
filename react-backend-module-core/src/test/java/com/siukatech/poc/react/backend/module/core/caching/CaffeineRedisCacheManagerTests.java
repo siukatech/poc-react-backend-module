@@ -2,7 +2,7 @@ package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.config.RedisCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.config.CaffeineRedisCachingConfig;
 import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +14,9 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.cache.support.CompositeCacheManager;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Reference:
@@ -28,16 +26,16 @@ import java.util.Map;
 @Slf4j
 @SpringBootTest(classes = {
         CacheExceptionHandler.class
-        , RedisCachingConfig.class
+        , CaffeineRedisCachingConfig.class
         , AddressService.class
-//        , RedisCachingHelper.class
         , ObjectMapper.class
     }
     , properties = {
-        "spring.cache.type=redis"
+        "spring.cache.type=caffeine-redis"
 //        , "spring.cache.cache-names=test1,test2"
-        , "spring.cache.redis.time-to-live=2s"
-        , "spring.cache.redis.cache-null-value=false"
+        , "spring.cache.caffeine-redis.time-to-live=2s"
+        //
+//        , "spring.cache.redis.cache-null-value=false"
         , "spring.data.redis.host=localhost"
         , "spring.data.redis.port=6379"
         , "logging.level.root=INFO"
@@ -49,20 +47,13 @@ import java.util.Map;
         , RedisAutoConfiguration.class
 })
 //@Import({RedisServerConfig.class})
-//public class RedisCacheManagerTests {
-public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
-
-//    @Autowired
-//    private CacheManager cacheManager;
-
-//    @Autowired
-//    private AddressService addressService;
+public class CaffeineRedisCacheManagerTests extends AbstractRedisCacheManagerTests {
 
     @BeforeEach
     public void setup() {
         this.initMemoryAppender(
                 List.of(
-                        Pair.with(RedisCacheManagerTests.class.getPackageName(), Level.DEBUG)
+                        Pair.with(CaffeineRedisCacheManagerTests.class.getPackageName(), Level.DEBUG)
                 )
         );
         //
@@ -77,22 +68,14 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
     }
 
     @Test
-    public void test_redisCacheManager_basic() {
-        log.debug("test_redisCacheManager_basic - getCacheNames: [{}]"
+    public void test_caffeineRedisCacheManager_basic() {
+        log.debug("test_caffeineRedisCacheManager_basic - getCacheNames: [{}]"
                 , this.cacheManager.getCacheNames());
-        log.debug("test_redisCacheManager_basic - cacheManager: [{}]"
+        log.debug("test_caffeineRedisCacheManager_basic - cacheManager: [{}]"
                 , this.cacheManager);
         //
-        RedisCacheManager redisCacheManager = (RedisCacheManager) this.cacheManager;
-        Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = redisCacheManager.getCacheConfigurations();
-        log.debug("test_redisCacheManager_basic - redisCacheConfigurationMap: [{}]", redisCacheConfigurationMap);
-        redisCacheConfigurationMap.forEach((k, v) -> {
-            log.debug("test_redisCacheManager_basic - redisCacheConfigurationMap - k: [{}], v: [{}]", k, v);
-            log.debug("test_redisCacheManager_basic - redisCacheConfigurationMap - v.getAllowCacheNullValues: [{}]", v.getAllowCacheNullValues());
-            log.debug("test_redisCacheManager_basic - redisCacheConfigurationMap - v.getKeyPrefix: [{}]", v.getKeyPrefix());
-        });
-        //
-//        super.test_xxxCacheManager_basic("RedisCacheManager");
+        CompositeCacheManager compositeCacheManager = (CompositeCacheManager) this.cacheManager;
+        log.debug("test_caffeineRedisCacheManager_basic - compositeCacheManager: [{}]", compositeCacheManager);
     }
 
     @Test

@@ -6,12 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
-import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.time.Duration;
 
@@ -22,26 +21,23 @@ import java.time.Duration;
 @Slf4j
 @Configuration
 @EnableCaching
+@Import({CaffeineCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "caffeine")
 public class CaffeineCachingConfig extends DefaultCachingConfig {
 
     @Value("${spring.cache.caffeine.time-to-live:10m}")
     private Duration timeToLive;
 
-    private final CaffeineCachingHelper caffeineCachingHelper;
-
-    public CaffeineCachingConfig(CaffeineCachingHelper caffeineCachingHelper
-            , CacheExceptionHandler cacheExceptionHandler) {
+    public CaffeineCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
         super(cacheExceptionHandler);
-        this.caffeineCachingHelper = caffeineCachingHelper;
     }
 
     @Bean(name = "cacheManager")
-    public CacheManager caffeineCacheManager() {
+    public CacheManager caffeineCacheManager(CaffeineCachingHelper caffeineCachingHelper) {
         log.debug("caffeineCacheManager - this.getCacheNameListWithDefaults: [{}]"
                 , this.getCacheNameListWithDefaults());
 
-        CaffeineCacheManager caffeineCacheManager = this.caffeineCachingHelper
+        CaffeineCacheManager caffeineCacheManager = caffeineCachingHelper
                 .resolveCaffeineCacheManager(this.timeToLive, this.getCacheNameListWithDefaults());
 
         return caffeineCacheManager;

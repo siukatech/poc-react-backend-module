@@ -7,12 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +21,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @Configuration
 @EnableCaching
 @EnableRedisRepositories
+@Import({RedisCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "redis")
 public class RedisCachingConfig extends DefaultCachingConfig {
 
@@ -80,8 +79,8 @@ public class RedisCachingConfig extends DefaultCachingConfig {
     @Bean
     public RedisTemplate<?, ?> redisTemplate(
             RedisConnectionFactory redisConnectionFactory
-            , RedisCachingHelper redisCachingHelper
             , ObjectMapper objectMapper
+            , RedisCachingHelper redisCachingHelper
     ) {
 //        RedisTemplate<byte[], byte[]> template = new RedisTemplate<>();
 //        template.setConnectionFactory(redisConnectionFactory);
@@ -90,6 +89,8 @@ public class RedisCachingConfig extends DefaultCachingConfig {
 ////        template.setValueSerializer(new JdkSerializationRedisSerializer());
         RedisTemplate<byte[], byte[]> template = redisCachingHelper
                 .resolveRedisTemplate(redisConnectionFactory, objectMapper);
+        template.afterPropertiesSet();
+        log.debug("redisTemplate - template: [{}]", template);
         return template;
     }
 
@@ -115,21 +116,32 @@ public class RedisCachingConfig extends DefaultCachingConfig {
 //    }
 
     @Bean(name = "cacheManager")
-    public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        log.debug("redisCacheManager - timeToLive.getSeconds: [{}]", timeToLive.getSeconds());
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
-                .defaultCacheConfig()
-                .entryTtl(this.timeToLive);
-        RedisCacheManager.RedisCacheManagerBuilder builder = RedisCacheManager.RedisCacheManagerBuilder
-                .fromConnectionFactory(redisConnectionFactory)
-                .cacheDefaults(redisCacheConfiguration)
-                .allowCreateOnMissingCache(true)
-                ;
-//        this.getCacheNameListWithDefaults().forEach(cacheName -> {
-//            log.debug("redisCacheManager - cacheName: [{}]", cacheName);
-//            builder.withCacheConfiguration(cacheName, redisCacheConfiguration);
-//        });
-        RedisCacheManager redisCacheManager = builder.build();
+    public CacheManager redisCacheManager(
+            RedisConnectionFactory redisConnectionFactory
+            , ObjectMapper objectMapper
+            , RedisCachingHelper redisCachingHelper
+    ) {
+        log.debug("redisCacheManager - timeToLive.getSeconds: [{}]", this.timeToLive.getSeconds());
+//        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
+//                .defaultCacheConfig()
+//                .entryTtl(this.timeToLive);
+//        RedisCacheManager.RedisCacheManagerBuilder builder = RedisCacheManager.RedisCacheManagerBuilder
+//                .fromConnectionFactory(redisConnectionFactory)
+//                .cacheDefaults(redisCacheConfiguration)
+//                .allowCreateOnMissingCache(true)
+//                ;
+////        this.getCacheNameListWithDefaults().forEach(cacheName -> {
+////            log.debug("redisCacheManager - cacheName: [{}]", cacheName);
+////            builder.withCacheConfiguration(cacheName, redisCacheConfiguration);
+////        });
+
+        RedisCacheManager.RedisCacheManagerBuilder redisCacheManagerBuilder =
+                redisCachingHelper
+                        .resolveRedisCacheManagerBuilder(this.timeToLive
+                                , this.getCacheNameListWithDefaults()
+                                , redisConnectionFactory, objectMapper
+                        );
+        RedisCacheManager redisCacheManager = redisCacheManagerBuilder.build();
         return redisCacheManager;
     }
 

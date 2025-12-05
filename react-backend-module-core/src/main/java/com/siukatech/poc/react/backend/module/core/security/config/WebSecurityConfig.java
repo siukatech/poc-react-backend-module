@@ -86,7 +86,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+    public SessionAuthenticationStrategy sessionAuthenticationStrategy() {
         return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
     }
 

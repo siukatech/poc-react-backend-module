@@ -11,12 +11,12 @@ import java.io.IOException;
 
 @Slf4j
 @TestConfiguration
-public class TestRedisConfig {
+public class RedisServerConfig {
 
     private RedisServer redisServer;
 
-    public TestRedisConfig(RedisProperties redisProperties) throws IOException {
-        log.info("TestRedisConfig - redisProperties: [{}]", redisProperties);
+    public RedisServerConfig(RedisProperties redisProperties) throws IOException {
+        log.info("RedisServerConfig - redisProperties: [{}]", redisProperties);
         this.redisServer = new RedisServer(redisProperties.getPort());
     }
 

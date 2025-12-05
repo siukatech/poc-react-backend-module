@@ -2,14 +2,14 @@ package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
-import com.siukatech.poc.react.backend.module.core.caching.helper.CaffeineCachingHelper;
+import com.siukatech.poc.react.backend.module.core.caching.helper.EhcacheCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.cache.support.CompositeCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,37 +18,46 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
-/**
- * Reference:
- * https://baeldung.com/spring-cache-tutorial
- */
+import javax.cache.configuration.MutableConfiguration;
+
 @Slf4j
 @Configuration
 @EnableCaching
-@Import({CaffeineCachingHelper.class, RedisCachingHelper.class})
-@ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "caffeine-redis")
-public class CaffeineRedisCachingConfig extends DefaultCachingConfig {
+@Import({EhcacheCachingHelper.class, RedisCachingHelper.class})
+@ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "ehcache-redis")
+public class EhcacheRedisCachingConfig extends DefaultCachingConfig {
 
-    @Value("${spring.cache.caffeine-redis.time-to-live:10m}")
+    /**
+     * Reference:
+     * https://jdriven.com/blog/2024/10/Spring-Boot-Sweets-Using-Duration-Type-With-Configuration-Properties
+     */
+    @Value("${spring.cache.ehcache-redis.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
-    public CaffeineRedisCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
+    public EhcacheRedisCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
         super(cacheExceptionHandler);
+    }
+
+    @Bean
+    public MutableConfiguration<String, Object> mutableConfiguration(EhcacheCachingHelper ehcacheCachingHelper) {
+        log.debug("mutableConfiguration - timeToLive.getSeconds: [{}]", this.timeToLive.getSeconds());
+        MutableConfiguration<String, Object> mutableConfiguration = ehcacheCachingHelper
+                .resolveMutableConfiguration(this.timeToLive);
+        return mutableConfiguration;
     }
 
     @Primary
     @Bean(name = "cacheManager")
-    public CacheManager caffeineRedisCacheManager(
-            RedisConnectionFactory redisConnectionFactory
+    public CacheManager ehcacheRedisCacheManager(
+            MutableConfiguration<String, Object> mutableConfiguration
+            , RedisConnectionFactory redisConnectionFactory
             , ObjectMapper objectMapper
-            , CaffeineCachingHelper caffeineCachingHelper
+            , EhcacheCachingHelper ehcacheCachingHelper
             , RedisCachingHelper redisCachingHelper
     ) {
-        log.debug("caffeineRedisCacheManager - this.getCacheNameListWithDefaults: [{}]"
-                , this.getCacheNameListWithDefaults());
-
-        CaffeineCacheManager caffeineCacheManager = caffeineCachingHelper
-                .resolveCaffeineCacheManager(this.timeToLive, this.getCacheNameListWithDefaults());
+        JCacheCacheManager jCacheCacheManager = ehcacheCachingHelper
+                .resolveEhcacheCacheManager(mutableConfiguration
+                        , this.getCacheNameListWithDefaults());
 
         RedisCacheManager.RedisCacheManagerBuilder redisCacheManagerBuilder =
                 redisCachingHelper
@@ -59,7 +68,7 @@ public class CaffeineRedisCachingConfig extends DefaultCachingConfig {
         RedisCacheManager redisCacheManager = redisCacheManagerBuilder.build();
 
         CompositeCacheManager compositeCacheManager =
-                new CompositeCacheManager(caffeineCacheManager, redisCacheManager);
+                new CompositeCacheManager(jCacheCacheManager, redisCacheManager);
         compositeCacheManager.setFallbackToNoOpCache(false);
 
         return compositeCacheManager;

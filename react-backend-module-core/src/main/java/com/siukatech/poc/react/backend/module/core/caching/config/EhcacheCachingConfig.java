@@ -1,27 +1,23 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.helper.EhcacheCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
-import javax.cache.spi.CachingProvider;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Configuration
 @EnableCaching
+@Import({EhcacheCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "ehcache")
 public class EhcacheCachingConfig extends DefaultCachingConfig {
 
@@ -37,39 +33,47 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
     }
 
     @Bean
-    public MutableConfiguration<String, Object> mutableConfiguration() {
-        log.debug("ehcacheCacheManager - timeToLive.getSeconds: [{}]", timeToLive.getSeconds());
-        MutableConfiguration<String, Object> configuration = new MutableConfiguration<>();
-        configuration
-                .setExpiryPolicyFactory(
-                        CreatedExpiryPolicy.factoryOf(
-                                new Duration(TimeUnit.SECONDS, timeToLive.getSeconds())
-                        )
-                )
-                .setTypes(String.class, Object.class)
-                .setStoreByValue(false)
-                .setStatisticsEnabled(true)
-                .setManagementEnabled(true)
-        ;
-        return configuration;
+    public MutableConfiguration<String, Object> mutableConfiguration(EhcacheCachingHelper ehcacheCachingHelper) {
+        log.debug("mutableConfiguration - timeToLive.getSeconds: [{}]", this.timeToLive.getSeconds());
+//        MutableConfiguration<String, Object> mutableConfiguration = new MutableConfiguration<>();
+//        mutableConfiguration
+//                .setExpiryPolicyFactory(
+//                        CreatedExpiryPolicy.factoryOf(
+//                                new Duration(TimeUnit.SECONDS, timeToLive.getSeconds())
+//                        )
+//                )
+//                .setTypes(String.class, Object.class)
+//                .setStoreByValue(false)
+//                .setStatisticsEnabled(true)
+//                .setManagementEnabled(true)
+//        ;
+        MutableConfiguration<String, Object> mutableConfiguration = ehcacheCachingHelper
+                .resolveMutableConfiguration(this.timeToLive);
+        return mutableConfiguration;
     }
 
     @Bean(name = "cacheManager")
-    public CacheManager ehcacheCacheManager(MutableConfiguration<String, Object> mutableConfiguration) {
-//        CacheManagerBuilder builder = CacheManagerBuilder.newCacheManagerBuilder();
-//        org.ehcache.CacheManager ehcacheCacheManager = builder.build();
-//        javax.cache.CacheManager jCacheManager = ehcacheCacheManager.
-//        CacheManager cacheManager = new JCacheCacheManager(ehcacheCacheManager);
-        //
-        CachingProvider cachingProvider = Caching.getCachingProvider("org.ehcache.jsr107.EhcacheCachingProvider");
-        javax.cache.CacheManager ehcacheCacheManager = cachingProvider.getCacheManager();
-        //
-        this.getCacheNameListWithDefaults().forEach(cacheName -> {
-            log.debug("ehcacheCacheManager - cacheName: [{}]", cacheName);
-            ehcacheCacheManager.createCache(cacheName, mutableConfiguration);
-        });
-        //
-        JCacheCacheManager jCacheCacheManager = new JCacheCacheManager(ehcacheCacheManager);
+    public CacheManager ehcacheCacheManager(
+            MutableConfiguration<String, Object> mutableConfiguration
+            , EhcacheCachingHelper ehcacheCachingHelper
+    ) {
+////        CacheManagerBuilder builder = CacheManagerBuilder.newCacheManagerBuilder();
+////        org.ehcache.CacheManager ehcacheCacheManager = builder.build();
+////        javax.cache.CacheManager jCacheManager = ehcacheCacheManager.
+////        CacheManager cacheManager = new JCacheCacheManager(ehcacheCacheManager);
+//        //
+//        CachingProvider cachingProvider = Caching.getCachingProvider("org.ehcache.jsr107.EhcacheCachingProvider");
+//        javax.cache.CacheManager ehcacheCacheManager = cachingProvider.getCacheManager();
+//        //
+//        this.getCacheNameListWithDefaults().forEach(cacheName -> {
+//            log.debug("ehcacheCacheManager - cacheName: [{}]", cacheName);
+//            ehcacheCacheManager.createCache(cacheName, mutableConfiguration);
+//        });
+//        //
+//        JCacheCacheManager jCacheCacheManager = new JCacheCacheManager(ehcacheCacheManager);
+        JCacheCacheManager jCacheCacheManager = ehcacheCachingHelper
+                .resolveEhcacheCacheManager(mutableConfiguration
+                        , this.getCacheNameListWithDefaults());
         return jCacheCacheManager;
     }
 
