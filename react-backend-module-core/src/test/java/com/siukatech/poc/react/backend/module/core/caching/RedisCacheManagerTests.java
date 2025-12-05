@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.caching.config.RedisCachingConfig;
 import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.model.AddressModel;
+import com.siukatech.poc.react.backend.module.core.caching.model.AddressOptionalModel;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
@@ -103,6 +105,57 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
     @Test
     public void test_getAddressModelById_ttl_exceeded_1s() throws InterruptedException {
         super.test_getAddressModelById_ttl_exceeded_1s(2000L, true);
+    }
+
+    @Test
+    public void test_addressOptionalModel_withList() {
+        // given
+        int definedTtl = 2000;
+        //
+        log.debug("test_addressOptionalModel_withList - saveAddressModel - 1 - before");
+        for (int i=0; i<5; i++) {
+            String iStr = String.valueOf(i);
+            AddressModel addressModel01 = new AddressModel(
+                    "address-" + iStr
+                    , "location-" + iStr
+                    , "street-" + iStr
+                    , "district-" + iStr
+            );
+            this.addressService.saveAddressModel(addressModel01);
+        }
+        log.debug("test_addressOptionalModel_withList - saveAddressModel - 1 - after");
+
+        // when
+        log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 1 - before");
+        List<AddressOptionalModel> addressOptionalModelObjectList = this.addressService.getAddressOptionalModelList("1");
+        log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 1 - after");
+
+        try {
+            log.debug("test_addressOptionalModel_withList - Thread.sleep - 1 - before - definedTtl: [{}]", definedTtl);
+            Thread.sleep(definedTtl - 500);
+            log.debug("test_addressOptionalModel_withList - Thread.sleep - 1 - after");
+        }
+        catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+
+        log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 2 - before");
+        List<AddressOptionalModel> addressOptionalModelCache01List = this.addressService.getAddressOptionalModelList("2");
+        log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 2 - after");
+
+        try {
+            log.debug("test_addressOptionalModel_withList - Thread.sleep - 2 - before - definedTtl: [{}]", definedTtl);
+            Thread.sleep(definedTtl + 500);
+            log.debug("test_addressOptionalModel_withList - Thread.sleep - 2 - after");
+        }
+        catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+
+        log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 3 - before");
+        List<AddressOptionalModel> addressOptionalModelCache02List = this.addressService.getAddressOptionalModelList("3");
+        log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 3 - after");
+
     }
 
 }

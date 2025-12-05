@@ -11,25 +11,25 @@ public class CacheExceptionHandler implements CacheErrorHandler {
 
     @Override
     public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
-        log.warn("handleCacheGetError - cache.getName: [{}], key: [{}]", cache.getName(), key);
-        log.warn("handleCacheGetError - exception.message: [{}]", exception.getMessage());
+        log.warn("handleCacheGetError - exception.message: [{}], cache.getName: [{}], key: [{}]"
+                , exception.getMessage(), cache.getName(), key);
     }
 
     @Override
     public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
-        log.warn("handleCachePutError - cache.getName: [{}], key: [{}]", cache.getName(), key);
-        log.warn("handleCachePutError - exception.message: [{}]", exception.getMessage());
+        log.warn("handleCachePutError - exception.message: [{}], cache.getName: [{}], key: [{}]"
+                , exception.getMessage(), cache.getName(), key);
     }
 
     @Override
     public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
-        log.warn("handleCacheEvictError - cache.getName: [{}], key: [{}]", cache.getName(), key);
-        log.warn("handleCacheEvictError - exception.message: [{}]", exception.getMessage());
+        log.warn("handleCacheEvictError - exception.message: [{}], cache.getName: [{}], key: [{}]"
+                , exception.getMessage(), cache.getName(), key);
     }
 
     @Override
     public void handleCacheClearError(RuntimeException exception, Cache cache) {
-        log.warn("handleCacheClearError - cache.getName: [{}]", cache.getName());
-        log.warn("handleCacheClearError - exception.message: [{}]", exception.getMessage());
+        log.warn("handleCacheClearError - exception.message: [{}], cache.getName: [{}]"
+                , exception.getMessage(), cache.getName());
     }
 }
