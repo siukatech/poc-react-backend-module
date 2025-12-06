@@ -2,19 +2,21 @@ package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
 import com.siukatech.poc.react.backend.module.core.caching.config.SimpleCachingConfig;
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Duration;
 import java.util.List;
 
 @Slf4j
 @SpringBootTest(classes = {
-        CacheExceptionHandler.class
+        DefaultCacheErrorHandler.class
         , SimpleCachingConfig.class
         , AddressService.class
     }
@@ -37,6 +39,9 @@ public class SimpleCacheManagerTests extends AbstractCachingManagerTests {
 //    @Autowired
 //    private AddressService addressService;
 
+    @Value("${spring.cache.simple.time-to-live:1s}")
+    private Duration definedTtl;
+
     @BeforeEach
     public void setup() {
         this.initMemoryAppender(
@@ -46,6 +51,10 @@ public class SimpleCacheManagerTests extends AbstractCachingManagerTests {
         );
         //
         super.setup_cacheManager();
+    }
+
+    protected Duration getDefinedTtl() {
+        return this.definedTtl;
     }
 
     @Test

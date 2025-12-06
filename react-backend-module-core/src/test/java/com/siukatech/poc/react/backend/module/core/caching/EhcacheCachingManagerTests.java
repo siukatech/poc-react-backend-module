@@ -3,21 +3,23 @@ package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
 import com.siukatech.poc.react.backend.module.core.caching.config.EhcacheCachingConfig;
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Duration;
 import java.util.List;
 
 @Slf4j
 @SpringBootTest(classes = {
         EhcacheCachingConfig.class
-        , CacheExceptionHandler.class
+        , DefaultCacheErrorHandler.class
         , AddressService.class
     }
     , properties = {
@@ -40,6 +42,9 @@ public class EhcacheCachingManagerTests extends AbstractCachingManagerTests {
 //    @Autowired
 //    private AddressService addressService;
 
+    @Value("${spring.cache.ehcache.time-to-live}")
+    private Duration definedTtl;
+
     @BeforeEach
     public void setup() {
         this.initMemoryAppender(
@@ -52,12 +57,17 @@ public class EhcacheCachingManagerTests extends AbstractCachingManagerTests {
     @BeforeEach
     public void setup2() {
         log.debug("setup2");
+        log.debug("setup2 - definedTtl.toMillis: [{}]", this.definedTtl.toMillis());
         super.setup_cacheManager();
     }
 
     @AfterAll
     public static void teardown() {
 
+    }
+
+    protected Duration getDefinedTtl() {
+        return this.definedTtl;
     }
 
     @Test
@@ -165,7 +175,7 @@ public class EhcacheCachingManagerTests extends AbstractCachingManagerTests {
 //        assertThat(addressCache01.toString()).isEqualTo(addressCache02.toString());
 //        assertThat(addressCache02.toString()).isEqualTo(addressModel01.toString());
 //        assertThat(addressCache02b.toString()).isEqualTo(addressModel02.toString());
-        super.test_getAddressModelById_ttl_exceeded_1s(1000L, true);
+        super.test_getAddressModelById_ttl_exceeded_1s(this.definedTtl.toMillis(), true);
     }
 
 }

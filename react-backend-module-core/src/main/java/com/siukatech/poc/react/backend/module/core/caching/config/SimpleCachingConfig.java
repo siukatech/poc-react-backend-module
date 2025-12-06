@@ -1,6 +1,6 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "simple")
 public class SimpleCachingConfig extends DefaultCachingConfig {
 
-    public SimpleCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
-        super(cacheExceptionHandler);
+    public SimpleCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
+        super(defaultCacheErrorHandler);
     }
 
     @Bean

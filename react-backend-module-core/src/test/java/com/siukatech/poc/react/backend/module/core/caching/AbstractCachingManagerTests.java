@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +28,8 @@ public abstract class AbstractCachingManagerTests extends AbstractUnitTests {
     @Autowired
     protected AddressService addressService;
 
+    protected abstract Duration getDefinedTtl();
+
     protected void setup_cacheManager() {
         this.addressService.evictAllCacheValues();
     }
@@ -42,7 +45,7 @@ public abstract class AbstractCachingManagerTests extends AbstractUnitTests {
     }
 
     protected void test_getAddressModelById_basic(boolean hasAssertion) {
-        this.test_getAddressModelById(false, 1000L, hasAssertion);
+        this.test_getAddressModelById(false, this.getDefinedTtl().toMillis(), hasAssertion);
     }
 
     protected void test_getAddressModelById_ttl_exceeded_1s(long definedTtl, boolean hasAssertion) {

@@ -1,6 +1,6 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,10 +28,10 @@ public abstract class DefaultCachingConfig implements InitializingBean, CachingC
     @Value("${spring.cache.cache-names:" + CACHE_NAME_DEFAULT + "}")
     private List<String> cacheNames;
     private List<String> cacheNameListWithDefaults;
-    private final CacheExceptionHandler cacheExceptionHandler;
+    private final DefaultCacheErrorHandler defaultCacheErrorHandler;
 
-    protected DefaultCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
-        this.cacheExceptionHandler = cacheExceptionHandler;
+    protected DefaultCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
+        this.defaultCacheErrorHandler = defaultCacheErrorHandler;
     }
 
     @Override
@@ -54,6 +54,6 @@ public abstract class DefaultCachingConfig implements InitializingBean, CachingC
 
     @Override
     public CacheErrorHandler errorHandler() {
-        return this.cacheExceptionHandler;
+        return this.defaultCacheErrorHandler;
     }
 }

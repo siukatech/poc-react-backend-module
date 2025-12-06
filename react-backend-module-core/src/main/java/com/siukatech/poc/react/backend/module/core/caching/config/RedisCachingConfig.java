@@ -1,7 +1,7 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +28,8 @@ public class RedisCachingConfig extends DefaultCachingConfig {
     @Value("${spring.cache.redis.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
-    public RedisCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
-        super(cacheExceptionHandler);
+    public RedisCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
+        super(defaultCacheErrorHandler);
     }
 
 //    @Getter

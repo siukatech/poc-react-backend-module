@@ -3,15 +3,17 @@ package com.siukatech.poc.react.backend.module.core.caching;
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.caching.config.RedisCachingConfig;
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.model.AddressModel;
 import com.siukatech.poc.react.backend.module.core.caching.model.AddressOptionalModel;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -19,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +32,7 @@ import java.util.Map;
  */
 @Slf4j
 @SpringBootTest(classes = {
-        CacheExceptionHandler.class
+        DefaultCacheErrorHandler.class
         , RedisCachingConfig.class
         , AddressService.class
 //        , RedisCachingHelper.class
@@ -60,6 +63,9 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
 //    @Autowired
 //    private AddressService addressService;
 
+    @Value("${spring.cache.redis.time-to-live}")
+    private Duration definedTtl;
+
     @BeforeEach
     public void setup() {
         this.initMemoryAppender(
@@ -78,6 +84,10 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
         this.teardown_redisServer();
     }
 
+    protected Duration getDefinedTtl() {
+        return this.definedTtl;
+    }
+
     @Test
     public void test_redisCacheManager_basic() {
         log.debug("test_redisCacheManager_basic - getCacheNames: [{}]"
@@ -94,7 +104,10 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
             log.debug("test_redisCacheManager_basic - redisCacheConfigurationMap - v.getKeyPrefix: [{}]", v.getKeyPrefix());
         });
         //
-//        super.test_xxxCacheManager_basic("RedisCacheManager");
+        super.test_xxxCacheManager_basic("RedisCacheManager");
+
+        Assertions.assertTrue(cacheManager.getClass().getSimpleName().toLowerCase()
+                .contains("RedisCacheManager".toLowerCase()));
     }
 
     @Test
@@ -104,7 +117,7 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
 
     @Test
     public void test_getAddressModelById_ttl_exceeded_1s() throws InterruptedException {
-        super.test_getAddressModelById_ttl_exceeded_1s(2000L, true);
+        super.test_getAddressModelById_ttl_exceeded_1s(this.definedTtl.toMillis(), true);
     }
 
     @Test

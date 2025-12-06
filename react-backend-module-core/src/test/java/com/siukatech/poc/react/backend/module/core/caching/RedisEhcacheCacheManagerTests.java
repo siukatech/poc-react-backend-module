@@ -2,21 +2,27 @@ package com.siukatech.poc.react.backend.module.core.caching;
 
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.config.CaffeineRedisCachingConfig;
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.config.RedisEhcacheCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.CompositeCacheManager;
 
+import java.time.Duration;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Reference:
@@ -25,17 +31,18 @@ import java.util.List;
  */
 @Slf4j
 @SpringBootTest(classes = {
-        CacheExceptionHandler.class
-        , CaffeineRedisCachingConfig.class
+        DefaultCacheErrorHandler.class
+        , RedisEhcacheCachingConfig.class
         , AddressService.class
         , ObjectMapper.class
     }
     , properties = {
-        "spring.cache.type=caffeine-redis"
-//        , "spring.cache.cache-names=test1,test2"
-        , "spring.cache.caffeine-redis.time-to-live=2s"
+        "spring.cache.type=redis-ehcache"
+        , "spring.cache.cache-names=test1,test2"
+        , "spring.cache.redis-ehcache.time-to-live=1s"
         //
 //        , "spring.cache.redis.cache-null-value=false"
+        , "spring.data.redis.cache-null-value=false"
         , "spring.data.redis.host=localhost"
         , "spring.data.redis.port=6379"
         , "logging.level.root=INFO"
@@ -47,13 +54,16 @@ import java.util.List;
         , RedisAutoConfiguration.class
 })
 //@Import({RedisServerConfig.class})
-public class CaffeineRedisCacheManagerTests extends AbstractRedisCacheManagerTests {
+public class RedisEhcacheCacheManagerTests extends AbstractRedisCacheManagerTests {
+
+    @Value("${spring.cache.redis-ehcache.time-to-live}")
+    private Duration definedTtl;
 
     @BeforeEach
     public void setup() {
         this.initMemoryAppender(
                 List.of(
-                        Pair.with(CaffeineRedisCacheManagerTests.class.getPackageName(), Level.DEBUG)
+                        Pair.with(RedisEhcacheCacheManagerTests.class.getPackageName(), Level.DEBUG)
                 )
         );
         //
@@ -67,15 +77,25 @@ public class CaffeineRedisCacheManagerTests extends AbstractRedisCacheManagerTes
         this.teardown_redisServer();
     }
 
+    protected Duration getDefinedTtl() {
+        return this.definedTtl;
+    }
+
     @Test
-    public void test_caffeineRedisCacheManager_basic() {
-        log.debug("test_caffeineRedisCacheManager_basic - getCacheNames: [{}]"
+    public void test_redisEhcacheCacheManager_basic() {
+        log.debug("test_redisEhcacheCacheManager_basic - getCacheNames: [{}]"
                 , this.cacheManager.getCacheNames());
-        log.debug("test_caffeineRedisCacheManager_basic - cacheManager: [{}]"
+        log.debug("test_redisEhcacheCacheManager_basic - cacheManager: [{}]"
                 , this.cacheManager);
         //
-        CompositeCacheManager compositeCacheManager = (CompositeCacheManager) this.cacheManager;
-        log.debug("test_caffeineRedisCacheManager_basic - compositeCacheManager: [{}]", compositeCacheManager);
+        CacheManager cacheManager = this.cacheManager;
+        log.debug("test_redisEhcacheCacheManager_basic - cacheManager.getClass.getSimpleName: [{}]"
+                , cacheManager.getClass().getSimpleName());
+
+        super.test_xxxCacheManager_basic("EnhancedCompositeCacheManager");
+
+        Assertions.assertTrue(cacheManager.getClass().getSimpleName().toLowerCase()
+                .contains("EnhancedCompositeCacheManager".toLowerCase()));
     }
 
     @Test
@@ -85,7 +105,7 @@ public class CaffeineRedisCacheManagerTests extends AbstractRedisCacheManagerTes
 
     @Test
     public void test_getAddressModelById_ttl_exceeded_1s() throws InterruptedException {
-        super.test_getAddressModelById_ttl_exceeded_1s(2000L, true);
+        super.test_getAddressModelById_ttl_exceeded_1s(this.definedTtl.toMillis(), true);
     }
 
 }

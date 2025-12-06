@@ -1,6 +1,6 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.EhcacheCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +28,8 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
     @Value("${spring.cache.ehcache.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
-    public EhcacheCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
-        super(cacheExceptionHandler);
+    public EhcacheCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
+        super(defaultCacheErrorHandler);
     }
 
     @Bean

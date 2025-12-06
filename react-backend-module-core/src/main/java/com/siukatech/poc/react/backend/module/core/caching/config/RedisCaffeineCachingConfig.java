@@ -1,9 +1,10 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.handler.CacheExceptionHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.CaffeineCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
+import com.siukatech.poc.react.backend.module.core.caching.manager.EnhancedCompositeCacheManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,29 +27,26 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 @Configuration
 @EnableCaching
 @Import({CaffeineCachingHelper.class, RedisCachingHelper.class})
-@ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "caffeine-redis")
-public class CaffeineRedisCachingConfig extends DefaultCachingConfig {
+@ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "redis-caffeine")
+public class RedisCaffeineCachingConfig extends DefaultCachingConfig {
 
-    @Value("${spring.cache.caffeine-redis.time-to-live:10m}")
+    @Value("${spring.cache.redis-caffeine.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
-    public CaffeineRedisCachingConfig(CacheExceptionHandler cacheExceptionHandler) {
-        super(cacheExceptionHandler);
+    public RedisCaffeineCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
+        super(defaultCacheErrorHandler);
     }
 
     @Primary
     @Bean(name = "cacheManager")
-    public CacheManager caffeineRedisCacheManager(
+    public CacheManager redisCaffeineCacheManager(
             RedisConnectionFactory redisConnectionFactory
             , ObjectMapper objectMapper
-            , CaffeineCachingHelper caffeineCachingHelper
             , RedisCachingHelper redisCachingHelper
+            , CaffeineCachingHelper caffeineCachingHelper
     ) {
-        log.debug("caffeineRedisCacheManager - this.getCacheNameListWithDefaults: [{}]"
+        log.debug("redisCaffeineCacheManager - this.getCacheNameListWithDefaults: [{}]"
                 , this.getCacheNameListWithDefaults());
-
-        CaffeineCacheManager caffeineCacheManager = caffeineCachingHelper
-                .resolveCaffeineCacheManager(this.timeToLive, this.getCacheNameListWithDefaults());
 
         RedisCacheManager.RedisCacheManagerBuilder redisCacheManagerBuilder =
                 redisCachingHelper
@@ -58,12 +56,19 @@ public class CaffeineRedisCachingConfig extends DefaultCachingConfig {
                         );
         RedisCacheManager redisCacheManager = redisCacheManagerBuilder.build();
 
+        CaffeineCacheManager caffeineCacheManager = caffeineCachingHelper
+                .resolveCaffeineCacheManager(this.timeToLive, this.getCacheNameListWithDefaults());
+
         CompositeCacheManager compositeCacheManager =
-                new CompositeCacheManager(caffeineCacheManager, redisCacheManager);
-//                new CompositeCacheManager(redisCacheManager, caffeineCacheManager);
+                new CompositeCacheManager(redisCacheManager, caffeineCacheManager);
         compositeCacheManager.setFallbackToNoOpCache(false);
 
-        return compositeCacheManager;
+        redisCacheManager.getCacheNames().forEach(cacheName -> {
+            log.info("redisCaffeineCacheManager - initialized - cacheName: [{}]", cacheName);
+        });
+
+//        return compositeCacheManager;
+        return new EnhancedCompositeCacheManager(compositeCacheManager);
     }
 
 }

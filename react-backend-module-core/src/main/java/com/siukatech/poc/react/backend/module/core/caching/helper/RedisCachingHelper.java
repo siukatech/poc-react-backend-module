@@ -61,18 +61,18 @@ public class RedisCachingHelper {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                         .fromSerializer(this.resolveRedisSerializer(objectMapper)))
                 ;
-        RedisCacheManager.RedisCacheManagerBuilder builder = RedisCacheManager.RedisCacheManagerBuilder
+        RedisCacheManager.RedisCacheManagerBuilder redisCacheManagerBuilder = RedisCacheManager.RedisCacheManagerBuilder
                 .fromConnectionFactory(redisConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration)
                 .allowCreateOnMissingCache(true)
                 ;
 //        cacheNameListWithDefaults.forEach(cacheName -> {
 //            log.debug("resolveRedisCacheManager - cacheName: [{}]", cacheName);
-//            builder.withCacheConfiguration(cacheName, redisCacheConfiguration);
+//            redisCacheManagerBuilder.withCacheConfiguration(cacheName, redisCacheConfiguration);
 //        });
-//        RedisCacheManager redisCacheManager = builder.build();
+//        RedisCacheManager redisCacheManager = redisCacheManagerBuilder.build();
 //        return redisCacheManager;
-        return builder;
+        return redisCacheManagerBuilder;
     }
 
 }
