@@ -1,12 +1,13 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
-import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,11 +19,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "simple")
-public class SimpleCachingConfig extends DefaultCachingConfig {
-
-    public SimpleCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
-        super(defaultCacheErrorHandler);
-    }
+public class SimpleCachingConfig extends AbstractCachingConfig implements CachingConfigurer {
 
     @Bean
     public CacheManagerCustomizer<ConcurrentMapCacheManager> cacheManagerCustomizer() {
@@ -37,6 +34,17 @@ public class SimpleCachingConfig extends DefaultCachingConfig {
 //                this.getCacheNameListWithDefaults().toArray(String[]::new)
         );
         return concurrentMapCacheManager;
+    }
+
+    // Using Bean without CacheConfigurer is not working
+//    @Bean
+//    public CacheErrorHandler cacheErrorHandler() {
+//        return this.defaultCacheErrorHandler();
+//    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return defaultCacheErrorHandler();
     }
 
 }

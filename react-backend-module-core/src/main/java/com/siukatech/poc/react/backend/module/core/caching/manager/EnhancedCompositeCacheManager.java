@@ -49,6 +49,9 @@ public class EnhancedCompositeCacheManager implements CacheManager {
                 if (redisFailedCachesRemovalResult) {
                     log.info("LoggingCacheWrapper.get - REDIS RECOVERED → back to primary Redis | cache: [{}]", cacheName);
                 }
+                else {
+                    log.debug("LoggingCacheWrapper.get - REDIS IS UP AND RUNNING → as a primary Redis | cache: [{}]", cacheName);
+                }
                 return valueWrapper;
             }
             catch (Exception e) {

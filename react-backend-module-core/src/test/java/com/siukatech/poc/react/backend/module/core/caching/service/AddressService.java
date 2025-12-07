@@ -1,6 +1,6 @@
 package com.siukatech.poc.react.backend.module.core.caching.service;
 
-import com.siukatech.poc.react.backend.module.core.caching.config.DefaultCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.config.AbstractCachingConfig;
 import com.siukatech.poc.react.backend.module.core.caching.model.AddressModel;
 import com.siukatech.poc.react.backend.module.core.caching.model.AddressOptionalModel;
 import lombok.extern.slf4j.Slf4j;
@@ -27,17 +27,17 @@ public class AddressService {
         log.debug("printAddressModelMap - addressModelMap: [{}]", this.addressModelMap);
     }
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}, key = "#addressId")
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_DEFAULT}, key = "#addressId")
     public AddressModel getAddressModelById(String addressId, String label) {
         log.debug("getAddressModelById - label: [{}], addressId: [{}]", label, addressId);
         AddressModel addressModel = this.addressModelMap.get(addressId);
         return addressModel;
     }
 
-    @CacheEvict(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}, allEntries = true)
+    @CacheEvict(value = {AbstractCachingConfig.CACHE_NAME_DEFAULT}, allEntries = true)
     public void evictAllCacheValues() {}
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_DEFAULT}, key = "'addressOptionalList'")
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_DEFAULT}, key = "'addressOptionalList'")
     public List<AddressOptionalModel> getAddressOptionalModelList(String label) {
         log.debug("getAddressOptionalModelList - label: [{}]", label);
         List<AddressOptionalModel> addressOptionalList = this.addressModelMap

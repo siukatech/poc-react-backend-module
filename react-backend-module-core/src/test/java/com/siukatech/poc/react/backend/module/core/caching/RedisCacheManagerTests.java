@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import java.time.Duration;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 /**
  * Reference:
- *
+ * <p>
  * https://www.baeldung.com/spring-boot-redis-cache
  */
 @Slf4j
@@ -37,8 +38,8 @@ import java.util.Map;
         , AddressService.class
 //        , RedisCachingHelper.class
         , ObjectMapper.class
-    }
-    , properties = {
+}
+        , properties = {
         "spring.cache.type=redis"
 //        , "spring.cache.cache-names=test1,test2"
         , "spring.cache.redis.time-to-live=2s"
@@ -47,7 +48,7 @@ import java.util.Map;
         , "spring.data.redis.port=6379"
         , "logging.level.root=INFO"
         , "logging.level.com.siukatech.poc.react.backend.module.core.caching=DEBUG"
-    }
+}
 )
 @ImportAutoConfiguration(classes = {
         CacheAutoConfiguration.class
@@ -126,7 +127,7 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
         int definedTtl = 2000;
         //
         log.debug("test_addressOptionalModel_withList - saveAddressModel - 1 - before");
-        for (int i=0; i<5; i++) {
+        for (int i = 0; i < 5; i++) {
             String iStr = String.valueOf(i);
             AddressModel addressModel01 = new AddressModel(
                     "address-" + iStr
@@ -147,21 +148,23 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
             log.debug("test_addressOptionalModel_withList - Thread.sleep - 1 - before - definedTtl: [{}]", definedTtl);
             Thread.sleep(definedTtl - 500);
             log.debug("test_addressOptionalModel_withList - Thread.sleep - 1 - after");
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
         }
 
         log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 2 - before");
-        List<AddressOptionalModel> addressOptionalModelCache01List = this.addressService.getAddressOptionalModelList("2");
+        // Since the cacheErrorHandler is defined, no exception will be thrown
+//        Exception exceptionCache01 = Assertions.assertThrows(Exception.class, () -> {
+            List<AddressOptionalModel> addressOptionalModelCache01List = this.addressService.getAddressOptionalModelList("2");
+//        });
+//        Assertions.assertEquals("SerializationException", exceptionCache01.getClass().getSimpleName());
         log.debug("test_addressOptionalModel_withList - getAddressOptionalModelList - 2 - after");
 
         try {
             log.debug("test_addressOptionalModel_withList - Thread.sleep - 2 - before - definedTtl: [{}]", definedTtl);
             Thread.sleep(definedTtl + 500);
             log.debug("test_addressOptionalModel_withList - Thread.sleep - 2 - after");
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
         }
 

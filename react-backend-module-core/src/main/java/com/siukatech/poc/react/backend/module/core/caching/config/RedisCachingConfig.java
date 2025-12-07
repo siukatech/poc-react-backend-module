@@ -1,13 +1,15 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.RedisCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -23,14 +25,10 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories
 @Import({RedisCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "redis")
-public class RedisCachingConfig extends DefaultCachingConfig {
+public class RedisCachingConfig extends AbstractCachingConfig implements CachingConfigurer {
 
     @Value("${spring.cache.redis.time-to-live:10m}")
     private java.time.Duration timeToLive;
-
-    public RedisCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
-        super(defaultCacheErrorHandler);
-    }
 
 //    @Getter
 //    @ConfigurationProperties(prefix = "spring.cache")
@@ -38,6 +36,12 @@ public class RedisCachingConfig extends DefaultCachingConfig {
 //        private String host;
 //        private int port;
 //    }
+
+    private final RedisConnectionFactory redisConnectionFactory;
+
+    public RedisCachingConfig(RedisConnectionFactory redisConnectionFactory) {
+        this.redisConnectionFactory = redisConnectionFactory;
+    }
 
     /**
      * RedisProperties are the configuration mapped to "spring.data.redis"
@@ -78,8 +82,8 @@ public class RedisCachingConfig extends DefaultCachingConfig {
      */
     @Bean
     public RedisTemplate<?, ?> redisTemplate(
-            RedisConnectionFactory redisConnectionFactory
-            , ObjectMapper objectMapper
+            ObjectMapper objectMapper
+//            , RedisConnectionFactory redisConnectionFactory
             , RedisCachingHelper redisCachingHelper
     ) {
 //        RedisTemplate<byte[], byte[]> template = new RedisTemplate<>();
@@ -117,8 +121,8 @@ public class RedisCachingConfig extends DefaultCachingConfig {
 
     @Bean(name = "cacheManager")
     public CacheManager redisCacheManager(
-            RedisConnectionFactory redisConnectionFactory
-            , ObjectMapper objectMapper
+            ObjectMapper objectMapper
+//            , RedisConnectionFactory redisConnectionFactory
             , RedisCachingHelper redisCachingHelper
     ) {
         log.debug("redisCacheManager - timeToLive.getSeconds: [{}]", this.timeToLive.getSeconds());
@@ -143,6 +147,17 @@ public class RedisCachingConfig extends DefaultCachingConfig {
                         );
         RedisCacheManager redisCacheManager = redisCacheManagerBuilder.build();
         return redisCacheManager;
+    }
+
+    // Using Bean without CacheConfigurer is not working
+//    @Bean("errorHandler")
+//    public CacheErrorHandler cacheErrorHandler(RedisConnectionFactory redisConnectionFactory) {
+//        return new RedisCacheErrorHandler(redisConnectionFactory);
+//    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new RedisCacheErrorHandler(redisConnectionFactory);
     }
 
 }

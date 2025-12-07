@@ -4,7 +4,6 @@ import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheE
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Configuration
 //@EnableCaching  // This is not working.
-public abstract class DefaultCachingConfig implements InitializingBean, CachingConfigurer {
+public abstract class AbstractCachingConfig implements InitializingBean {
 
     public static final String CACHE_NAME_DEFAULT = "default";
     public static final String CACHE_NAME_AUTH = "auth";
@@ -28,11 +27,6 @@ public abstract class DefaultCachingConfig implements InitializingBean, CachingC
     @Value("${spring.cache.cache-names:" + CACHE_NAME_DEFAULT + "}")
     private List<String> cacheNames;
     private List<String> cacheNameListWithDefaults;
-    private final DefaultCacheErrorHandler defaultCacheErrorHandler;
-
-    protected DefaultCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
-        this.defaultCacheErrorHandler = defaultCacheErrorHandler;
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -52,8 +46,8 @@ public abstract class DefaultCachingConfig implements InitializingBean, CachingC
         return this.cacheNameListWithDefaults;
     }
 
-    @Override
-    public CacheErrorHandler errorHandler() {
-        return this.defaultCacheErrorHandler;
+    protected CacheErrorHandler defaultCacheErrorHandler() {
+        return new DefaultCacheErrorHandler();
     }
+
 }

@@ -1,21 +1,13 @@
 package com.siukatech.poc.react.backend.module.user.provider;
 
-import com.siukatech.poc.react.backend.module.core.business.dto.MyKeyDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserPermissionDto;
-import com.siukatech.poc.react.backend.module.core.caching.config.DefaultCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.config.AbstractCachingConfig;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
 import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
-import com.siukatech.poc.react.backend.module.user.entity.UserEntity;
-import com.siukatech.poc.react.backend.module.user.entity.UserPermissionEntity;
-import com.siukatech.poc.react.backend.module.user.repository.UserPermissionRepository;
-import com.siukatech.poc.react.backend.module.user.repository.UserRepository;
-import com.siukatech.poc.react.backend.module.user.repository.UserViewRepository;
 import com.siukatech.poc.react.backend.module.user.service.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -53,7 +45,7 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
 //        this.userViewRepository = userViewRepository;
     }
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findUserByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataUserCacheKeyGenerator"
     )
@@ -69,7 +61,7 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
         return userDto;
     }
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findPermissionsByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataPermissionCacheKeyGenerator"
     )
@@ -92,7 +84,7 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
         return userPermissionDtoList;
     }
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findDossierByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataDossierCacheKeyGenerator"
     )
@@ -120,7 +112,7 @@ public class DatabaseAuthorizationDataProvider implements AuthorizationDataProvi
         return userDossierDto;
     }
 
-    @CacheEvict(value = {DefaultCachingConfig.CACHE_NAME_AUTH})
+    @CacheEvict(value = {AbstractCachingConfig.CACHE_NAME_AUTH})
     @Override
     public void evictDossierCache() {
         // do nothing

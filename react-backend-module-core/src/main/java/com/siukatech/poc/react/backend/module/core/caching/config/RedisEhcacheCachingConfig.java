@@ -2,6 +2,7 @@ package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
+import com.siukatech.poc.react.backend.module.core.caching.handler.RedisCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.EhcacheCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.manager.EnhancedCompositeCacheManager;
@@ -9,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.cache.support.CompositeCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +29,7 @@ import javax.cache.configuration.MutableConfiguration;
 @EnableCaching
 @Import({EhcacheCachingHelper.class, RedisCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "redis-ehcache")
-public class RedisEhcacheCachingConfig extends DefaultCachingConfig {
+public class RedisEhcacheCachingConfig extends AbstractCachingConfig implements CachingConfigurer {
 
     /**
      * Reference:
@@ -35,8 +38,10 @@ public class RedisEhcacheCachingConfig extends DefaultCachingConfig {
     @Value("${spring.cache.redis-ehcache.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
-    public RedisEhcacheCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
-        super(defaultCacheErrorHandler);
+    private final RedisConnectionFactory redisConnectionFactory;
+
+    public RedisEhcacheCachingConfig(RedisConnectionFactory redisConnectionFactory) {
+        this.redisConnectionFactory = redisConnectionFactory;
     }
 
     @Bean
@@ -50,8 +55,8 @@ public class RedisEhcacheCachingConfig extends DefaultCachingConfig {
     @Primary
     @Bean(name = "cacheManager")
     public CacheManager redisEhcacheCacheManager(
-            RedisConnectionFactory redisConnectionFactory
-            , ObjectMapper objectMapper
+            ObjectMapper objectMapper
+//            , RedisConnectionFactory redisConnectionFactory
             , MutableConfiguration<String, Object> mutableConfiguration
             , RedisCachingHelper redisCachingHelper
             , EhcacheCachingHelper ehcacheCachingHelper
@@ -75,6 +80,17 @@ public class RedisEhcacheCachingConfig extends DefaultCachingConfig {
 
 //        return compositeCacheManager;
         return new EnhancedCompositeCacheManager(compositeCacheManager);
+    }
+
+    // Using Bean without CacheConfigurer is not working
+//    @Bean("errorHandler")
+//    public CacheErrorHandler cacheErrorHandler(RedisConnectionFactory redisConnectionFactory) {
+//        return new RedisCacheErrorHandler(redisConnectionFactory);
+//    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new RedisCacheErrorHandler(redisConnectionFactory);
     }
 
 }

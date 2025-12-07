@@ -4,7 +4,7 @@ import com.siukatech.poc.react.backend.module.core.business.dto.MyPermissionDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserPermissionDto;
-import com.siukatech.poc.react.backend.module.core.caching.config.DefaultCachingConfig;
+import com.siukatech.poc.react.backend.module.core.caching.config.AbstractCachingConfig;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
         httpHeaders.add(HttpHeaders.AUTHORIZATION, "Bearer " + tokenValue);
     }
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findUserByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataUserCacheKeyGenerator"
     )
@@ -95,7 +95,7 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
         return userDto;
     }
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findPermissionsByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataPermissionCacheKeyGenerator"
     )
@@ -159,7 +159,7 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
         return userPermissionDtoList;
     }
 
-    @Cacheable(value = {DefaultCachingConfig.CACHE_NAME_AUTH}
+    @Cacheable(value = {AbstractCachingConfig.CACHE_NAME_AUTH}
 //            , key = "'" + CACHE_KEY_findDossierByUserIdAndTokenValue + "' + #userId"
             , keyGenerator = "authorizationDataDossierCacheKeyGenerator"
     )
@@ -207,7 +207,7 @@ public class RemoteAuthorizationDataProvider implements AuthorizationDataProvide
 
     }
 
-    @CacheEvict(value = {DefaultCachingConfig.CACHE_NAME_AUTH})
+    @CacheEvict(value = {AbstractCachingConfig.CACHE_NAME_AUTH})
     @Override
     public void evictDossierCache() {
         // do nothing

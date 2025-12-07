@@ -1,12 +1,13 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
-import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.EhcacheCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +20,7 @@ import javax.cache.configuration.MutableConfiguration;
 @EnableCaching
 @Import({EhcacheCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "ehcache")
-public class EhcacheCachingConfig extends DefaultCachingConfig {
+public class EhcacheCachingConfig extends AbstractCachingConfig implements CachingConfigurer {
 
     /**
      * Reference:
@@ -27,10 +28,6 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
      */
     @Value("${spring.cache.ehcache.time-to-live:10m}")
     private java.time.Duration timeToLive;
-
-    public EhcacheCachingConfig(DefaultCacheErrorHandler defaultCacheErrorHandler) {
-        super(defaultCacheErrorHandler);
-    }
 
     @Bean
     public MutableConfiguration<String, Object> mutableConfiguration(EhcacheCachingHelper ehcacheCachingHelper) {
@@ -75,6 +72,17 @@ public class EhcacheCachingConfig extends DefaultCachingConfig {
                 .resolveEhcacheCacheManager(mutableConfiguration
                         , this.getCacheNameListWithDefaults());
         return jCacheCacheManager;
+    }
+
+    // Using Bean without CacheConfigurer is not working
+//    @Bean
+//    public CacheErrorHandler cacheErrorHandler() {
+//        return this.defaultCacheErrorHandler();
+//    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return defaultCacheErrorHandler();
     }
 
 }
