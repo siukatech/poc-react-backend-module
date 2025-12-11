@@ -1,14 +1,13 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
-import com.siukatech.poc.react.backend.module.core.caching.handler.RedisCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.CaffeineCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.manager.EnhancedCompositeCacheManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.task.ThreadPoolTaskExecutorBuilder;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,8 +18,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+
+import java.time.Duration;
 
 /**
  * Reference:
@@ -31,15 +33,15 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 @EnableCaching
 @Import({CaffeineCachingHelper.class, RedisCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "redis-caffeine")
-public class RedisCaffeineCachingConfig extends AbstractCachingConfig implements CachingConfigurer {
+public class RedisCaffeineCachingConfig extends AbstractRedisCachingConfig implements CachingConfigurer {
 
     @Value("${spring.cache.redis-caffeine.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
-    private final RedisConnectionFactory redisConnectionFactory;
-
-    public RedisCaffeineCachingConfig(RedisConnectionFactory redisConnectionFactory) {
-        this.redisConnectionFactory = redisConnectionFactory;
+    public RedisCaffeineCachingConfig(RedisConnectionFactory redisConnectionFactory
+            , ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder
+            , TaskDecorator taskDecorator) {
+        super(redisConnectionFactory, threadPoolTaskExecutorBuilder, taskDecorator);
     }
 
     @Primary
@@ -61,8 +63,11 @@ public class RedisCaffeineCachingConfig extends AbstractCachingConfig implements
                         );
         RedisCacheManager redisCacheManager = redisCacheManagerBuilder.build();
 
+        Duration caffeineTimeToLive = Duration.ofSeconds((this.timeToLive.getSeconds() / 2));
+        log.debug("redisCaffeineCacheManager - timeToLive: [{}], caffeineTimeToLive: [{}]"
+                , this.timeToLive, caffeineTimeToLive);
         CaffeineCacheManager caffeineCacheManager = caffeineCachingHelper
-                .resolveCaffeineCacheManager(this.timeToLive, this.getCacheNameListWithDefaults());
+                .resolveCaffeineCacheManager(caffeineTimeToLive, this.getCacheNameListWithDefaults());
 
         CompositeCacheManager compositeCacheManager =
                 new CompositeCacheManager(redisCacheManager, caffeineCacheManager);
@@ -84,7 +89,7 @@ public class RedisCaffeineCachingConfig extends AbstractCachingConfig implements
 
     @Override
     public CacheErrorHandler errorHandler() {
-        return new RedisCacheErrorHandler(redisConnectionFactory);
+        return this.resolveCacheErrorHandler();
     }
 
 }

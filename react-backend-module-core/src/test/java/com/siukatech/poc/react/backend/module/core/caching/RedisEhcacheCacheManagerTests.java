@@ -5,24 +5,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.caching.config.RedisEhcacheCachingConfig;
 import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
+import com.siukatech.poc.react.backend.module.core.global.config.TaskExecutorConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.task.ThreadPoolTaskExecutorBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.support.CompositeCacheManager;
+import org.springframework.core.task.TaskDecorator;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.time.Duration;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Reference:
@@ -31,7 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Slf4j
 @SpringBootTest(classes = {
-        DefaultCacheErrorHandler.class
+        TaskExecutorConfig.class
+        , DefaultCacheErrorHandler.class
         , RedisEhcacheCachingConfig.class
         , AddressService.class
         , ObjectMapper.class
@@ -55,6 +58,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 })
 //@Import({RedisServerConfig.class})
 public class RedisEhcacheCacheManagerTests extends AbstractRedisCacheManagerTests {
+
+    @Autowired
+    private RedisConnectionFactory redisConnectionFactory;
+
+    @Autowired
+    private ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder;
+
+    @Autowired
+    private TaskDecorator taskDecorator;
 
     @Value("${spring.cache.redis-ehcache.time-to-live}")
     private Duration definedTtl;

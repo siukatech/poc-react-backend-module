@@ -7,20 +7,25 @@ import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheE
 import com.siukatech.poc.react.backend.module.core.caching.model.AddressModel;
 import com.siukatech.poc.react.backend.module.core.caching.model.AddressOptionalModel;
 import com.siukatech.poc.react.backend.module.core.caching.service.AddressService;
+import com.siukatech.poc.react.backend.module.core.global.config.TaskExecutorConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.javatuples.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.task.ThreadPoolTaskExecutorBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.serializer.SerializationException;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,7 +38,8 @@ import java.util.Map;
  */
 @Slf4j
 @SpringBootTest(classes = {
-        DefaultCacheErrorHandler.class
+        TaskExecutorConfig.class
+        , DefaultCacheErrorHandler.class
         , RedisCachingConfig.class
         , AddressService.class
 //        , RedisCachingHelper.class
@@ -63,6 +69,15 @@ public class RedisCacheManagerTests extends AbstractRedisCacheManagerTests {
 
 //    @Autowired
 //    private AddressService addressService;
+
+    @Autowired
+    private RedisConnectionFactory redisConnectionFactory;
+
+    @Autowired
+    private ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder;
+
+    @Autowired
+    private TaskDecorator taskDecorator;
 
     @Value("${spring.cache.redis.time-to-live}")
     private Duration definedTtl;

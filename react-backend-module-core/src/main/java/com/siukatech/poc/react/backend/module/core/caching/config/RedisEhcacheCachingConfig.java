@@ -1,14 +1,13 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.handler.DefaultCacheErrorHandler;
-import com.siukatech.poc.react.backend.module.core.caching.handler.RedisCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.EhcacheCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import com.siukatech.poc.react.backend.module.core.caching.manager.EnhancedCompositeCacheManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.task.ThreadPoolTaskExecutorBuilder;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,17 +18,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import javax.cache.configuration.MutableConfiguration;
+import java.time.Duration;
 
 @Slf4j
 @Configuration
 @EnableCaching
 @Import({EhcacheCachingHelper.class, RedisCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "redis-ehcache")
-public class RedisEhcacheCachingConfig extends AbstractCachingConfig implements CachingConfigurer {
+public class RedisEhcacheCachingConfig extends AbstractRedisCachingConfig implements CachingConfigurer {
 
     /**
      * Reference:
@@ -38,17 +39,20 @@ public class RedisEhcacheCachingConfig extends AbstractCachingConfig implements 
     @Value("${spring.cache.redis-ehcache.time-to-live:10m}")
     private java.time.Duration timeToLive;
 
-    private final RedisConnectionFactory redisConnectionFactory;
-
-    public RedisEhcacheCachingConfig(RedisConnectionFactory redisConnectionFactory) {
-        this.redisConnectionFactory = redisConnectionFactory;
+    public RedisEhcacheCachingConfig(RedisConnectionFactory redisConnectionFactory
+            , ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder
+            , TaskDecorator taskDecorator) {
+        super(redisConnectionFactory, threadPoolTaskExecutorBuilder, taskDecorator);
     }
 
     @Bean
     public MutableConfiguration<String, Object> mutableConfiguration(EhcacheCachingHelper ehcacheCachingHelper) {
         log.debug("mutableConfiguration - timeToLive.getSeconds: [{}]", this.timeToLive.getSeconds());
+        Duration ehcacheTimeToLive = Duration.ofSeconds((this.timeToLive.getSeconds() / 2));
+        log.debug("mutableConfiguration - timeToLive: [{}], ehcacheTimeToLive: [{}]"
+                , this.timeToLive, ehcacheTimeToLive);
         MutableConfiguration<String, Object> mutableConfiguration = ehcacheCachingHelper
-                .resolveMutableConfiguration(this.timeToLive);
+                .resolveMutableConfiguration(ehcacheTimeToLive);
         return mutableConfiguration;
     }
 
@@ -90,7 +94,7 @@ public class RedisEhcacheCachingConfig extends AbstractCachingConfig implements 
 
     @Override
     public CacheErrorHandler errorHandler() {
-        return new RedisCacheErrorHandler(redisConnectionFactory);
+        return this.resolveCacheErrorHandler();
     }
 
 }

@@ -1,11 +1,11 @@
 package com.siukatech.poc.react.backend.module.core.caching.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.siukatech.poc.react.backend.module.core.caching.handler.RedisCacheErrorHandler;
 import com.siukatech.poc.react.backend.module.core.caching.helper.RedisCachingHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.task.ThreadPoolTaskExecutorBuilder;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -13,9 +13,9 @@ import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
 
@@ -25,7 +25,7 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories
 @Import({RedisCachingHelper.class})
 @ConditionalOnProperty(prefix = "spring.cache", name = "type", havingValue = "redis")
-public class RedisCachingConfig extends AbstractCachingConfig implements CachingConfigurer {
+public class RedisCachingConfig extends AbstractRedisCachingConfig implements CachingConfigurer {
 
     @Value("${spring.cache.redis.time-to-live:10m}")
     private java.time.Duration timeToLive;
@@ -37,87 +37,11 @@ public class RedisCachingConfig extends AbstractCachingConfig implements Caching
 //        private int port;
 //    }
 
-    private final RedisConnectionFactory redisConnectionFactory;
-
-    public RedisCachingConfig(RedisConnectionFactory redisConnectionFactory) {
-        this.redisConnectionFactory = redisConnectionFactory;
+    public RedisCachingConfig(RedisConnectionFactory redisConnectionFactory
+            , ThreadPoolTaskExecutorBuilder threadPoolTaskExecutorBuilder
+            , TaskDecorator taskDecorator) {
+        super(redisConnectionFactory, threadPoolTaskExecutorBuilder, taskDecorator);
     }
-
-    /**
-     * RedisProperties are the configuration mapped to "spring.data.redis"
-     * LettuceConnectionFactory can be set-up through this properties
-     */
-//    @Bean
-//    public LettuceConnectionFactory redisConnectionFactory(RedisProperties redisProperties) {
-//        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
-//        redisStandaloneConfiguration.setHostName(redisProperties.getHost());
-//        redisStandaloneConfiguration.setPort(redisProperties.getPort());
-//        boolean hasPasswordProvided = Objects.nonNull(redisProperties.getPassword());
-//        if (hasPasswordProvided) {
-//            redisStandaloneConfiguration.setPassword(redisProperties.getPassword());
-//        }
-//        redisStandaloneConfiguration.setDatabase(redisProperties.getDatabase());
-//        if (Objects.nonNull(redisProperties.getLettuce())) {
-//            // do something
-//        }
-//        log.debug("redisConnectionFactory - redisStandaloneConfiguration: [${}]"
-//                        + ", redisProperties: [{}]"
-//                        + ", hasPasswordProvided: [{}]"
-//                        + ", redisProperties.getHost: [{}]"
-//                        + ", redisProperties.getPort: [{}]"
-//                        + ", redisProperties.getDatabase: [{}]"
-//                , redisStandaloneConfiguration
-//                , redisProperties
-//                , hasPasswordProvided
-//                , redisProperties.getHost()
-//                , redisProperties.getPort()
-//                , redisProperties.getDatabase()
-//        );
-//        return new LettuceConnectionFactory(redisStandaloneConfiguration);
-//    }
-
-    /**
-     * The injection of LettuceConnectionFactory (RedisConnectionFactory) here
-     * which requires the LettuceConnectionConfiguration to support
-     */
-    @Bean
-    public RedisTemplate<?, ?> redisTemplate(
-            ObjectMapper objectMapper
-//            , RedisConnectionFactory redisConnectionFactory
-            , RedisCachingHelper redisCachingHelper
-    ) {
-//        RedisTemplate<byte[], byte[]> template = new RedisTemplate<>();
-//        template.setConnectionFactory(redisConnectionFactory);
-////        template.setKeySerializer(new StringRedisSerializer());
-//////        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-////        template.setValueSerializer(new JdkSerializationRedisSerializer());
-        RedisTemplate<byte[], byte[]> template = redisCachingHelper
-                .resolveRedisTemplate(redisConnectionFactory, objectMapper);
-        template.afterPropertiesSet();
-        log.debug("redisTemplate - template: [{}]", template);
-        return template;
-    }
-
-    /**
-     * Reference:
-     * https://docs.spring.io/spring-boot/reference/io/caching.html#io.caching.provider.redis
-     * https://stackoverflow.com/a/52971347
-     */
-//    @Bean
-//    public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
-//        return (builder) -> {
-//            this.getCacheNameListWithDefaults().forEach(cacheName -> {
-//                log.debug("redisCacheManagerBuilderCustomizer - cacheName: [{}]", cacheName);
-//                builder.withCacheConfiguration(cacheName
-//                        , RedisCacheConfiguration
-//                                .defaultCacheConfig()
-//                                .entryTtl(timeToLive)
-////                                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-////                                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)))
-//                );
-//            });
-//        };
-//    }
 
     @Bean(name = "cacheManager")
     public CacheManager redisCacheManager(
@@ -157,7 +81,7 @@ public class RedisCachingConfig extends AbstractCachingConfig implements Caching
 
     @Override
     public CacheErrorHandler errorHandler() {
-        return new RedisCacheErrorHandler(redisConnectionFactory);
+        return this.resolveCacheErrorHandler();
     }
 
 }

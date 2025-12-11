@@ -5,27 +5,30 @@ import org.springframework.cache.Cache;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Slf4j
 public class RedisCacheErrorHandler extends DefaultCacheErrorHandler {
 
     private final RedisConnectionFactory redisConnectionFactory;
 
+    private final ThreadPoolTaskExecutor redisPoolResetThreadPoolTaskExecutor;
+
     private final Set<String> recentlyResetCacheNameSet = ConcurrentHashMap.newKeySet();
 
-    private static final ExecutorService RESET_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
-        Thread thread = new Thread(r, "redis-pool-reset-thread");
-        thread.setDaemon(true);
-        return thread;
-    });
+//    private static final ExecutorService RESET_EXECUTOR = Executors.newSingleThreadExecutor(r -> {
+//        Thread thread = new Thread(r, "redis-pool-reset-thread");
+//        thread.setDaemon(true);
+//        return thread;
+//    });
 
-    public RedisCacheErrorHandler(RedisConnectionFactory redisConnectionFactory) {
+    public RedisCacheErrorHandler(RedisConnectionFactory redisConnectionFactory
+            , ThreadPoolTaskExecutor redisPoolResetThreadPoolTaskExecutor) {
         this.redisConnectionFactory = redisConnectionFactory;
+        this.redisPoolResetThreadPoolTaskExecutor = redisPoolResetThreadPoolTaskExecutor;
     }
 
     @Override
@@ -42,8 +45,9 @@ public class RedisCacheErrorHandler extends DefaultCacheErrorHandler {
                 boolean recentlyResetCacheNameSetRemovalResult = recentlyResetCacheNameSet.remove(cacheName);
                 log.debug("handleQueryTimeoutException - resetFunc - cache: [{}], recentlyResetCacheNameSetRemovalResult: [{}]", cacheName, recentlyResetCacheNameSetRemovalResult);
             };
-//            Thread.startVirtualThread(resetFunc);
-            RESET_EXECUTOR.submit(resetFunc);
+////            Thread.startVirtualThread(resetFunc);
+//            RESET_EXECUTOR.submit(resetFunc);
+            this.redisPoolResetThreadPoolTaskExecutor.submit(resetFunc);
             log.warn("handleQueryTimeoutException - QueryTimeoutException detected - hard reset Lettuce connection pool end | cache: [{}]", cacheName);
         }
     }
@@ -71,8 +75,9 @@ public class RedisCacheErrorHandler extends DefaultCacheErrorHandler {
             }
             log.info("{} - resetLettucePoolAsync - reset Redis connection pool end", label);
         };
-//        Thread.startVirtualThread(resetFunc);
-        RESET_EXECUTOR.submit(resetFunc);
+////        Thread.startVirtualThread(resetFunc);
+//        RESET_EXECUTOR.submit(resetFunc);
+        this.redisPoolResetThreadPoolTaskExecutor.submit(resetFunc);
     }
 
 }
