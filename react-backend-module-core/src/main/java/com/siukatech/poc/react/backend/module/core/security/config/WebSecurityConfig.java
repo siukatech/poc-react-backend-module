@@ -176,6 +176,7 @@ public class WebSecurityConfig {
                 //Arrays.asList("http://localhost:3000", "http://localhost:28080")
                 Arrays.asList("*")
         );
+        corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
 //        corsConfiguration.setAllowCredentials(true);
 //        corsConfiguration.setAllowedMethods(Arrays.asList(HttpMethod.HEAD.name()
 //                , HttpMethod.GET.name()

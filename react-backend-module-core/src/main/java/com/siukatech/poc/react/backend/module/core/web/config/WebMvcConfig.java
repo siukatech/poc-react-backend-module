@@ -60,6 +60,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedMethods(Arrays.stream(HttpMethod.values()).map(HttpMethod::name).toArray(String[]::new))
                 //.allowedOrigins("http://localhost:3000/")
                 .allowedOrigins("*")
+                .allowedHeaders("*")
         ;
         log.debug("addCorsMappings - end");
     }
