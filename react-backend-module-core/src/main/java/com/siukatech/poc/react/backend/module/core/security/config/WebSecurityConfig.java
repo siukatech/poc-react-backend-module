@@ -26,6 +26,12 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatchers;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Some beans have higher priority.
@@ -149,36 +155,41 @@ public class WebSecurityConfig {
 //        return restTemplate;
 //    }
 
-//    /**
-//     * Configure corsConfigurationSource instead of corsFilter
-//     * client-app does not need to implement this
-//     *
-//     * This is not working.
-//     *
-//     * @return
-//     */
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        log.info("corsConfigurationSource - start");
-//        CorsConfiguration corsConfiguration = new CorsConfiguration();
-//        corsConfiguration.setAllowedOrigins(
-//                //Arrays.asList("http://localhost:3000", "http://localhost:28080")
-//                Arrays.asList("*")
-//        );
-////        corsConfiguration.setAllowCredentials(true);
-////        corsConfiguration.setAllowedMethods(Arrays.asList(HttpMethod.HEAD.name()
-////                , HttpMethod.GET.name()
-////                , HttpMethod.POST.name()
-////                , HttpMethod.PUT.name()
-////                , HttpMethod.DELETE.name()
-////                , HttpMethod.PATCH.name()
-////                , HttpMethod.OPTIONS.name()));
-//        corsConfiguration.setAllowedMethods(Arrays.stream(HttpMethod.values()).map(HttpMethod::name).collect(Collectors.toList()));
-//        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-//        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
-//        log.info("corsConfigurationSource - end");
-//        return urlBasedCorsConfigurationSource;
-//    }
+    /**
+     * Configure corsConfigurationSource instead of corsFilter
+     * client-app does not need to implement this
+     *
+     * // This is not working.
+     * This requires to set in HttpSecurity because Spring Security Is Overriding CORS
+     * If your app uses Spring Security, then:
+     * CorsRegistry in WebMvcConfigurer is ignored unless CORS is enabled in Security.
+     * You must explicitly enable CORS in Security config.
+     * Without .cors() in Security → CORS headers will NOT be sent.
+     *
+     * @return
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        log.info("corsConfigurationSource - start");
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(
+                //Arrays.asList("http://localhost:3000", "http://localhost:28080")
+                Arrays.asList("*")
+        );
+//        corsConfiguration.setAllowCredentials(true);
+//        corsConfiguration.setAllowedMethods(Arrays.asList(HttpMethod.HEAD.name()
+//                , HttpMethod.GET.name()
+//                , HttpMethod.POST.name()
+//                , HttpMethod.PUT.name()
+//                , HttpMethod.DELETE.name()
+//                , HttpMethod.PATCH.name()
+//                , HttpMethod.OPTIONS.name()));
+        corsConfiguration.setAllowedMethods(Arrays.stream(HttpMethod.values()).map(HttpMethod::name).collect(Collectors.toList()));
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+        log.info("corsConfigurationSource - end");
+        return urlBasedCorsConfigurationSource;
+    }
 
 //    @Bean
 //    public CorsFilter corsFilter() {
@@ -216,6 +227,9 @@ public class WebSecurityConfig {
 //        });
         // can be rewritten in lambda way
         http.csrf(csrfConfigurer -> csrfConfigurer.disable());
+
+        // cors
+        http.cors(corsConfigurer -> corsConfigurer.configurationSource(this.corsConfigurationSource()));
 
         // The AntPathRequestMatcher list should match to WebMvcConfig.addInterceptors
         http.authorizeHttpRequests(requests -> requests
