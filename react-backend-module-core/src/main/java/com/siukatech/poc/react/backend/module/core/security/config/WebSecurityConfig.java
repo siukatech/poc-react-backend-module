@@ -312,7 +312,7 @@ public class WebSecurityConfig {
         http.oauth2ResourceServer(oAuth2ResourceServerConfigurer ->
                 oAuth2ResourceServerConfigurer
 //                        .jwt(jwtConfigurer -> jwtConfigurer
-//                                .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)
+//                                .jwtAuthenticationConverter(myJwtAuthenticationConverter)
 //                        )
                         .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer
                                 .introspector(
