@@ -17,7 +17,7 @@ public class ResourceServerUtil {
     }
 
     public static String getIssuerUri(String token) throws ParseException {
-        SignedJWT signedJWT = SignedJWT.parse(token);
+        SignedJWT signedJWT = getSignedJWT(token);
         return signedJWT.getJWTClaimsSet().getIssuer();
     }
 
