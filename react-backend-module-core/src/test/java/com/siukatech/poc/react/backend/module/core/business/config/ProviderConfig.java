@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
- * The OAuth2ClientProperties in Tests can be initiated but not the injected one.
+ * The OAuth2ClientExtProp in Tests can be initiated but not the injected one.
  * As a result, we can initiate a version for testing and return this "for testing" during @Spy with doReturn().
  */
 @Deprecated
@@ -19,6 +19,7 @@ public class ProviderConfig {
     private String issuerUri;
     private String jwkSetUri;
     private String userNameAttribute;
+    private String issuerExt;
 
 //    public String getAuthorizationUri() {
 //        return authorizationUri;

@@ -2,9 +2,8 @@ package com.siukatech.poc.react.backend.module.core.util;
 
 import com.nimbusds.jwt.SignedJWT;
 import com.siukatech.poc.react.backend.module.core.AbstractUnitTests;
-import com.siukatech.poc.react.backend.module.core.security.resourceserver.OAuth2ResourceServerExtProp;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.OAuth2ResourceServerExtProp;
 
 import java.text.ParseException;
 
@@ -29,7 +28,7 @@ public class ResourceServerUtilTests extends AbstractUnitTests {
         String issuerParam = "";
 
         // when
-        String issuerRet = ResourceServerUtil.getIssuerUri(token);
+        String issuerRet = ResourceServerUtil.getTokenIssuer(token);
 
         // then
         assertThat(issuerRet).isEqualTo(issuerParam);
@@ -40,11 +39,11 @@ public class ResourceServerUtilTests extends AbstractUnitTests {
         String token = "";
         String issuerParam = "";
         String clientName = null;
-        OAuth2ClientProperties oAuth2ClientProperties = null;
-        String issuerUri = null;
+        String issuerExt = null;
+        OAuth2ClientExtProp oAuth2ClientExtProp = new OAuth2ClientExtProp();
 
         // when
-        String clientNameRet = ResourceServerUtil.getClientName(oAuth2ClientProperties, issuerUri);
+        String clientNameRet = ResourceServerUtil.getClientName(oAuth2ClientExtProp, issuerExt);
 
         // then
         assertThat(clientNameRet).isEqualTo(clientName);
@@ -55,11 +54,11 @@ public class ResourceServerUtilTests extends AbstractUnitTests {
         String token = "";
         String issuerParam = "";
         String clientName = null;
-        OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp = null;
-        String issuerUri = null;
+        String issuerExt = null;
+        OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp = new OAuth2ResourceServerExtProp();
 
         // when
-        String clientNameRet = ResourceServerUtil.getClientName(oAuth2ResourceServerExtProp, issuerUri);
+        String clientNameRet = ResourceServerUtil.getClientName(oAuth2ResourceServerExtProp, issuerExt);
 
         // then
         assertThat(clientNameRet).isEqualTo(clientName);
@@ -71,7 +70,7 @@ public class ResourceServerUtilTests extends AbstractUnitTests {
         String clientName = null;
 
         // when
-        OAuth2ResourceServerProperties.Jwt jwtRet = ResourceServerUtil
+        OAuth2ResourceServerExtProp.Jwt jwtRet = ResourceServerUtil
                 .getResourceServerPropJwt(oAuth2ResourceServerExtProp, clientName);
 
         // then
@@ -86,7 +85,7 @@ public class ResourceServerUtilTests extends AbstractUnitTests {
 
         // when
         String issuerRet = ResourceServerUtil
-                .getIssuerUri(oAuth2ResourceServerExtProp, issuerUriSrc);
+                .getTokenIssuer(oAuth2ResourceServerExtProp, issuerUriSrc);
 
         // then
         assertThat(issuerRet).isNotNull();

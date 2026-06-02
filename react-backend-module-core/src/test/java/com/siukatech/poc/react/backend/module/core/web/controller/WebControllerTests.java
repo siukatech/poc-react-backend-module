@@ -1,12 +1,12 @@
 package com.siukatech.poc.react.backend.module.core.web.controller;
 
 import com.siukatech.poc.react.backend.module.core.AbstractWebTests;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.PublicApiV1Controller;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,7 +36,7 @@ public class WebControllerTests extends AbstractWebTests {
     @MockBean
     private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter;
     @MockBean
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
 
     @Test
     public void index_basic() throws Exception {

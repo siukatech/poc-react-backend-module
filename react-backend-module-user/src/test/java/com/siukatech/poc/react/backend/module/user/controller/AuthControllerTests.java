@@ -2,19 +2,18 @@ package com.siukatech.poc.react.backend.module.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.AbstractWebTests;
-import com.siukatech.poc.react.backend.module.user.controller.AuthController;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
+import com.siukatech.poc.react.backend.module.core.util.EncryptionUtils;
 import com.siukatech.poc.react.backend.module.user.form.auth.LoginForm;
 import com.siukatech.poc.react.backend.module.user.form.auth.RefreshTokenForm;
 import com.siukatech.poc.react.backend.module.user.form.auth.TokenRes;
 import com.siukatech.poc.react.backend.module.user.service.AuthService;
 import com.siukatech.poc.react.backend.module.user.service.UserService;
-import com.siukatech.poc.react.backend.module.core.util.EncryptionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -80,16 +79,16 @@ public class AuthControllerTests extends AbstractWebTests {
     private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter;
 
     @MockBean
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
 
 //    /**
-//     * @Autowired is defined because the OAuth2ClientProperties will be created based on the properties.
+//     * @Autowired is defined because the OAuth2ClientExtProp will be created based on the properties.
 //     * Those oauth2 properties are provided by @TestPropertiesSource
 //     */
 ////    @MockBean
 ////    @Autowired
 //    @SpyBean
-//    private OAuth2ClientProperties oAuth2ClientProperties;
+//    private OAuth2ClientExtProp oAuth2ClientExtProp;
 //
 //    /**
 //     * @MockBean is defined because we dont need real rest call in our test.
@@ -156,7 +155,7 @@ public class AuthControllerTests extends AbstractWebTests {
 
     @BeforeEach
     public void setup(TestInfo testInfo) {
-//        OAuth2ClientProperties.Registration registration = new OAuth2ClientProperties.Registration();
+//        OAuth2ClientExtProp.Registration registration = new OAuth2ClientExtProp.Registration();
 //        registration.setClientId("");
 //        registration.setAuthorizationGrantType("");
 //        registration.setProvider("");
@@ -165,7 +164,7 @@ public class AuthControllerTests extends AbstractWebTests {
 //        registration.setClientAuthenticationMethod("");
 //        registration.setClientSecret("");
 //        registration.setRedirectUri("");
-//        OAuth2ClientProperties.Provider provider = new OAuth2ClientProperties.Provider();
+//        OAuth2ClientExtProp.Provider provider = new OAuth2ClientExtProp.Provider();
 //        provider.setAuthorizationUri("");
 //        provider.setIssuerUri("");
 //        provider.setJwkSetUri("");
@@ -173,9 +172,9 @@ public class AuthControllerTests extends AbstractWebTests {
 //        provider.setUserInfoUri("");
 //        provider.setUserInfoAuthenticationMethod("");
 //        provider.setUserNameAttribute("");
-//        oAuth2ClientProperties = new OAuth2ClientProperties();
-//        oAuth2ClientProperties.getRegistration().put(CLIENT_NAME, registration);
-//        oAuth2ClientProperties.getProvider().put(CLIENT_NAME, provider);
+//        oAuth2ClientExtProp = new OAuth2ClientExtProp();
+//        oAuth2ClientExtProp.getRegistration().put(CLIENT_NAME, registration);
+//        oAuth2ClientExtProp.getProvider().put(CLIENT_NAME, provider);
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.AbstractUnitTests;
 import com.siukatech.poc.react.backend.module.core.business.dto.MyKeyDto;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.util.EncryptionUtils;
 import com.siukatech.poc.react.backend.module.user.form.auth.LoginForm;
 import com.siukatech.poc.react.backend.module.user.form.auth.RefreshTokenForm;
@@ -17,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.*;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,7 +45,7 @@ import static org.mockito.Mockito.doReturn;
 @ContextConfiguration(classes = {
 //        RegistrationConfig.class, ProviderConfig.class
 //        ,
-        OAuth2ClientProperties.class
+        OAuth2ClientExtProp.class
         , AppCoreProp.class
 })
 @TestPropertySource({"classpath:abstract-oauth2-tests.properties"
@@ -69,10 +69,13 @@ public class AuthServiceTests extends AbstractUnitTests {
 ////    private Map<String, String> providerMap;
 
     /**
-     * This is the OAuth2ClientProperties initiated with @TestPropertySource
+     * This is the OAuth2ClientExtProp initiated with @TestPropertySource
+     * Use this to mock the oAuth2ClientExtProp in AuthService
+     * Because the OAuth2ClientExtProp in AuthService always created first
+     * And OAuth2ClientExtProp is final, so it cannot be updated after the creation
      */
     @Autowired
-    private OAuth2ClientProperties oAuth2ClientPropertiesForTests;
+    private OAuth2ClientExtProp oAuth2ClientExtPropForTests;
     @Autowired
     private AppCoreProp appCorePropForTests;
 
@@ -80,16 +83,17 @@ public class AuthServiceTests extends AbstractUnitTests {
     private AuthService authService;
 
     /**
-     * Cannot use @Mock, dont know why cannot mock this oAuth2ClientProperties.
-     * If the AuthService.oAuth2ClientProperties changed to NOT final,
+     * Cannot use @Mock, dont know why cannot mock this oAuth2ClientExtProp.
+     * If the AuthService.oAuth2ClientExtProp changed to NOT final,
      * then using @Mock is ok
+     * Properly is because object cannot be changed if marked as final
      * <p>
-     * However, if AuthService.oAuth2ClientProperties is final,
+     * However, if AuthService.oAuth2ClientExtProp is final,
      * then only @Spy is ok with doReturn().when()
      */
 //    @Mock
     @Spy
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
 
     /**
      * Cannot use @Mock, dont know why cannot mock exchange method ?_?
@@ -104,10 +108,10 @@ public class AuthServiceTests extends AbstractUnitTests {
 
 
 //    private
-////    OAuth2ClientProperties.Registration
-//    Map<String, OAuth2ClientProperties.Registration>
+////    OAuth2ClientExtProp.Registration
+//    Map<String, OAuth2ClientExtProp.Registration>
 //    prepareRegistration(String clientName) {
-//        OAuth2ClientProperties.Registration registration = new OAuth2ClientProperties.Registration();
+//        OAuth2ClientExtProp.Registration registration = new OAuth2ClientExtProp.Registration();
 //        registration.setClientId(registrationConfig.getClientId());
 //        registration.setClientSecret(registrationConfig.getClientSecret());
 //        registration.setAuthorizationGrantType(registrationConfig.getAuthorizationGrantType());
@@ -116,8 +120,8 @@ public class AuthServiceTests extends AbstractUnitTests {
 ////        return registration;
 //        return Map.of(clientName, registration);
 //    }
-//    private Map<String, OAuth2ClientProperties.Provider> prepareProvider(String clientName) {
-//        OAuth2ClientProperties.Provider provider = new OAuth2ClientProperties.Provider();
+//    private Map<String, OAuth2ClientExtProp.Provider> prepareProvider(String clientName) {
+//        OAuth2ClientExtProp.Provider provider = new OAuth2ClientExtProp.Provider();
 //        provider.setAuthorizationUri(providerConfig.getAuthorizationUri());
 //        provider.setTokenUri(providerConfig.getTokenUri());
 //        provider.setUserInfoUri(providerConfig.getUserInfoUri());
@@ -149,8 +153,8 @@ public class AuthServiceTests extends AbstractUnitTests {
 //////                , this.registrationMap, this.providerMap);
 ////        log.debug("setup - registrationClientId: [{}]"
 ////                , this.registrationClientId);
-        log.debug("setup - oAuth2ClientPropertiesForTests.getRegistration.size: [{}]"
-                , this.oAuth2ClientPropertiesForTests.getRegistration().size()
+        log.debug("setup - oAuth2ClientExtPropForTests.getRegistration.size: [{}]"
+                , this.oAuth2ClientExtPropForTests.getRegistration().size()
         );
     }
 
@@ -185,7 +189,7 @@ public class AuthServiceTests extends AbstractUnitTests {
 //        String userId = myKeyDto.getUserId();
 //        when(this.appCoreProp.getMyKeyInfoUrl())
 //                .thenReturn(this.appCorePropForTests.getMyKeyInfoUrl());
-////        when(oauth2ClientRestTemplate.exchange(anyString()
+////        when(this.oauth2ClientRestTemplate.exchange(anyString()
 ////                , eq(HttpMethod.POST), eq(HttpEntity.EMPTY), eq(MyKeyDto.class)))
 ////                .thenReturn(ResponseEntity.ok(prepareMyKeyDto_basic()));
 //        doReturn(ResponseEntity.ok(myKeyDto))
@@ -210,20 +214,26 @@ public class AuthServiceTests extends AbstractUnitTests {
         // given
         String clientName = CLIENT_NAME;
         String codeChallenge = null;
-////        when(this.oAuth2ClientProperties.getRegistration())
+////        when(this.oAuth2ClientExtProp.getRegistration())
 ////                .thenReturn(prepareRegistration(clientName));
-////        when(this.oAuth2ClientProperties.getProvider())
+////        when(this.oAuth2ClientExtProp.getProvider())
 ////                .thenReturn(prepareProvider(clientName));
 //        doReturn(prepareRegistration(clientName))
-//                .when(this.oAuth2ClientProperties).getRegistration();
+//                .when(this.oAuth2ClientExtProp).getRegistration();
 //        doReturn(prepareProvider(clientName))
-//                .when(this.oAuth2ClientProperties).getProvider();
-        doReturn(this.oAuth2ClientPropertiesForTests.getRegistration())
-                .when(this.oAuth2ClientProperties).getRegistration();
-        doReturn(this.oAuth2ClientPropertiesForTests.getProvider())
-                .when(this.oAuth2ClientProperties).getProvider();
-        log.debug("test_getAuthCodeLoginUrl_basic - oAuth2ClientPropertiesForTests.getRegistration.size: [{}]"
-                , this.oAuth2ClientPropertiesForTests.getRegistration().size()
+//                .when(this.oAuth2ClientExtProp).getProvider();
+        //
+        // oAuth2ClientExtProp is created by auto bean creation
+        // oAuth2ClientExtPropForTests is the bean having the values from test properties
+        // so that the oAuth2ClientExtPropForTests is the source of mocking
+        doReturn(this.oAuth2ClientExtPropForTests.getRegistration())
+                .when(this.oAuth2ClientExtProp).getRegistration();
+        doReturn(this.oAuth2ClientExtPropForTests.getProvider())
+                .when(this.oAuth2ClientExtProp).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getProviderExt())
+                .when(this.oAuth2ClientExtProp).getProviderExt();
+        log.debug("test_getAuthCodeLoginUrl_basic - oAuth2ClientExtPropForTests.getRegistration.size: [{}]"
+                , this.oAuth2ClientExtPropForTests.getRegistration().size()
         );
 
         // when
@@ -239,19 +249,21 @@ public class AuthServiceTests extends AbstractUnitTests {
         String clientName = CLIENT_NAME;
         String code = "this-is-an-unit-test-code";
         String codeVerifier = null;
-//        doReturn(prepareRegistration(clientName))
-//                .when(this.oAuth2ClientProperties).getRegistration();
-//        doReturn(prepareProvider(clientName))
-//                .when(this.oAuth2ClientProperties).getProvider();
-////        when(oauth2ClientRestTemplate.exchange(anyString()
+//        doReturn(this.prepareRegistration(clientName))
+//                .when(this.oAuth2ClientExtProp).getRegistration();
+//        doReturn(this.prepareProvider(clientName))
+//                .when(this.oAuth2ClientExtProp).getProvider();
+////        when(this.oauth2ClientRestTemplate.exchange(anyString()
 ////                , eq(HttpMethod.POST), any(HttpEntity.class), eq(TokenRes.class)))
 ////                .thenReturn(ResponseEntity.ok(prepareTokenRes()));
-        doReturn(oAuth2ClientPropertiesForTests.getRegistration())
-                .when(oAuth2ClientProperties).getRegistration();
-        doReturn(oAuth2ClientPropertiesForTests.getProvider())
-                .when(oAuth2ClientProperties).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getRegistration())
+                .when(this.oAuth2ClientExtProp).getRegistration();
+        doReturn(this.oAuth2ClientExtPropForTests.getProvider())
+                .when(this.oAuth2ClientExtProp).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getProviderExt())
+                .when(this.oAuth2ClientExtProp).getProviderExt();
         doReturn(ResponseEntity.ok(prepareTokenRes()))
-                .when(oauth2ClientRestTemplate).exchange(anyString()
+                .when(this.oauth2ClientRestTemplate).exchange(anyString()
                         , eq(HttpMethod.POST), any(HttpEntity.class), eq(TokenRes.class))
         ;
 
@@ -274,10 +286,12 @@ public class AuthServiceTests extends AbstractUnitTests {
         LoginForm loginForm = new LoginForm();
         loginForm.setUsername("username");
         loginForm.setPassword("password");
-        doReturn(oAuth2ClientPropertiesForTests.getRegistration())
-                .when(oAuth2ClientProperties).getRegistration();
-        doReturn(oAuth2ClientPropertiesForTests.getProvider())
-                .when(oAuth2ClientProperties).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getRegistration())
+                .when(this.oAuth2ClientExtProp).getRegistration();
+        doReturn(this.oAuth2ClientExtPropForTests.getProvider())
+                .when(this.oAuth2ClientExtProp).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getProviderExt())
+                .when(this.oAuth2ClientExtProp).getProviderExt();
         doReturn(ResponseEntity.ok(prepareTokenRes()))
                 .when(this.oauth2ClientRestTemplate).exchange(anyString()
                         , eq(HttpMethod.POST), any(HttpEntity.class), eq(TokenRes.class))
@@ -302,10 +316,12 @@ public class AuthServiceTests extends AbstractUnitTests {
         RefreshTokenForm refreshTokenForm = new RefreshTokenForm();
         refreshTokenForm.setAccessToken("access_token");
         refreshTokenForm.setRefreshToken("refresh_token");
-        doReturn(oAuth2ClientPropertiesForTests.getRegistration())
-                .when(oAuth2ClientProperties).getRegistration();
-        doReturn(oAuth2ClientPropertiesForTests.getProvider())
-                .when(oAuth2ClientProperties).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getRegistration())
+                .when(this.oAuth2ClientExtProp).getRegistration();
+        doReturn(this.oAuth2ClientExtPropForTests.getProvider())
+                .when(this.oAuth2ClientExtProp).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getProviderExt())
+                .when(this.oAuth2ClientExtProp).getProviderExt();
         doReturn(ResponseEntity.ok(prepareTokenRes()))
                 .when(this.oauth2ClientRestTemplate).exchange(anyString()
                         , eq(HttpMethod.POST), any(HttpEntity.class), eq(TokenRes.class))
@@ -330,7 +346,7 @@ public class AuthServiceTests extends AbstractUnitTests {
         String logoutApi = "http://localhost:8080/logout";
         ResponseEntity responseEntity = ResponseEntity.status(HttpStatus.OK).build();
 //        when(oauth2ClientRestTemplate.getForEntity(any(URI.class), eq(Map.class))).thenReturn(responseEntity);
-        doReturn(responseEntity).when(oauth2ClientRestTemplate).getForEntity(any(URI.class), eq(Map.class));
+        doReturn(responseEntity).when(this.oauth2ClientRestTemplate).getForEntity(any(URI.class), eq(Map.class));
 
         // when
         HttpStatusCode httpStatusCode = this.authService.doAuthLogout(logoutApi);

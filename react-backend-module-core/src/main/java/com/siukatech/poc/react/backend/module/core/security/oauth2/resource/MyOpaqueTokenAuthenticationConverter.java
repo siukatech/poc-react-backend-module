@@ -1,4 +1,4 @@
-package com.siukatech.poc.react.backend.module.core.security.resourceserver;
+package com.siukatech.poc.react.backend.module.core.security.oauth2.resource;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

@@ -1,10 +1,10 @@
 package com.siukatech.poc.react.backend.module.core.data;
 
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.test.autoconfigure.OverrideAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
@@ -38,7 +38,7 @@ public class JpaRepositoryTestsWithSpringBootTests {
 //    @MockBean
     @SpyBean
 //    @Autowired
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
 //    @MockBean
 //    private UserRepository userRepository;
 //    @MockBean

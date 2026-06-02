@@ -2,23 +2,22 @@ package com.siukatech.poc.react.backend.module.user.controller;
 
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserViewDto;
-import com.siukatech.poc.react.backend.module.user.global.helper.UserEntityTestDataHelper;
-import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
-import com.siukatech.poc.react.backend.module.user.service.UserService;
 import com.siukatech.poc.react.backend.module.core.security.evaluator.PermissionControlEvaluator;
+import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
+import com.siukatech.poc.react.backend.module.core.web.advice.helper.EncryptedBodyAdviceHelper;
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.ProtectedApiV1Controller;
 import com.siukatech.poc.react.backend.module.core.web.context.EncryptedBodyContext;
-import com.siukatech.poc.react.backend.module.core.web.advice.helper.EncryptedBodyAdviceHelper;
 import com.siukatech.poc.react.backend.module.core.web.micrometer.CorrelationIdHandler;
-import lombok.extern.slf4j.Slf4j;
+import com.siukatech.poc.react.backend.module.user.global.helper.UserEntityTestDataHelper;
+import com.siukatech.poc.react.backend.module.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,7 +29,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
@@ -101,7 +99,7 @@ public class UserControllerTests {
     @MockBean
     protected CorrelationIdHandler correlationIdHandler;
     @MockBean
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
     // @MockBean
     // protected ProblemDetailExtMapper problemDetailExtMapper;
     @SpyBean

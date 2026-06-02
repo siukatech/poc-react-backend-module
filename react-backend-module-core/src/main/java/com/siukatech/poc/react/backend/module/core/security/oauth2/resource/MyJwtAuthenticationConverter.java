@@ -1,18 +1,17 @@
-package com.siukatech.poc.react.backend.module.core.security.resourceserver;
+package com.siukatech.poc.react.backend.module.core.security.oauth2.resource;
 
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserPermissionDto;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.security.model.MyGrantedAuthority;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
 import com.siukatech.poc.react.backend.module.core.util.ResourceServerUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -33,28 +32,28 @@ public class MyJwtAuthenticationConverter implements Converter<Jwt, AbstractAuth
     private final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter;
 //    private final UserService userService;
     private final AuthorizationDataProvider authorizationDataProvider;
-    private final OAuth2ClientProperties oAuth2ClientProperties;
+    private final OAuth2ClientExtProp oAuth2ClientExtProp;
 
     public MyJwtAuthenticationConverter(
             JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter
 //            , UserService userService
             , AuthorizationDataProvider authorizationDataProvider
-            , OAuth2ClientProperties oAuth2ClientProperties
+            , OAuth2ClientExtProp oAuth2ClientExtProp
     ) {
         this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
 //        this.userService = userService;
         this.authorizationDataProvider = authorizationDataProvider;
-        this.oAuth2ClientProperties = oAuth2ClientProperties;
+        this.oAuth2ClientExtProp = oAuth2ClientExtProp;
     }
 
     @Override
     public AbstractAuthenticationToken convert(Jwt source) {
         // subject is the user-id
         String issuerUri = source.getIssuer().toString();
-        Map.Entry<String, OAuth2ClientProperties.Provider> providerEntry =
-                ResourceServerUtil.getProviderEntry(oAuth2ClientProperties, issuerUri);
+        Map.Entry<String, OAuth2ClientExtProp.Provider> providerEntry =
+                ResourceServerUtil.getProviderEntry(oAuth2ClientExtProp, issuerUri);
         String clientName = providerEntry.getKey();
-        OAuth2ClientProperties.Provider provider = providerEntry.getValue();
+        OAuth2ClientExtProp.Provider provider = providerEntry.getValue();
         // Use Provider.user-name-attribute instead of hard-coded preferred_username
         // StandardClaimNames.PREFERRED_USERNAME
         String userNameAttribute = provider.getUserNameAttribute();

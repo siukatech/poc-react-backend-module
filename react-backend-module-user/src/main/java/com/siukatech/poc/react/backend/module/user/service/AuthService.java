@@ -2,12 +2,12 @@ package com.siukatech.poc.react.backend.module.user.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.GrantType;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.util.URLEncoderUtils;
 import com.siukatech.poc.react.backend.module.user.form.auth.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -28,17 +28,17 @@ public class AuthService {
     public static final String RESPONSE_TYPE_CODE = "code";
     public static final String CODE_CHALLENGE_METHOD = "S256";
 
-    private final OAuth2ClientProperties oAuth2ClientProperties;
+    private final OAuth2ClientExtProp oAuth2ClientExtProp;
     private final RestTemplate oauth2ClientRestTemplate;
     //    private final AppCoreProp appCoreProp;
     private final ObjectMapper objectMapper;
 
-    public AuthService(OAuth2ClientProperties oAuth2ClientProperties
+    public AuthService(OAuth2ClientExtProp oAuth2ClientExtProp
             , RestTemplate oauth2ClientRestTemplate
 //            , AppCoreProp appCoreProp
             , ObjectMapper objectMapper
     ) {
-        this.oAuth2ClientProperties = oAuth2ClientProperties;
+        this.oAuth2ClientExtProp = oAuth2ClientExtProp;
         this.oauth2ClientRestTemplate = oauth2ClientRestTemplate;
 //        this.appCoreProp = appCoreProp;
         this.objectMapper = objectMapper;
@@ -74,8 +74,11 @@ public class AuthService {
 //    }
 
     public String getAuthCodeLoginUrl(String clientName, String codeChallenge) {
-        OAuth2ClientProperties.Registration registration = this.oAuth2ClientProperties.getRegistration().get(clientName);
-        OAuth2ClientProperties.Provider provider = this.oAuth2ClientProperties.getProvider().get(clientName);
+        OAuth2ClientExtProp.Registration registration = this.oAuth2ClientExtProp.getRegistration().get(clientName);
+        OAuth2ClientExtProp.Provider provider = this.oAuth2ClientExtProp
+//                .getProvider()
+                .getProviderExt()
+                .get(clientName);
 //        response_type=code&client_id=react-backend-client-01&scope=openid&redirect_uri=http://localhost:3000/redirect
 
         log.debug("getAuthCodeLoginUrl - registration: [{}]", registration);
@@ -84,6 +87,7 @@ public class AuthService {
                 , (registration == null ? "NULL" : registration.getScope().size())
                 , (registration == null ? "NULL" : registration.getScope())
         );
+        log.debug("getAuthCodeLoginUrl - provider: [{}]", provider);
 
         AuthCodeReq.AuthCodeReqBuilder authCodeReqBuilder = AuthCodeReq.builder()
                 .responseType(RESPONSE_TYPE_CODE)
@@ -136,7 +140,10 @@ public class AuthService {
     }
 
     private TokenRes resolveOAuth2TokenRes(String clientName, TokenReq tokenReq, HttpHeaders httpHeaders) {
-        OAuth2ClientProperties.Provider provider = this.oAuth2ClientProperties.getProvider().get(clientName);
+        OAuth2ClientExtProp.Provider provider = this.oAuth2ClientExtProp
+//                .getProvider()
+                .getProviderExt()
+                .get(clientName);
 
         String tokenUrl = provider.getTokenUri();
 //        MultiValueMap<String, String> tokenReqMap = new LinkedMultiValueMap<String, String>();
@@ -186,8 +193,8 @@ public class AuthService {
     }
 
     public TokenRes resolveAuthCodeTokenRes(String clientName, String code, String codeVerifier) {
-        OAuth2ClientProperties.Registration registration = this.oAuth2ClientProperties.getRegistration().get(clientName);
-//        OAuth2ClientProperties.Provider provider = this.oAuth2ClientProperties.getProvider().get(clientName);
+        OAuth2ClientExtProp.Registration registration = this.oAuth2ClientExtProp.getRegistration().get(clientName);
+//        OAuth2ClientExtProp.Provider provider = this.oAuth2ClientExtProp.getProvider().get(clientName);
 
         // headers.set('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
         // headers.set('Authorization', `Basic ${Buffer.from(`${client_id}:${client_secret}`)}`);
@@ -253,7 +260,7 @@ public class AuthService {
     }
 
     public TokenRes resolvePasswordTokenRes(String clientName, LoginForm loginForm) {
-        OAuth2ClientProperties.Registration registration = this.oAuth2ClientProperties.getRegistration().get(clientName);
+        OAuth2ClientExtProp.Registration registration = this.oAuth2ClientExtProp.getRegistration().get(clientName);
         HttpHeaders httpHeaders = new HttpHeaders();
         TokenReq tokenPasswordReq = TokenPasswordReq.builder()
                 .clientId(registration.getClientId())
@@ -269,7 +276,7 @@ public class AuthService {
     }
 
     public TokenRes resolveRefreshTokenTokenRes(String clientName, RefreshTokenForm refreshTokenForm) {
-        OAuth2ClientProperties.Registration registration = this.oAuth2ClientProperties.getRegistration().get(clientName);
+        OAuth2ClientExtProp.Registration registration = this.oAuth2ClientExtProp.getRegistration().get(clientName);
         HttpHeaders httpHeaders = new HttpHeaders();
         TokenReq tokenRefreshTokenReq = TokenRefreshTokenReq.builder()
                 .clientId(registration.getClientId())

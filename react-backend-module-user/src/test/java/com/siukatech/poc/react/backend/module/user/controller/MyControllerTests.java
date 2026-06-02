@@ -1,17 +1,17 @@
 package com.siukatech.poc.react.backend.module.user.controller;
 
 import com.siukatech.poc.react.backend.module.core.AbstractWebTests;
-import com.siukatech.poc.react.backend.module.user.global.helper.UserEntityTestDataHelper;
 import com.siukatech.poc.react.backend.module.core.business.dto.*;
-import com.siukatech.poc.react.backend.module.user.service.UserService;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.ProtectedApiV1Controller;
+import com.siukatech.poc.react.backend.module.user.global.helper.UserEntityTestDataHelper;
+import com.siukatech.poc.react.backend.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,7 +19,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -68,7 +67,7 @@ public class MyControllerTests extends AbstractWebTests {
     @MockBean
     private JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter;
     @MockBean
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
 
 //    @SpyBean
 //    private UserTestDataHelper userTestDataHelper;

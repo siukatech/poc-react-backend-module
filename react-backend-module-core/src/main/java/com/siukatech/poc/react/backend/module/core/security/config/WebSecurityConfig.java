@@ -3,9 +3,9 @@ package com.siukatech.poc.react.backend.module.core.security.config;
 import com.siukatech.poc.react.backend.module.core.security.filter.AuthorizationDataFilter;
 import com.siukatech.poc.react.backend.module.core.security.filter.ExceptionHandlerFilter;
 import com.siukatech.poc.react.backend.module.core.security.handler.KeycloakLogoutHandler;
-import com.siukatech.poc.react.backend.module.core.security.resourceserver.MyJwtAuthenticationConverter;
-import com.siukatech.poc.react.backend.module.core.security.resourceserver.MyOpaqueTokenAuthenticationConverter;
-import com.siukatech.poc.react.backend.module.core.security.resourceserver.MyOpaqueTokenIntrospector;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.MyJwtAuthenticationConverter;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.MyOpaqueTokenAuthenticationConverter;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.MyOpaqueTokenIntrospector;
 import com.siukatech.poc.react.backend.module.core.web.helper.PublicControllerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +52,7 @@ public class WebSecurityConfig {
 ////    private final OAuth2ResourceServerProperties oAuth2ResourceServerProperties;
 //    private final MyJwtAuthenticationConverter myJwtAuthenticationConverter;
 //    private final AuthorizationDataFilter authorizationDataFilter;
-////    private final OAuth2ClientProperties oAuth2ClientProperties;
+////    private final OAuth2ClientExtProp oAuth2ClientExtProp;
 ////    private final OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp;
 //    private final MyOpaqueTokenIntrospector opaqueTokenIntrospector;
 //    private final MyOpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter;
@@ -67,7 +67,7 @@ public class WebSecurityConfig {
 ////            , OAuth2ResourceServerProperties oAuth2ResourceServerProperties
 //            , MyJwtAuthenticationConverter myJwtAuthenticationConverter
 //            , AuthorizationDataFilter authorizationDataFilter
-////            , OAuth2ClientProperties oAuth2ClientProperties
+////            , OAuth2ClientExtProp oAuth2ClientExtProp
 ////            , OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp
 //            , MyOpaqueTokenIntrospector opaqueTokenIntrospector
 //            , MyOpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter
@@ -81,7 +81,7 @@ public class WebSecurityConfig {
 ////        this.oAuth2ResourceServerProperties = oAuth2ResourceServerProperties;
 //        this.myJwtAuthenticationConverter = myJwtAuthenticationConverter;
 //        //
-////        this.oAuth2ClientProperties = oAuth2ClientProperties;
+////        this.oAuth2ClientExtProp = oAuth2ClientExtProp;
 ////        this.oAuth2ResourceServerExtProp = oAuth2ResourceServerExtProp;
 //        //
 //        this.opaqueTokenIntrospector = opaqueTokenIntrospector;
@@ -211,7 +211,7 @@ public class WebSecurityConfig {
 //            , OAuth2ResourceServerProperties oAuth2ResourceServerProperties
             , MyJwtAuthenticationConverter myJwtAuthenticationConverter
             , AuthorizationDataFilter authorizationDataFilter
-//            , OAuth2ClientProperties oAuth2ClientProperties
+//            , OAuth2ClientExtProp oAuth2ClientExtProp
 //            , OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp
             , MyOpaqueTokenIntrospector opaqueTokenIntrospector
             , MyOpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter
@@ -363,13 +363,13 @@ public class WebSecurityConfig {
 //        return (token -> {
 //            try {
 //                String issuerUri = ResourceServerUtil.getIssuerUri(token);
-//                String clientName = oAuth2ClientProperties.getProvider().entrySet().stream()
+//                String clientName = oAuth2ClientExtProp.getProvider().entrySet().stream()
 //                        .filter(entry -> entry.getValue().getIssuerUri().equals(issuerUri))
 //                        .map(entry -> entry.getKey())
 //                        .findFirst()
 //                        .orElse(null)
 //                        ;
-//                OAuth2ClientProperties.Registration registration = oAuth2ClientProperties.getRegistration().get(clientName);
+//                OAuth2ClientExtProp.Registration registration = oAuth2ClientExtProp.getRegistration().get(clientName);
 //                OAuth2ResourceServerProperties.Jwt jwt = oAuth2ResourceServerExtProp.getJwt().entrySet().stream()
 //                        .filter(entry -> entry.getKey().equals(clientName))
 //                        .map(entry -> entry.getValue())
@@ -394,7 +394,7 @@ public class WebSecurityConfig {
 //    @Bean
 //    public OpaqueTokenIntrospector opaqueTokenIntrospector() {
 //        MyOpaqueTokenIntrospector myOpaqueTokenIntrospector
-//                = new MyOpaqueTokenIntrospector(oAuth2ClientProperties, oAuth2ResourceServerExtProp);
+//                = new MyOpaqueTokenIntrospector(oAuth2ClientExtProp, oAuth2ResourceServerExtProp);
 //        return myOpaqueTokenIntrospector;
 //    }
 

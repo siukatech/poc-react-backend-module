@@ -1,11 +1,11 @@
 package com.siukatech.poc.react.backend.module.user.controller;
 
 
+import com.siukatech.poc.react.backend.module.core.web.annotation.v1.PublicApiV1Controller;
 import com.siukatech.poc.react.backend.module.user.form.auth.LoginForm;
 import com.siukatech.poc.react.backend.module.user.form.auth.RefreshTokenForm;
 import com.siukatech.poc.react.backend.module.user.form.auth.TokenRes;
 import com.siukatech.poc.react.backend.module.user.service.AuthService;
-import com.siukatech.poc.react.backend.module.core.web.annotation.v1.PublicApiV1Controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -27,18 +27,18 @@ public class AuthController {
 //    @Value("${security.oauth2.client.registration.keycloak.client-secret}")
 //    private String clientSceret;
 
-    //    private final OAuth2ClientProperties oAuth2ClientProperties;
+    //    private final OAuth2ClientExtProp oAuth2ClientExtProp;
 //    private final RestTemplate oauth2ClientRestTemplate;
 //    private final ObjectMapper objectMapper;
     private final AuthService authService;
 
     public AuthController(
-//            OAuth2ClientProperties oAuth2ClientProperties
+//            OAuth2ClientExtProp oAuth2ClientExtProp
 //            , RestTemplate oauth2ClientRestTemplate
 //            , ObjectMapper objectMapper
 //            ,
             AuthService authService) {
-//        this.oAuth2ClientProperties = oAuth2ClientProperties;
+//        this.oAuth2ClientExtProp = oAuth2ClientExtProp;
 //        this.oauth2ClientRestTemplate = oauth2ClientRestTemplate;
 //        this.objectMapper = objectMapper;
         this.authService = authService;

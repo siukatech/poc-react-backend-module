@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.AbstractUnitTests;
 import com.siukatech.poc.react.backend.module.core.business.dto.MyKeyDto;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.util.EncryptionUtils;
 import com.siukatech.poc.react.backend.module.user.form.auth.TokenRes;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -48,7 +48,7 @@ import static org.mockito.Mockito.doReturn;
 })
 @EnableConfigurationProperties
 @ContextConfiguration(classes = {
-        OAuth2ClientProperties.class
+        OAuth2ClientExtProp.class
         , AppCoreProp.class
 })
 @TestPropertySource({"classpath:abstract-oauth2-tests.properties"
@@ -58,10 +58,10 @@ import static org.mockito.Mockito.doReturn;
 public class AuthServicePkceTests extends AbstractUnitTests {
 
     /**
-     * This is the OAuth2ClientProperties initiated with @TestPropertySource
+     * This is the OAuth2ClientExtProp initiated with @TestPropertySource
      */
     @Autowired
-    private OAuth2ClientProperties oAuth2ClientPropertiesForTests;
+    private OAuth2ClientExtProp oAuth2ClientExtPropForTests;
     @Autowired
     private AppCoreProp appCorePropForTests;
 
@@ -69,16 +69,16 @@ public class AuthServicePkceTests extends AbstractUnitTests {
     private AuthService authService;
 
     /**
-     * Cannot use @Mock, dont know why cannot mock this oAuth2ClientProperties.
-     * If the AuthService.oAuth2ClientProperties changed to NOT final,
+     * Cannot use @Mock, dont know why cannot mock this oAuth2ClientExtProp.
+     * If the AuthService.oAuth2ClientExtProp changed to NOT final,
      * then using @Mock is ok
      * <p>
-     * However, if AuthService.oAuth2ClientProperties is final,
+     * However, if AuthService.oAuth2ClientExtProp is final,
      * then only @Spy is ok with doReturn().when()
      */
 //    @Mock
     @Spy
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
 
     /**
      * Cannot use @Mock, dont know why cannot mock exchange method ?_?
@@ -103,8 +103,8 @@ public class AuthServicePkceTests extends AbstractUnitTests {
 
     @BeforeEach
     public void setup() {
-        log.debug("setup - oAuth2ClientPropertiesForTests.getRegistration.size: [{}]"
-                , this.oAuth2ClientPropertiesForTests.getRegistration().size()
+        log.debug("setup - oAuth2ClientExtPropForTests.getRegistration.size: [{}]"
+                , this.oAuth2ClientExtPropForTests.getRegistration().size()
         );
     }
 
@@ -146,12 +146,14 @@ public class AuthServicePkceTests extends AbstractUnitTests {
         String clientName = CLIENT_NAME;
         String codeVerifier = EncryptionUtils.generateCodeVerifier();
         String codeChallenge = EncryptionUtils.generateCodeChallenge(codeVerifier);
-        doReturn(this.oAuth2ClientPropertiesForTests.getRegistration())
-                .when(this.oAuth2ClientProperties).getRegistration();
-        doReturn(this.oAuth2ClientPropertiesForTests.getProvider())
-                .when(this.oAuth2ClientProperties).getProvider();
-        log.debug("test_getAuthCodeLoginUrl_basic - oAuth2ClientPropertiesForTests.getRegistration.size: [{}]"
-                , this.oAuth2ClientPropertiesForTests.getRegistration().size()
+        doReturn(this.oAuth2ClientExtPropForTests.getRegistration())
+                .when(this.oAuth2ClientExtProp).getRegistration();
+        doReturn(this.oAuth2ClientExtPropForTests.getProvider())
+                .when(this.oAuth2ClientExtProp).getProvider();
+        doReturn(this.oAuth2ClientExtPropForTests.getProviderExt())
+                .when(this.oAuth2ClientExtProp).getProviderExt();
+        log.debug("test_getAuthCodeLoginUrl_basic - oAuth2ClientExtPropForTests.getRegistration.size: [{}]"
+                , this.oAuth2ClientExtPropForTests.getRegistration().size()
         );
 
         // when

@@ -6,6 +6,7 @@ import com.siukatech.poc.react.backend.module.core.business.dto.MyKeyDto;
 import com.siukatech.poc.react.backend.module.core.business.form.encrypted.EncryptedDetail;
 import com.siukatech.poc.react.backend.module.core.business.form.encrypted.EncryptedInfo;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
 import com.siukatech.poc.react.backend.module.core.util.EncryptionUtils;
 import com.siukatech.poc.react.backend.module.core.web.advice.helper.EncryptedBodyAdviceHelper;
@@ -17,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.MethodParameter;
 import org.springframework.test.context.ContextConfiguration;
@@ -39,17 +39,17 @@ import static org.assertj.core.api.Assertions.assertThat;
         , SpringExtension.class
 })
 @EnableConfigurationProperties
-@ContextConfiguration(classes = {OAuth2ClientProperties.class, AppCoreProp.class})
+@ContextConfiguration(classes = {OAuth2ClientExtProp.class, AppCoreProp.class})
 @TestPropertySource({"classpath:abstract-oauth2-tests.properties"
         , "classpath:global/app-core-config-tests.properties"
 })
 public class EncryptedBodyAdviceHelperTests extends AbstractUnitTests {
 
     /**
-     * This is the OAuth2ClientProperties initiated with @TestPropertySource
+     * This is the OAuth2ClientExtProp initiated with @TestPropertySource
      */
     @Autowired
-    private OAuth2ClientProperties oAuth2ClientPropertiesForTests;
+    private OAuth2ClientExtProp oAuth2ClientExtPropForTests;
     @Autowired
     private AppCoreProp appCorePropForTests;
 

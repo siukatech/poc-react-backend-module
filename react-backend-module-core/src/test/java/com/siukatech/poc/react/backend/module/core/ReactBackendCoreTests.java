@@ -1,9 +1,9 @@
 package com.siukatech.poc.react.backend.module.core;
 
+import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.test.autoconfigure.OverrideAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
@@ -69,7 +69,7 @@ public class ReactBackendCoreTests {
     @MockBean
 //    @SpyBean
 //    @Autowired
-    private OAuth2ClientProperties oAuth2ClientProperties;
+    private OAuth2ClientExtProp oAuth2ClientExtProp;
 //    @MockBean
 //    private UserRepository userRepository;
 //    @MockBean
@@ -88,7 +88,7 @@ public class ReactBackendCoreTests {
 
     @Test
     void contextLoads() {
-        Assertions.assertNotNull(oAuth2ClientProperties);
+        Assertions.assertNotNull(oAuth2ClientExtProp);
     }
 
 }
