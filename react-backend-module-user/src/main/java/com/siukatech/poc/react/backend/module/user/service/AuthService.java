@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.util.URLEncoderUtils;
-import com.siukatech.poc.react.backend.module.user.form.auth.*;
+import com.siukatech.poc.react.backend.module.user.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;

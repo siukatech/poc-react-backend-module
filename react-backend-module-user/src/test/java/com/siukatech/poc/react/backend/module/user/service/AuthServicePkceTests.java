@@ -6,7 +6,7 @@ import com.siukatech.poc.react.backend.module.core.business.dto.MyKeyDto;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
 import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.util.EncryptionUtils;
-import com.siukatech.poc.react.backend.module.user.form.auth.TokenRes;
+import com.siukatech.poc.react.backend.module.user.model.TokenRes;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;

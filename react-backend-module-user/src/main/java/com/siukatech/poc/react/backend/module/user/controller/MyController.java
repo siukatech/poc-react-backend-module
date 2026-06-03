@@ -2,11 +2,9 @@ package com.siukatech.poc.react.backend.module.user.controller;
 
 import com.siukatech.poc.react.backend.module.core.business.dto.*;
 import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
-import com.siukatech.poc.react.backend.module.user.mapper.UserMapper;
-import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
-import com.siukatech.poc.react.backend.module.user.service.UserService;
 import com.siukatech.poc.react.backend.module.core.util.HttpHeaderUtils;
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.ProtectedApiV1Controller;
+import com.siukatech.poc.react.backend.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;

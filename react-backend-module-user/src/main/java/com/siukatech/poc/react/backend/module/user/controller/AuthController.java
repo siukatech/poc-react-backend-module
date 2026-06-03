@@ -2,10 +2,10 @@ package com.siukatech.poc.react.backend.module.user.controller;
 
 
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.PublicApiV1Controller;
-import com.siukatech.poc.react.backend.module.user.form.auth.LoginForm;
-import com.siukatech.poc.react.backend.module.user.form.auth.RefreshTokenForm;
-import com.siukatech.poc.react.backend.module.user.form.auth.TokenRes;
 import com.siukatech.poc.react.backend.module.user.service.AuthService;
+import com.siukatech.poc.react.backend.module.user.model.LoginForm;
+import com.siukatech.poc.react.backend.module.user.model.RefreshTokenForm;
+import com.siukatech.poc.react.backend.module.user.model.TokenRes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

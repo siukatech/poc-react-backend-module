@@ -5,13 +5,7 @@ import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserPermissionDto;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
-import com.siukatech.poc.react.backend.module.user.entity.UserEntity;
-import com.siukatech.poc.react.backend.module.user.entity.UserPermissionEntity;
-import com.siukatech.poc.react.backend.module.core.global.helper.UserDtoTestDataHelper;
 import com.siukatech.poc.react.backend.module.user.global.helper.UserEntityTestDataHelper;
-import com.siukatech.poc.react.backend.module.user.repository.UserPermissionRepository;
-import com.siukatech.poc.react.backend.module.user.repository.UserRepository;
-import com.siukatech.poc.react.backend.module.user.repository.UserViewRepository;
 import com.siukatech.poc.react.backend.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -21,10 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;

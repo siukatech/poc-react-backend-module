@@ -1,4 +1,4 @@
-package com.siukatech.poc.react.backend.module.user.form.auth;
+package com.siukatech.poc.react.backend.module.user.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
