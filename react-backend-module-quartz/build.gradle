@@ -1,0 +1,140 @@
+import com.siukatech.poc.react.backend.plugin.ReactBackendUtil
+import org.codehaus.groovy.runtime.GStringImpl
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    id 'java-library'
+    id 'java-test-fixtures'
+    id 'maven-publish'
+    id 'com.siukatech.poc.react-backend-plugin' version '0.0.1-SNAPSHOT'
+    id 'org.springframework.boot' version '3.3.7' apply false
+    id 'jacoco'
+    id 'org.sonarqube' version '4.0.0.2929'
+}
+apply plugin: 'io.spring.dependency-management'
+
+dependencyManagement {
+    imports {
+        mavenBom SpringBootPlugin.BOM_COORDINATES
+    }
+}
+
+java {
+    group = 'com.siukatech.poc'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = JavaVersion.VERSION_17
+//    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_17
+//    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    if (project.hasProperty("platformSnapshotUri")) {
+        maven {
+            name = 'platformSnapshot'
+            allowInsecureProtocol = true
+            credentials(PasswordCredentials)
+            url = uri("$platformSnapshotUri")
+        }
+    }
+}
+
+ext {
+    lombokVersion = '1.18.30'
+    mapstructVersion = '1.6.0.RC1'
+    lombokMapstructBindingVersion = '0.2.0'
+    embeddedRedisVersion = '1.4.3'
+    springBootVersion = "${ReactBackendUtil.extractSpringBootVersion()}" as GStringImpl
+    springSecurityVersion = "${ReactBackendUtil.extractSpringSecurityVersion()}" as GStringImpl
+    openapiGeneratorVersion = "${ReactBackendUtil.extractOpenapiGeneratorVersion()}" as GStringImpl
+}
+
+dependencies {
+    api project(':react-backend-module-core')
+
+//    api "org.mapstruct:mapstruct:${mapstructVersion}"
+    api 'org.springframework.boot:spring-boot-starter-quartz'
+
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+    testImplementation testFixtures(project(':react-backend-module-core'))
+    testFixturesApi testFixtures(project(':react-backend-module-core'))
+}
+
+// after upgrade to springboot >= 3.2.1
+// this can be fixed by update build.gradle or adding maven plugin
+// https://stackoverflow.com/a/77691302
+// https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#parameter-name-retention
+//tasks.withType(JavaCompile).configureEach {
+//    options.compilerArgs.add("-parameters")
+//}
+
+bootJar {
+    enabled = false
+}
+jar {
+    enabled = true
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// jacoco
+jacocoTestReport {
+    dependsOn(test)
+    reports {
+        csv.required = false
+        html.required = false
+        xml.required = true
+    }
+}
+check {
+    dependsOn(jacocoTestReport)
+}
+
+
+// disable publishing for jenkins testing
+publishing {
+    publications {
+        privateMaven(MavenPublication) {
+            def artifactIdStr = "$project.name"
+            groupId "$project.group"
+            version "$project.version"
+            artifactId "$artifactIdStr"
+//			from components.javaPlatform
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = "$artifactId"
+                description = "$artifactId"
+            }
+
+        }
+    }
+    if (project.hasProperty("platformSnapshotUri")) {
+        repositories {
+//			def publishingUri = project.hasProperty("platformSnapshotUri") ? "$platformSnapshotUri" : ""
+            maven {
+                name = 'platformSnapshot'
+                allowInsecureProtocol = true
+                credentials(PasswordCredentials)
+                url = uri("$platformSnapshotUri")
+            }
+        }
+    }
+}
+// disable publishing for jenkins testing
+

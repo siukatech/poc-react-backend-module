@@ -16,8 +16,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 //@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.core.security.provider.database.entity"})  // "**" means all packages
 //@EnableJpaRepositories("com.siukatech.poc.react.backend.module.core.security.provider.database.repository")    // "**" means all packages
-@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.user.data.entity"})  // "**" means all packages
-@EnableJpaRepositories("com.siukatech.poc.react.backend.module.user.data.repository")    // "**" means all packages
+@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.user.entity"})  // "**" means all packages
+@EnableJpaRepositories("com.siukatech.poc.react.backend.module.user.repository")    // "**" means all packages
 @ComponentScan(value = {"com.siukatech.poc.react.backend.module.user"})
 public class UserSupportConfig {
 

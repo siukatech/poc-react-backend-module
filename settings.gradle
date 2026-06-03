@@ -10,4 +10,5 @@ pluginManagement {
 rootProject.name = 'react-backend-module'
 include 'react-backend-module-core'
 include 'react-backend-module-user'
+include 'react-backend-module-quartz'
 
