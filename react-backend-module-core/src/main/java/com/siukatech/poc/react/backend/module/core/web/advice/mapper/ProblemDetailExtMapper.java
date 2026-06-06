@@ -4,6 +4,7 @@ import com.siukatech.poc.react.backend.module.core.business.mapper.AbstractMappe
 import com.siukatech.poc.react.backend.module.core.web.advice.model.ProblemDetailExt;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.ProblemDetail;
 
 /**
@@ -18,6 +19,8 @@ import org.springframework.http.ProblemDetail;
 @Mapper  // This is not working, does not support the @Autowired
 //@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ProblemDetailExtMapper extends AbstractMapper {
+
+    ProblemDetailExtMapper INSTANCE = Mappers.getMapper(ProblemDetailExtMapper.class);
 
     @Mapping(target = "correlationId", ignore = true)
     ProblemDetailExt convertProblemDetailToExtWithoutCorrelationId(ProblemDetail problemDetail);

@@ -44,7 +44,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 //        this.tracer = tracer;
         this.correlationIdHandler = correlationIdHandler;
 //        this.problemDetailExtMapper = problemDetailExtMapper;
-        this.problemDetailExtMapper = Mappers.getMapper(ProblemDetailExtMapper.class);
+        this.problemDetailExtMapper = ProblemDetailExtMapper.INSTANCE;
     }
 
     protected ProblemDetailExt createProblemDetailExt(ProblemDetail body) {

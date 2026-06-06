@@ -1040,6 +1040,8 @@ public class TargetObjWithoutOptional {
 @Mapper
 public interface SourceTargetMapper extends AbstractMapper {
 
+    SourceTargetMapper INSTANCE = Mappers.getMapper(SourceTargetMapper.class);
+
     TargetSimpleData toTargetSimpleData(SourceSimpleData sourceSimpleData);
 
     SourceSimpleData toSourceSimpleData(TargetSimpleData targetSimpleData);

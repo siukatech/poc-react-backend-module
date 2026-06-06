@@ -5,11 +5,15 @@ import com.siukatech.poc.mapper.model.SourceSimpleData;
 import com.siukatech.poc.mapper.model.TargetObjWithoutOptional;
 import com.siukatech.poc.mapper.model.TargetSimpleData;
 import com.siukatech.poc.react.backend.module.core.business.mapper.AbstractMapper;
+import com.siukatech.poc.react.backend.module.core.web.advice.mapper.ProblemDetailExtMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 @Mapper
 public interface SourceTargetMapper extends AbstractMapper {
+
+    SourceTargetMapper INSTANCE = Mappers.getMapper(SourceTargetMapper.class);
 
     TargetSimpleData toTargetSimpleData(SourceSimpleData sourceSimpleData);
 
