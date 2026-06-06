@@ -1,7 +1,7 @@
 package com.siukatech.poc.react.backend.module.quartz.controller;
 
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.PublicApiV1Controller;
-import com.siukatech.poc.react.backend.module.quartz.service.JobService;
+import com.siukatech.poc.react.backend.module.quartz.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -16,16 +16,16 @@ import java.util.List;
 public class JobController {
 
     private final Scheduler scheduler;
-    private final JobService jobService;
+    private final SchedulerService schedulerService;
 
-    public JobController(Scheduler scheduler, JobService jobService) {
+    public JobController(Scheduler scheduler, SchedulerService schedulerService) {
         this.scheduler = scheduler;
-        this.jobService = jobService;
+        this.schedulerService = schedulerService;
     }
 
     @GetMapping(value = "/quartz/job/keys")
     public ResponseEntity getJobKeyList() throws SchedulerException {
-        List<JobKey> jobKeyList = this.jobService.getJobList();
+        List<JobKey> jobKeyList = this.schedulerService.getJobList();
         return ResponseEntity.ok(jobKeyList);
     }
 

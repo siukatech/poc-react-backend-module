@@ -8,12 +8,12 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 
 @SpringBootApplication(
-        exclude = {
-                DataSourceAutoConfiguration.class
-                , DataSourceTransactionManagerAutoConfiguration.class
-                , HibernateJpaAutoConfiguration.class
-                , SecurityAutoConfiguration.class
-        }
+//        exclude = {
+//                DataSourceAutoConfiguration.class
+//                , DataSourceTransactionManagerAutoConfiguration.class
+//                , HibernateJpaAutoConfiguration.class
+//                , SecurityAutoConfiguration.class
+//        }
 )
 public class ReactBackendApp {
 

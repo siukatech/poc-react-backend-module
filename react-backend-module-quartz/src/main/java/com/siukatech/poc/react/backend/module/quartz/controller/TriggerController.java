@@ -2,7 +2,7 @@ package com.siukatech.poc.react.backend.module.quartz.controller;
 
 
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.PublicApiV1Controller;
-import com.siukatech.poc.react.backend.module.quartz.service.TriggerService;
+import com.siukatech.poc.react.backend.module.quartz.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -17,16 +17,16 @@ import java.util.List;
 public class TriggerController {
 
     private final Scheduler scheduler;
-    private final TriggerService triggerService;
+    private final SchedulerService schedulerService;
 
-    public TriggerController(Scheduler scheduler, TriggerService triggerService) {
+    public TriggerController(Scheduler scheduler, SchedulerService schedulerService) {
         this.scheduler = scheduler;
-        this.triggerService = triggerService;
+        this.schedulerService = schedulerService;
     }
 
-    @GetMapping(value = "/quartz/triggers/")
+    @GetMapping(value = "/quartz/triggers")
     public ResponseEntity getTriggerList() throws SchedulerException {
-        List<Trigger> triggerList = this.triggerService.getTriggerList();
+        List<Trigger> triggerList = this.schedulerService.getTriggerList();
         return ResponseEntity.ok(triggerList);
     }
 
