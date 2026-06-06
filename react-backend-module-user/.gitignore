@@ -41,6 +41,7 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
+!**/src/testFixtures/**/bin/
 
 ### IntelliJ IDEA ###
 .idea
