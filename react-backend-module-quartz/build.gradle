@@ -59,8 +59,12 @@ dependencies {
 
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
-
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+
+//    testImplementation "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     testImplementation testFixtures(project(':react-backend-module-core'))
     testFixturesApi testFixtures(project(':react-backend-module-core'))

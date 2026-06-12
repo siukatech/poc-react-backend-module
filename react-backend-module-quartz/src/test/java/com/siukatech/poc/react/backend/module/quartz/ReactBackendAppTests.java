@@ -1,15 +1,21 @@
 package com.siukatech.poc.react.backend.module.quartz;
 
+import com.siukatech.poc.react.backend.module.quartz.job.EmailJob;
 import org.junit.jupiter.api.Test;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-//@DataJpaTest
+
+@Import(value = {
+        ReactBackendAppTests.TestConfig.class
+})
 @SpringBootTest(properties = {
         "spring.quartz.job-store-type=memory"
 //        "spring.quartz.job-store-type=jdbc"
@@ -23,11 +29,29 @@ public class ReactBackendAppTests {
     @Autowired
     private Scheduler scheduler;
 
-//    @Test
+    @TestConfiguration
+    static class TestConfig {
+
+    }
+
+    @Test
     void givenEmailJob_whenSchedulerRestart_thenJobAndTriggerReloadedFromDatabase() throws Exception {
+
+        JobDetail emailJobDetail = JobBuilder.newJob(EmailJob.class)
+                    .withIdentity("emailJob")
+                    .storeDurably()
+                    .build();
+        CronScheduleBuilder schedule = CronScheduleBuilder.cronSchedule("0 0/1 * * * ?"); // every 1 min
+        Trigger emailJobTrigger = TriggerBuilder.newTrigger()
+                    .forJob(emailJobDetail)
+                    .withIdentity("emailTrigger")
+                    .withSchedule(schedule)
+                    .build();
+        scheduler.scheduleJob(emailJobDetail, emailJobTrigger);
+
         // Verify the job and trigger exist in the running scheduler
-        JobKey jobKey = new JobKey("emailJob", "emailGroup");
-        TriggerKey triggerKey = new TriggerKey("emailTrigger", "emailGroup");
+        JobKey jobKey = new JobKey("emailJob", "DEFAULT");
+        TriggerKey triggerKey = new TriggerKey("emailTrigger", "DEFAULT");
 
         JobDetail jobDetail = scheduler.getJobDetail(jobKey);
         assertNotNull(jobDetail, "EmailJob should exist in the running scheduler");
