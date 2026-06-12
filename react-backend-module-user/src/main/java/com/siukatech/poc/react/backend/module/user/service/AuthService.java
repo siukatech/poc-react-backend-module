@@ -1,5 +1,6 @@
 package com.siukatech.poc.react.backend.module.user.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
@@ -105,12 +106,14 @@ public class AuthService {
             ;
         }
         AuthReq authCodeReq = authCodeReqBuilder.build();
-//        Map authCodeReqMap = this.objectMapper.convertValue(authCodeReq, Map.class);
-//        List<Map.Entry<String, String>> entryList = authCodeReqMap.entrySet().stream().toList();
-//        List<NameValuePair> nameValuePairList = entryList.stream()
-//                .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
-//                .collect(Collectors.toList());
-        Map<String, String> authCodeReqMap = this.objectMapper.convertValue(authCodeReq, Map.class);
+////        Map authCodeReqMap = this.objectMapper.convertValue(authCodeReq, Map.class);
+////        List<Map.Entry<String, String>> entryList = authCodeReqMap.entrySet().stream().toList();
+////        List<NameValuePair> nameValuePairList = entryList.stream()
+////                .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
+////                .collect(Collectors.toList());
+//        Map<String, String> authCodeReqMap = this.objectMapper.convertValue(authCodeReq, Map.class);
+        Map<String, String> authCodeReqMap = this.objectMapper.convertValue(authCodeReq, new TypeReference<Map<String, String>>() {});
+
         List<NameValuePair> nameValuePairList = authCodeReqMap.entrySet().stream()
                 .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList())
@@ -146,13 +149,14 @@ public class AuthService {
                 .get(clientName);
 
         String tokenUrl = provider.getTokenUri();
-//        MultiValueMap<String, String> tokenReqMap = new LinkedMultiValueMap<String, String>();
-//        tokenReqMap.add("client_id", registration.getClientId());
-//        tokenReqMap.add("client_secret", registration.getClientSecret());
-//        tokenReqMap.add("redirect_uri", registration.getRedirectUri());
-//        tokenReqMap.add("grant_type", registration.getAuthorizationGrantType());
-//        tokenReqMap.add("code", code);
-        Map<String, String> tokenReqMap = this.objectMapper.convertValue(tokenReq, Map.class);
+////        MultiValueMap<String, String> tokenReqMap = new LinkedMultiValueMap<String, String>();
+////        tokenReqMap.add("client_id", registration.getClientId());
+////        tokenReqMap.add("client_secret", registration.getClientSecret());
+////        tokenReqMap.add("redirect_uri", registration.getRedirectUri());
+////        tokenReqMap.add("grant_type", registration.getAuthorizationGrantType());
+////        tokenReqMap.add("code", code);
+//        Map<String, String> tokenReqMap = this.objectMapper.convertValue(tokenReq, Map.class);
+        Map<String, String> tokenReqMap = this.objectMapper.convertValue(tokenReq, new TypeReference<Map<String, String>>() {});
         //
         // IllegalArgumentException with message below will be thrown if converting to MultiValueMap directly
         // Manually convert to MultiValueMap is required
