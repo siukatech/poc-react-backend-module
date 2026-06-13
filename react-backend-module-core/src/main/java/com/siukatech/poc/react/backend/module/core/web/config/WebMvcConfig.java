@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.siukatech.poc.react.backend.module.core.security.interceptor.AuthorizationDataInterceptor;
 import com.siukatech.poc.react.backend.module.core.security.interceptor.PermissionControlInterceptor;
+import com.siukatech.poc.react.backend.module.core.util.DateTimeUtils;
 import com.siukatech.poc.react.backend.module.core.web.helper.PublicControllerHelper;
 import com.siukatech.poc.react.backend.module.core.web.interceptor.CorrelationIdInterceptor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,15 +75,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
         return builder -> {
             log.debug("jackson2ObjectMapperBuilderCustomizer - start");
-            String dateFormat = "yyyy-MM-dd";
-            String dateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+            String datePattern = DateTimeUtils.DATE_PATTERN;
+            String dateTimePattern = DateTimeUtils.DATETIME_PATTERN;
 
-            builder.simpleDateFormat(dateTimeFormat);
+            builder.simpleDateFormat(dateTimePattern);
             // deserializers
-            builder.deserializers(new LocalDateDeserializer(DateTimeFormatter.ofPattern(dateFormat)));
-            builder.deserializers(new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(dateTimeFormat)));
-            builder.serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat)));
-            builder.serializers(new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(dateTimeFormat)));
+            builder.deserializers(new LocalDateDeserializer(DateTimeFormatter.ofPattern(datePattern)));
+            builder.deserializers(new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(dateTimePattern)));
+            builder.serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(datePattern)));
+            builder.serializers(new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(dateTimePattern)));
 
             log.debug("jackson2ObjectMapperBuilderCustomizer - end");
         };

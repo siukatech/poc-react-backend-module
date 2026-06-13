@@ -1,6 +1,7 @@
 package com.siukatech.poc.react.backend.module.core.util;
 
 import jakarta.xml.bind.DatatypeConverter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.Cipher;
@@ -20,6 +21,7 @@ import java.util.Base64;
  * https://4youngpadawans.com/end-to-end-encryption-between-react-and-spring/
  */
 @Slf4j
+@NoArgsConstructor
 public class EncryptionUtils {
 
     public static final String ALGORITHM_RSA = "RSA";
@@ -34,9 +36,6 @@ public class EncryptionUtils {
     public static final String HASHING_ALGORITHM_SHA_265 = "SHA-256";
     public static final String HASHING_ALGORITHM_MD5 = "MD5";
 
-
-    private EncryptionUtils() {
-    }
 
     /**
      * Reference:

@@ -3,11 +3,13 @@ package com.siukatech.poc.react.backend.module.core.util;
 import com.nimbusds.jwt.SignedJWT;
 import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.OAuth2ResourceServerExtProp;
+import lombok.NoArgsConstructor;
 
 import java.text.ParseException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+@NoArgsConstructor
 public class ResourceServerUtil {
 
     public static SignedJWT getSignedJWT(String token) throws ParseException {
