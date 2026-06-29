@@ -18,7 +18,9 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class PermissionControlEvaluator {
+public class RbacPermissionControlEvaluator {
+
+    @Deprecated
     public boolean evaluate(HandlerMethod handlerMethod, Authentication authentication) throws PermissionControlNotFoundException {
         String userId = authentication.getName();
         Class<?> beanType = handlerMethod.getBeanType();
@@ -63,6 +65,11 @@ public class PermissionControlEvaluator {
         );
         log.debug("evaluate - userId: [{}], authentication.getClass.getName: [{}], permissionControlAnnotationByUtil: [{}], permissionControlAnnotationByMethod: [{}]"
                 , userId, authentication.getClass().getName(), permissionControlAnnotationByUtil, permissionControlAnnotationByMethod);
+
+        final PermissionControl permissionControl;
+        permissionControl = permissionControlAnnotationByUtil;
+//        permissionControl = permissionControlAnnotationByMethod;
+
 //        if (isPublic) {
 //            // nothing to do with PublicController
 //        }
@@ -77,12 +84,12 @@ public class PermissionControlEvaluator {
                         .filter(grantedAuthority -> grantedAuthority instanceof MyGrantedAuthority)
                         .map(MyGrantedAuthority.class::cast)
                         .peek(mga -> {
-                            log.trace("evaluate - userId: [{}], permissionControlAnnotationByUtil: [{}]"
+                            log.trace("evaluate - userId: [{}], permissionControl: [{}]"
                                             + ", appResourceId: [{}], accessRight: [{}]"
                                             + ", mga.getApplicationId: [{}], mga.getUserRoleId: [{}]"
                                             + ", mga.getAppResourceId: [{}], mga.getAccessRight: [{}]"
                                             + ", mga.getAuthority: [{}]"
-                                    , userId, permissionControlAnnotationByUtil
+                                    , userId, permissionControl
                                     , appResourceId, accessRight
                                     , mga.getApplicationId(), mga.getUserRoleId()
                                     , mga.getAppResourceId(), mga.getAccessRight()
@@ -95,8 +102,8 @@ public class PermissionControlEvaluator {
                                 && mga.getAccessRight().equals(accessRight)
                         )
                         .count();
-                log.debug("evaluate - userId: [{}], permissionControlAnnotationByUtil: [{}], appResourceId: [{}], accessRight: [{}], authorityCount: [{}]"
-                        , userId, permissionControlAnnotationByUtil, appResourceId, accessRight, authorityCount
+                log.debug("evaluate - userId: [{}], permissionControl: [{}], appResourceId: [{}], accessRight: [{}], authorityCount: [{}]"
+                        , userId, permissionControl, appResourceId, accessRight, authorityCount
                 );
             }
             if (authorityCount <= 0) {
@@ -104,14 +111,14 @@ public class PermissionControlEvaluator {
                         + ", myAuthenticationToken.getAuthorities.size: [%s]"
                         + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
                         + ", userId: [%s], beanName: [%s], methodName: [%s]"
-                        + ", permissionControlAnnotationByUtil: [%s]"
+                        + ", permissionControl: [%s]"
                         + ", appResourceId: [%s], accessRight: [%s]"
                         + ", authorityCount: [%d]";
                 String accessDeniedMsg = String.format(accessDeniedTmpl
                         , grantedAuthorityList.size()
                         , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
                         , userId, beanName, methodName
-                        , permissionControlAnnotationByUtil == null ? "NULL" : permissionControlAnnotationByUtil.toString()
+                        , permissionControl == null ? "NULL" : permissionControl.toString()
                         , appResourceId, accessRight
                         , authorityCount);
                 throw new PermissionControlNotFoundException(accessDeniedMsg);
@@ -119,4 +126,73 @@ public class PermissionControlEvaluator {
 //        }
         return true;
     }
+
+    public boolean evaluate(PermissionControl permissionControl, Authentication authentication) throws PermissionControlNotFoundException {
+        List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
+        String appResourceId = (permissionControl == null ? null : permissionControl.appResourceId());
+        String accessRight = (permissionControl == null ? null : permissionControl.accessRight());
+        String userId = authentication.getName();
+        long authorityCount = -1;
+//        boolean isPublic = publicController != null;
+        boolean hasPrivilege = false;
+
+        log.debug("evaluate - userId: [{}], authentication.getClass.getName: [{}], permissionControl: [{}]"
+                , userId, authentication.getClass().getName(), permissionControl);
+        if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
+            grantedAuthorityList.addAll(myAuthenticationToken.getAuthorities());
+            log.debug("evaluate - userId: [{}], grantedAuthorityList.size: [{}]"
+                    , userId, grantedAuthorityList.size());
+            log.trace("evaluate - userId: [{}], grantedAuthorityList: [{}]"
+                    , userId, grantedAuthorityList);
+            authorityCount = grantedAuthorityList.stream()
+                    .filter(grantedAuthority -> grantedAuthority instanceof MyGrantedAuthority)
+                    .map(MyGrantedAuthority.class::cast)
+                    .peek(mga -> {
+                        log.trace("evaluate - userId: [{}], permissionControl: [{}]"
+                                        + ", appResourceId: [{}], accessRight: [{}]"
+                                        + ", mga.getApplicationId: [{}], mga.getUserRoleId: [{}]"
+                                        + ", mga.getAppResourceId: [{}], mga.getAccessRight: [{}]"
+                                        + ", mga.getAuthority: [{}]"
+                                , userId, permissionControl
+                                , appResourceId, accessRight
+                                , mga.getApplicationId(), mga.getUserRoleId()
+                                , mga.getAppResourceId(), mga.getAccessRight()
+                                , mga.getAuthority()
+                        );
+                    })
+                    .filter(mga -> mga.getAppResourceId() != null
+                            && mga.getAppResourceId().equals(appResourceId)
+                            && mga.getAccessRight() != null
+                            && mga.getAccessRight().equals(accessRight)
+                    )
+                    .count();
+            log.debug("evaluate - userId: [{}], permissionControl: [{}], appResourceId: [{}], accessRight: [{}], authorityCount: [{}]"
+                    , userId, permissionControl, appResourceId, accessRight, authorityCount
+            );
+        }
+        if (authorityCount <= 0) {
+            String accessDeniedTmpl = "Access denied"
+                    + ", myAuthenticationToken.getAuthorities.size: [%s]"
+                    + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
+                    + ", userId: [%s]"
+//                    + ", beanName: [%s], methodName: [%s]"
+                    + ", permissionControl: [%s]"
+                    + ", appResourceId: [%s], accessRight: [%s]"
+                    + ", authorityCount: [%d]";
+            String accessDeniedMsg = String.format(accessDeniedTmpl
+                    , grantedAuthorityList.size()
+                    , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
+                    , userId
+//                    , beanName, methodName
+                    , permissionControl == null ? "NULL" : permissionControl.toString()
+                    , appResourceId, accessRight
+                    , authorityCount);
+            throw new PermissionControlNotFoundException(accessDeniedMsg);
+        }
+        else {
+            hasPrivilege = true;
+        }
+        return hasPrivilege;
+    }
+
 }

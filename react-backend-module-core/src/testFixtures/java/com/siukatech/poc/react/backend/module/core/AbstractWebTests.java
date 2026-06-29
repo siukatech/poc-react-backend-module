@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
 import com.siukatech.poc.react.backend.module.core.global.helper.UserDtoTestDataHelper;
-import com.siukatech.poc.react.backend.module.core.security.evaluator.PermissionControlEvaluator;
+import com.siukatech.poc.react.backend.module.core.security.evaluator.RbacPermissionControlEvaluator;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
 import com.siukatech.poc.react.backend.module.core.web.advice.helper.EncryptedBodyAdviceHelper;
@@ -17,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.test.web.servlet.MockMvc;
@@ -51,7 +50,7 @@ public abstract class AbstractWebTests extends AbstractUnitTests {
     @MockBean
     protected AppCoreProp appCoreProp;
     @MockBean
-    protected PermissionControlEvaluator permissionControlEvaluator;
+    protected RbacPermissionControlEvaluator rbacPermissionControlEvaluator;
 //    @MockBean
 //    protected Tracer tracer;
     @MockBean

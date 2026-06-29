@@ -2,7 +2,7 @@ package com.siukatech.poc.react.backend.module.user.controller;
 
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserViewDto;
-import com.siukatech.poc.react.backend.module.core.security.evaluator.PermissionControlEvaluator;
+import com.siukatech.poc.react.backend.module.core.security.evaluator.RbacPermissionControlEvaluator;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.security.oauth2.client.OAuth2ClientExtProp;
 import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
@@ -93,7 +93,7 @@ public class UserControllerTests {
     @MockBean
     private AuthorizationDataProvider authorizationDataProvider;
     @MockBean
-    private PermissionControlEvaluator permissionControlEvaluator;
+    private RbacPermissionControlEvaluator rbacPermissionControlEvaluator;
 //    @MockBean
 //    protected Tracer tracer;
     @MockBean

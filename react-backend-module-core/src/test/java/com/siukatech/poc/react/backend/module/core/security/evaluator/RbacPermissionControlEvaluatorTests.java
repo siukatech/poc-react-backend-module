@@ -1,6 +1,7 @@
 package com.siukatech.poc.react.backend.module.core.security.evaluator;
 
 import com.siukatech.poc.react.backend.module.core.AbstractUnitTests;
+import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.security.model.MyGrantedAuthority;
 import com.siukatech.poc.react.backend.module.core.security.controller.ProtectedUrlController;
@@ -10,7 +11,6 @@ import com.siukatech.poc.react.backend.module.core.web.controller.WebController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.ui.Model;
@@ -25,10 +25,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = {PermissionControlEvaluator.class})
-public class PermissionControlEvaluatorTests extends AbstractUnitTests {
+@SpringBootTest(classes = {RbacPermissionControlEvaluator.class})
+public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
     @Autowired
-    private PermissionControlEvaluator permissionControlEvaluator;
+    private RbacPermissionControlEvaluator rbacPermissionControlEvaluator;
 
     private List<MyGrantedAuthority> getGrantAuthorityList() {
         String applicationId = "backend-app";
@@ -61,6 +61,7 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         return attributeMap;
     }
 
+    @Deprecated
     @Test
     public void test_evaluate_basic_protectedUrlController() throws PermissionControlNotFoundException {
         // given
@@ -72,12 +73,13 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
-        boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
+        boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
 
         // then
         assertTrue(result);
     }
 
+    @Deprecated
     @Test
     public void test_evaluate_basic_restUrlController() throws PermissionControlNotFoundException {
         // given
@@ -89,12 +91,13 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
         MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
-        boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
+        boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
 
         // then
         assertTrue(result);
     }
 
+    @Deprecated
     @Test
     public void test_evaluate_basic_webController() throws PermissionControlNotFoundException {
         // given
@@ -113,13 +116,14 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
-            boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
         });
 
         // then
         assertEquals(exception.getClass(), PermissionControlNotFoundException.class);
     }
 
+    @Deprecated
     @Test
     public void test_evaluate_access_denied_protectedUrlController() throws PermissionControlNotFoundException {
         // given
@@ -130,13 +134,14 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
-            boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
         });
 
         // then
         assertEquals(exception.getClass(), PermissionControlNotFoundException.class);
     }
 
+    @Deprecated
     @Test
     public void test_evaluate_access_denied_restUrlController() throws PermissionControlNotFoundException {
         // given
@@ -147,7 +152,115 @@ public class PermissionControlEvaluatorTests extends AbstractUnitTests {
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
-            boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+        });
+
+        // then
+        assertEquals(exception.getClass(), PermissionControlNotFoundException.class);
+    }
+
+
+    @Test
+    public void test_evaluate_annotation_protectedUrlController() throws PermissionControlNotFoundException {
+        // given
+        Method method = ClassUtils.getMethod(ProtectedUrlController.class, "authorized");
+        HandlerMethod handlerMethod = new HandlerMethod(new ProtectedUrlController(), method);
+        List<MyGrantedAuthority> authorities = getGrantAuthorityList();
+        Map<String, Object> attributeMap = getAttributeMap(USER_NAME_ATTRIBUTE);
+        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
+        // This returns the actual instance of the annotation attached to the method
+        PermissionControl permissionControl = method.getAnnotation(PermissionControl.class);
+
+        // when
+//        boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+        boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    public void test_evaluate_annotation_restUrlController() throws PermissionControlNotFoundException {
+        // given
+        Method method = ClassUtils.getMethod(RestUrlController.class, "authorized");
+        HandlerMethod handlerMethod = new HandlerMethod(new RestUrlController(), method);
+        List<MyGrantedAuthority> authorities = getGrantAuthorityList();
+        Map<String, Object> attributeMap = getAttributeMap(USER_NAME_ATTRIBUTE);
+        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
+        // This returns the actual instance of the annotation attached to the method
+        PermissionControl permissionControl = method.getAnnotation(PermissionControl.class);
+
+        // when
+        boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+
+        // then
+        assertTrue(result);
+    }
+
+    @Test
+    public void test_evaluate_annotation_webController() throws PermissionControlNotFoundException {
+        // given
+        Method method = ClassUtils.getMethod(WebController.class, "authorized", Principal.class, Model.class);
+        HandlerMethod handlerMethod = new HandlerMethod(new WebController(), method);
+        List<MyGrantedAuthority> authorities = getGrantAuthorityList();
+        Map<String, Object> attributeMap = getAttributeMap(USER_NAME_ATTRIBUTE);
+        OAuth2User principal = new DefaultOAuth2User(authorities, attributeMap, USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
+        // This returns the actual instance of the annotation attached to the method
+        PermissionControl permissionControl = method.getAnnotation(PermissionControl.class);
+
+//        // when
+//        boolean result = permissionControlEvaluator.evaluate(handlerMethod, authentication);
+//
+//        // then
+//        assertTrue(result);
+
+        // when
+        Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
+//            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+        });
+
+        // then
+        assertEquals(exception.getClass(), PermissionControlNotFoundException.class);
+    }
+
+    @Test
+    public void test_evaluate_annotation_access_denied_protectedUrlController() throws PermissionControlNotFoundException {
+        // given
+        Method method = ClassUtils.getMethod(ProtectedUrlController.class, "accessDenied");
+        HandlerMethod handlerMethod = new HandlerMethod(new ProtectedUrlController(), method);
+        OAuth2User principal = new DefaultOAuth2User(getGrantAuthorityList(), getAttributeMap(USER_NAME_ATTRIBUTE), USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
+        // This returns the actual instance of the annotation attached to the method
+        PermissionControl permissionControl = method.getAnnotation(PermissionControl.class);
+
+        // when
+        Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
+//            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+        });
+
+        // then
+        assertEquals(exception.getClass(), PermissionControlNotFoundException.class);
+    }
+
+    @Test
+    public void test_evaluate_annotation_access_denied_restUrlController() throws PermissionControlNotFoundException {
+        // given
+        Method method = ClassUtils.getMethod(RestUrlController.class, "accessDenied");
+        HandlerMethod handlerMethod = new HandlerMethod(new RestUrlController(), method);
+        OAuth2User principal = new DefaultOAuth2User(getGrantAuthorityList(), getAttributeMap(USER_NAME_ATTRIBUTE), USER_NAME_ATTRIBUTE);
+        MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
+        // This returns the actual instance of the annotation attached to the method
+        PermissionControl permissionControl = method.getAnnotation(PermissionControl.class);
+
+        // when
+        Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
+//            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
         });
 
         // then
