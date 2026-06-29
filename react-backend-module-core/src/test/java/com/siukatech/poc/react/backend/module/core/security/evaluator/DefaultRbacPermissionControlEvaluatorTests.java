@@ -25,10 +25,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = {RbacPermissionControlEvaluator.class})
-public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
+@SpringBootTest(classes = {DefaultRbacPermissionControlEvaluator.class})
+public class DefaultRbacPermissionControlEvaluatorTests extends AbstractUnitTests {
     @Autowired
-    private RbacPermissionControlEvaluator rbacPermissionControlEvaluator;
+    private DefaultRbacPermissionControlEvaluator defaultRbacPermissionControlEvaluator;
 
     private List<MyGrantedAuthority> getGrantAuthorityList() {
         String applicationId = "backend-app";
@@ -73,7 +73,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
         MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
-        boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+        boolean result = defaultRbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
 
         // then
         assertTrue(result);
@@ -91,7 +91,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
         MyAuthenticationToken authentication = new MyAuthenticationToken(principal, principal.getAuthorities(), CLIENT_NAME);
 
         // when
-        boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+        boolean result = defaultRbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
 
         // then
         assertTrue(result);
@@ -116,7 +116,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
-            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = defaultRbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
         });
 
         // then
@@ -134,7 +134,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
-            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = defaultRbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
         });
 
         // then
@@ -152,7 +152,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
 
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
-            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
+            boolean result = defaultRbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
         });
 
         // then
@@ -174,7 +174,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
 
         // when
 //        boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
-        boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+        boolean result = defaultRbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
 
         // then
         assertTrue(result);
@@ -193,7 +193,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
         PermissionControl permissionControl = method.getAnnotation(PermissionControl.class);
 
         // when
-        boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+        boolean result = defaultRbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
 
         // then
         assertTrue(result);
@@ -220,7 +220,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
 //            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
-            boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+            boolean result = defaultRbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
         });
 
         // then
@@ -240,7 +240,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
 //            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
-            boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+            boolean result = defaultRbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
         });
 
         // then
@@ -260,7 +260,7 @@ public class RbacPermissionControlEvaluatorTests extends AbstractUnitTests {
         // when
         Exception exception = assertThrows(PermissionControlNotFoundException.class, () -> {
 //            boolean result = rbacPermissionControlEvaluator.evaluate(handlerMethod, authentication);
-            boolean result = rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+            boolean result = defaultRbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
         });
 
         // then

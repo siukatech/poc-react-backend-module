@@ -3,8 +3,10 @@ package com.siukatech.poc.react.backend.module.user.controller;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDossierDto;
 import com.siukatech.poc.react.backend.module.core.business.dto.UserDto;
 import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
+import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceCheck;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.ProtectedApiV1Controller;
+import com.siukatech.poc.react.backend.module.user.security.constant.SecurityConstants;
 import com.siukatech.poc.react.backend.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +25,15 @@ public class UserController {
     }
 
     @PostMapping("/users/{targetUserId}/user-info")
-    @PermissionControl(appResourceId = "core.user.getUserInfo", accessRight = "view")
+    @PermissionControl(appResourceId = "core.user.getUserInfo"
+            , accessRight = SecurityConstants.AccessRight.VIEW
+            , resources = {
+            @ResourceCheck(
+                    resourceType = SecurityConstants.ResourceType.USER
+                    , accessRight = SecurityConstants.AccessRight.VIEW
+                    , idExpression = "#targetUserId"
+            )
+    })
     public ResponseEntity getUserInfo(@PathVariable
 //             // after upgrade to springboot >= 3.2.1
 //             // this can be fixed by update build.gradle or adding maven plugin

@@ -21,13 +21,19 @@ public class WebController {
     private AuthorizationDataProvider authorizationDataProvider;
 
     @GetMapping(path = "/")
-//    @PermissionControl(appResourceId = "core.web.index", accessRight = "view")
+//    @PermissionControl(appResourceId = "core.web.index"
+//            , accessRight = SecurityConstants.AccessRight.VIEW
+//            , resources = {}
+//    )
     public String index() {
         return "external";
     }
 
     @GetMapping(path = "/authorized")
-//    @PermissionControl(appResourceId = "core.web.authorized", accessRight = "view")
+//    @PermissionControl(appResourceId = "core.web.authorized"
+//            , accessRight = SecurityConstants.AccessRight.VIEW
+//            , resources = {}
+//    )
     public String authorized(Principal principal, Model model) {
         //addCustomers();
         //model.addAttribute("customers", customerDAO.findAll());

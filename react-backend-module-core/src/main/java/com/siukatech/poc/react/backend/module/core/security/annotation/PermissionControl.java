@@ -9,5 +9,5 @@ import java.lang.annotation.*;
 public @interface PermissionControl {
     String appResourceId();
     String accessRight();
-
+    ResourceCheck[] resources();
 }
