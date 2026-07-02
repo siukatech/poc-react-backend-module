@@ -20,8 +20,14 @@ import java.util.Optional;
 //@ComponentScan(basePackages = { "com.siukatech.poc.react.backend.module.core.data" })
 ////@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.core.data.entity"})
 ////@EnableJpaRepositories("com.siukatech.poc.react.backend.module.core.data.repository")
-@EntityScan(basePackages = {"com.siukatech.**.data.entity"})  // "**" means all packages
-@EnableJpaRepositories("com.siukatech.**.data.repository")    // "**" means all packages
+@EntityScan(basePackages = {
+        "com.siukatech.**.core.**.data.entity"
+        , "**.app.**.data.entity"
+})  // "**" means all packages
+@EnableJpaRepositories(value = {
+        "com.siukatech.**.core.**.data.repository"
+        , "**.app.**.data.repository"
+})    // "**" means all packages
 //@EntityScan
 //@EnableJpaRepositories
 ////@Import(StarterEntityRegistrar.class)
