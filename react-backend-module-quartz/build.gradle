@@ -83,12 +83,12 @@ dependencies {
 // this can be fixed by update build.gradle or adding maven plugin
 // https://stackoverflow.com/a/77691302
 // https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#parameter-name-retention
-//tasks.withType(JavaCompile).configureEach {
-//    options.compilerArgs.add("-parameters")
-//}
-tasks.withType(JavaCompile) {
-    options.compilerArgs << '-parameters'
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add("-parameters")
 }
+//tasks.withType(JavaCompile) {
+//    options.compilerArgs << '-parameters'
+//}
 bootJar {
     enabled = false
 }

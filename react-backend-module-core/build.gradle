@@ -229,11 +229,11 @@ dependencies {
 // mapstruct:
 // https://github.com/mapstruct/mapstruct-examples/blob/main/mapstruct-on-gradle/build.gradle
 //tasks.withType(JavaCompile).configureEach {
-////    options.compilerArgs.add('-parameters')
-////    options.compilerArgs.addAll([
-////            '-Amapstruct.suppressGeneratorTimestamp=true'
-////            , '-Amapstruct.defaultComponentModel=spring'
-////    ])
+//    options.compilerArgs.add('-parameters')
+//    options.compilerArgs.addAll([
+//            '-Amapstruct.suppressGeneratorTimestamp=true'
+//            , '-Amapstruct.defaultComponentModel=spring'
+//    ])
 //}
 //tasks.withType(JavaCompile) {
 //    options.compilerArgs = [
@@ -241,7 +241,7 @@ dependencies {
 //            , '-Amapstruct.suppressGeneratorTimestamp=true'
 //    ]
 //}
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
 //    options.compilerArgs << '-parameters'
     options.compilerArgs.add('-parameters')
 }
