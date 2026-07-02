@@ -1,7 +1,7 @@
 package com.siukatech.poc.react.backend.module.core.security.resourcechecker;
 
 import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceCheck;
-import com.siukatech.poc.react.backend.module.core.security.constant.SecurityConstants;
+import com.siukatech.poc.react.backend.module.core.security.constant.CoreSecurityConstants;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ public class ApplicationResourceChecker implements ResourceChecker {
 
     @Override
     public String getSupportedType() {
-        return SecurityConstants.ResourceType.APPLICATION;
+        return CoreSecurityConstants.ResourceType.APPLICATION;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.siukatech.poc.react.backend.module.core.security.evaluator;
 
 import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
+import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlExceptionRec;
 import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlNotFoundException;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.security.model.MyGrantedAuthority;
@@ -107,21 +108,28 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
                 );
             }
             if (authorityCount <= 0) {
-                String accessDeniedTmpl = "Access denied"
-                        + ", myAuthenticationToken.getAuthorities.size: [%s]"
-                        + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
-                        + ", userId: [%s], beanName: [%s], methodName: [%s]"
-                        + ", permissionControl: [%s]"
-                        + ", appResourceId: [%s], accessRight: [%s]"
-                        + ", authorityCount: [%d]";
-                String accessDeniedMsg = String.format(accessDeniedTmpl
-                        , grantedAuthorityList.size()
+//                String accessDeniedTmpl = "Access denied"
+//                        + ", myAuthenticationToken.getAuthorities.size: [%s]"
+//                        + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
+//                        + ", userId: [%s], beanName: [%s], methodName: [%s]"
+//                        + ", permissionControl: [%s]"
+//                        + ", appResourceId: [%s], accessRight: [%s]"
+//                        + ", authorityCount: [%d]";
+//                String accessDeniedMsg = String.format(accessDeniedTmpl
+//                        , grantedAuthorityList.size()
+//                        , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
+//                        , userId, beanName, methodName
+//                        , permissionControl == null ? "NULL" : permissionControl.toString()
+//                        , appResourceId, accessRight
+//                        , authorityCount);
+                PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
+                        grantedAuthorityList.size()
                         , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
                         , userId, beanName, methodName
                         , permissionControl == null ? "NULL" : permissionControl.toString()
                         , appResourceId, accessRight
                         , authorityCount);
-                throw new PermissionControlNotFoundException(accessDeniedMsg);
+                throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
             }
 //        }
         return true;
@@ -171,23 +179,32 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
             );
         }
         if (authorityCount <= 0) {
-            String accessDeniedTmpl = "Access denied"
-                    + ", myAuthenticationToken.getAuthorities.size: [%s]"
-                    + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
-                    + ", userId: [%s]"
-//                    + ", beanName: [%s], methodName: [%s]"
-                    + ", permissionControl: [%s]"
-                    + ", appResourceId: [%s], accessRight: [%s]"
-                    + ", authorityCount: [%d]";
-            String accessDeniedMsg = String.format(accessDeniedTmpl
-                    , grantedAuthorityList.size()
+//            String accessDeniedTmpl = "Access denied"
+//                    + ", myAuthenticationToken.getAuthorities.size: [%s]"
+//                    + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
+//                    + ", userId: [%s]"
+////                    + ", beanName: [%s], methodName: [%s]"
+//                    + ", permissionControl: [%s]"
+//                    + ", appResourceId: [%s], accessRight: [%s]"
+//                    + ", authorityCount: [%d]";
+//            String accessDeniedMsg = String.format(accessDeniedTmpl
+//                    , grantedAuthorityList.size()
+//                    , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
+//                    , userId
+////                    , beanName, methodName
+//                    , permissionControl == null ? "NULL" : permissionControl.toString()
+//                    , appResourceId, accessRight
+//                    , authorityCount);
+//            throw new PermissionControlNotFoundException(accessDeniedMsg);
+            PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
+                    grantedAuthorityList.size()
                     , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
                     , userId
-//                    , beanName, methodName
+                    , "", ""
                     , permissionControl == null ? "NULL" : permissionControl.toString()
                     , appResourceId, accessRight
                     , authorityCount);
-            throw new PermissionControlNotFoundException(accessDeniedMsg);
+            throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
         }
         else {
             hasPrivilege = true;

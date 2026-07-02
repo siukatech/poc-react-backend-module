@@ -2,7 +2,7 @@ package com.siukatech.poc.react.backend.module.user.security.resourcechecker;
 
 import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceCheck;
 import com.siukatech.poc.react.backend.module.core.security.resourcechecker.ResourceChecker;
-import com.siukatech.poc.react.backend.module.user.security.constant.SecurityConstants;
+import com.siukatech.poc.react.backend.module.user.security.constant.UserSecurityConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ public class UserResourceChecker implements ResourceChecker {
     @Override
     public String getSupportedType() {
         // Use Constant
-        return SecurityConstants.ResourceType.USER;
+        return UserSecurityConstants.ResourceType.USER;
     }
 
     @Override

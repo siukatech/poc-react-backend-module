@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Reference:
@@ -133,7 +134,10 @@ public class PermissionControlInterceptor implements HandlerInterceptor {
 //            // nothing to do with PublicController
 //        }
 //        else {
-        hasPrivilege = this.rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+//        hasPrivilege = this.rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+        if (Objects.isNull(permissionControl)) {
+            throw new PermissionControlNotFoundException("");
+        }
 //        }
         return hasPrivilege;
     }

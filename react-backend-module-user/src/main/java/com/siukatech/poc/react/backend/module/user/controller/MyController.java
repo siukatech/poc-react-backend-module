@@ -5,7 +5,7 @@ import com.siukatech.poc.react.backend.module.core.security.annotation.Permissio
 import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceCheck;
 import com.siukatech.poc.react.backend.module.core.util.HttpHeaderUtils;
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.ProtectedApiV1Controller;
-import com.siukatech.poc.react.backend.module.user.security.constant.SecurityConstants;
+import com.siukatech.poc.react.backend.module.user.security.constant.UserSecurityConstants;
 import com.siukatech.poc.react.backend.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -36,7 +36,7 @@ public class MyController {
 
     @GetMapping("/my/public-key")
     @PermissionControl(appResourceId = "core.my.getPublicKey"
-            , accessRight = SecurityConstants.AccessRight.VIEW
+            , accessRight = UserSecurityConstants.AccessRight.VIEW
             , resources = {}  // 0 arguments = 0 checks, Constraint PASSED
     )
     public ResponseEntity getPublicKey(@RequestHeader HttpHeaders httpHeaders
@@ -54,7 +54,7 @@ public class MyController {
 
     @GetMapping("/my/key-info")
     @PermissionControl(appResourceId = "core.my.getKeyInfo"
-            , accessRight = SecurityConstants.AccessRight.VIEW
+            , accessRight = UserSecurityConstants.AccessRight.VIEW
             , resources = {}  // 0 arguments = 0 checks, Constraint PASSED
     )
     public ResponseEntity getKeyInfo(@RequestHeader HttpHeaders httpHeaders
@@ -71,7 +71,7 @@ public class MyController {
 
     @GetMapping("/my/user-info")
     @PermissionControl(appResourceId = "core.my.getUserInfo"
-            , accessRight = SecurityConstants.AccessRight.VIEW
+            , accessRight = UserSecurityConstants.AccessRight.VIEW
             , resources = {}  // 0 arguments = 0 checks, Constraint PASSED
     )
     public ResponseEntity getUserInfo(@RequestHeader HttpHeaders httpHeaders
@@ -109,13 +109,13 @@ public class MyController {
 
     @GetMapping("/my/permission-info")
     @PermissionControl(appResourceId = "core.my.getPermissionInfo"
-            , accessRight = SecurityConstants.AccessRight.VIEW
+            , accessRight = UserSecurityConstants.AccessRight.VIEW
             , resources = {
             // 1 argument = 1 check. Constraint PASSED.
             // Evaluates condition at runtime: skips if applicationId query param is not provided
             @ResourceCheck(
-                    resourceType = SecurityConstants.ResourceType.APPLICATION,
-                    accessRight = SecurityConstants.AccessRight.VIEW,
+                    resourceType = UserSecurityConstants.ResourceType.APPLICATION,
+                    accessRight = UserSecurityConstants.AccessRight.VIEW,
                     idExpression = "#applicationId",
                     condition = "#applicationId != null && #applicationId != ''"
             )
@@ -147,13 +147,13 @@ public class MyController {
 
     @GetMapping("/my/user-dossier")
     @PermissionControl(appResourceId = "core.my.getUserDossier"
-            , accessRight = SecurityConstants.AccessRight.VIEW
+            , accessRight = UserSecurityConstants.AccessRight.VIEW
             , resources = {
             // 1 argument = 1 check. Constraint PASSED.
             // Evaluates condition at runtime: skips if applicationId query param is not provided
             @ResourceCheck(
-                    resourceType = SecurityConstants.ResourceType.APPLICATION,
-                    accessRight = SecurityConstants.AccessRight.VIEW,
+                    resourceType = UserSecurityConstants.ResourceType.APPLICATION,
+                    accessRight = UserSecurityConstants.AccessRight.VIEW,
                     idExpression = "#applicationId",
                     condition = "#applicationId != null && #applicationId != ''"
             )
@@ -188,7 +188,7 @@ public class MyController {
 
     @GetMapping("/my/user-view")
     @PermissionControl(appResourceId = "core.my.getUserView"
-            , accessRight = SecurityConstants.AccessRight.VIEW
+            , accessRight = UserSecurityConstants.AccessRight.VIEW
             , resources = {})
     public ResponseEntity getUserView(@RequestHeader HttpHeaders httpHeaders
             , Authentication authentication) {

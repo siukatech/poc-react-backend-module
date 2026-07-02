@@ -9,8 +9,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Slf4j
 @Configuration
+@ComponentScan(value = {"com.siukatech.poc.react.backend.module.quartz"})
 @EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.quartz.entity"})  // "**" means all packages
 @EnableJpaRepositories("com.siukatech.poc.react.backend.module.quartz.repository")    // "**" means all packages
-@ComponentScan(value = {"com.siukatech.poc.react.backend.module.quartz"})
+//@EntityScan
+//@EnableJpaRepositories
 public class QuartzSupportConfig {
 }
