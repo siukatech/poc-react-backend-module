@@ -43,8 +43,15 @@ public class MyController {
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);
-        log.debug("getPublicKey - authentication: [{}], authenticationInSc: [{}]"
-                , authentication, authenticationInSc);
+        log.debug("getPublicKey - authentication.getName: [{}]"
+                        + ", authentication.getAuthorities.size: [{}]"
+                        + ", authenticationInSc.getName: [{}]"
+                        + ", authenticationInSc.getAuthorities.size: [{}]"
+                , Objects.isNull(authentication)? "NULL" : authentication.getName()
+                , Objects.isNull(authentication)? "NULL" : authentication.getAuthorities().size()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getName()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getAuthorities().size()
+                );
         String userId = authentication.getName();
         MyKeyDto myKeyDto = this.userService.findKeyByUserId(userId);
 
@@ -61,8 +68,15 @@ public class MyController {
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);
-        log.debug("getKeyInfo - authentication: [{}], authenticationInSc: [{}]"
-                , authentication, authenticationInSc);
+        log.debug("getKeyInfo - authentication.getName: [{}]"
+                        + ", authentication.getAuthorities.size: [{}]"
+                        + ", authenticationInSc.getName: [{}]"
+                        + ", authenticationInSc.getAuthorities.size: [{}]"
+                , Objects.isNull(authentication)? "NULL" : authentication.getName()
+                , Objects.isNull(authentication)? "NULL" : authentication.getAuthorities().size()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getName()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getAuthorities().size()
+        );
         String userId = authentication.getName();
         MyKeyDto myKeyDto = this.userService.findKeyByUserId(userId);
 
@@ -78,8 +92,28 @@ public class MyController {
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);
-//        log.debug("getUserInfo - authentication: [{}], authenticationInSc: [{}]"
-//                , authentication, authenticationInSc);
+////        log.debug("getUserInfo - authentication: [{}], authenticationInSc: [{}]"
+////                , authentication, authenticationInSc);
+        log.debug("getUserInfo - authentication.getName: [{}]"
+                        + ", authentication.getAuthorities.size: [{}]"
+                        + ", authenticationInSc.getName: [{}]"
+                        + ", authenticationInSc.getAuthorities.size: [{}]"
+                , Objects.isNull(authentication)? "NULL" : authentication.getName()
+                , Objects.isNull(authentication)? "NULL" : authentication.getAuthorities().size()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getName()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getAuthorities().size()
+        );
+
+        // 💡 實錘鐵證：列印出目前執行這段代碼的到底是不是 Proxy 實例！
+        boolean isAopProxy = org.springframework.aop.support.AopUtils.isAopProxy(this);
+        boolean isCglibProxy = org.springframework.aop.support.AopUtils.isCglibProxy(this);
+
+        log.info("====== [AOP DIAGNOSTIC] ======");
+        log.info("Is current Controller an AOP Proxy? -> " + isAopProxy);
+        log.info("Is it a CGLIB Proxy? -> " + isCglibProxy);
+        log.info("Class Name: " + this.getClass().getName());
+        log.info("==============================");
+
         this.logAuthentication("authentication", authentication);
         this.logAuthentication("authenticationInSc", authenticationInSc);
         String userId = authentication.getName();
@@ -129,8 +163,17 @@ public class MyController {
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);
-        log.debug("getPermissionInfo - authentication: [{}], authenticationInSc: [{}], applicationId: [{}]"
-                , authentication, authenticationInSc, applicationId);
+        log.debug("getPermissionInfo - authentication.getName: [{}]"
+                        + ", authentication.getAuthorities.size: [{}]"
+                        + ", authenticationInSc.getName: [{}]"
+                        + ", authenticationInSc.getAuthorities.size: [{}]"
+                        + ", applicationId: [{}]"
+                , Objects.isNull(authentication)? "NULL" : authentication.getName()
+                , Objects.isNull(authentication)? "NULL" : authentication.getAuthorities().size()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getName()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getAuthorities().size()
+                , applicationId
+        );
         String userId = authentication.getName();
         UserDossierDto userDossierDto = null;
         MyPermissionDto myPermissionDto = null;
@@ -167,8 +210,16 @@ public class MyController {
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);
-        log.debug("getUserDossier - authentication: [{}], authenticationInSc: [{}], applicationId: [{}]"
-                , authentication, authenticationInSc, applicationId);
+        log.debug("getUserDossier - authentication.getName: [{}]"
+                        + ", authentication.getAuthorities.size: [{}]"
+                        + ", authenticationInSc.getName: [{}]"
+                        + ", authenticationInSc.getAuthorities.size: [{}]"
+                        + ", applicationId: [{}]"
+                , Objects.isNull(authentication)? "NULL" : authentication.getName()
+                , Objects.isNull(authentication)? "NULL" : authentication.getAuthorities().size()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getName()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getAuthorities().size()
+                , applicationId);
         String userId = authentication.getName();
         UserDossierDto userDossierDto = null;
         //
@@ -194,8 +245,15 @@ public class MyController {
             , Authentication authentication) {
         Authentication authenticationInSc = SecurityContextHolder.getContext().getAuthentication();
         HttpHeaderUtils.logHttpHeaders(httpHeaders);
-        log.debug("getUserView - authentication: [{}], authenticationInSc: [{}]"
-                , authentication, authenticationInSc);
+        log.debug("getUserView - authentication.getName: [{}]"
+                        + ", authentication.getAuthorities.size: [{}]"
+                        + ", authenticationInSc.getName: [{}]"
+                        + ", authenticationInSc.getAuthorities.size: [{}]"
+                , Objects.isNull(authentication)? "NULL" : authentication.getName()
+                , Objects.isNull(authentication)? "NULL" : authentication.getAuthorities().size()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getName()
+                , Objects.isNull(authenticationInSc)? "NULL" : authenticationInSc.getAuthorities().size()
+        );
         String userId = authentication.getName();
         UserDossierDto userDossierDto = null;
         UserViewDto userViewDto = null;

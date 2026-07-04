@@ -4,13 +4,14 @@ import com.siukatech.poc.react.backend.module.core.security.config.*;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
-@ComponentScan({"com.siukatech.poc.react.backend.module.core.security"})
+//@ComponentScan(value = {"com.siukatech.poc.react.backend.module.core.security"})
+@ComponentScan(basePackageClasses = {SecurityConfigImport.class})
 @Import({
         Oauth2ClientRestTemplateConfig.class
         , AuthorizationDataProviderConfig.class
         , OAuth2ResourceServerConfig.class
 //        , AuthenticationEntryPointConfig.class
-        , PermissionControlEvaluatorConfig.class
+        , PermissionControlConfig.class
         , WebSecurityConfig.class
 })
 //@Import({

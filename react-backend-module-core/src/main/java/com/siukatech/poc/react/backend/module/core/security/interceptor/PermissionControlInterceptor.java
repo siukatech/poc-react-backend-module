@@ -2,6 +2,7 @@ package com.siukatech.poc.react.backend.module.core.security.interceptor;
 
 import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
 import com.siukatech.poc.react.backend.module.core.security.evaluator.RbacPermissionControlEvaluator;
+import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlExceptionRec;
 import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlNotFoundException;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.security.model.MyGrantedAuthority;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,8 +61,9 @@ public class PermissionControlInterceptor implements HandlerInterceptor {
         log.debug("preHandle - authName: [{}]", authName);
 
         boolean result = false;
-        if (handler instanceof HandlerMethod handlerMethod && authentication != null) {
-            result = this.evaluate(handlerMethod, authentication);
+        if (handler instanceof HandlerMethod handlerMethod
+                && authentication instanceof MyAuthenticationToken myAuthenticationToken) {
+            result = this.evaluate(handlerMethod, myAuthenticationToken);
         }
 
         log.debug("preHandle - authName: [{}], result: [{}], end", authName, result);
@@ -84,7 +87,8 @@ public class PermissionControlInterceptor implements HandlerInterceptor {
     }
 
 
-    protected boolean evaluate(HandlerMethod handlerMethod, Authentication authentication) throws PermissionControlNotFoundException {
+    protected boolean evaluate(HandlerMethod handlerMethod, Authentication authentication)
+            throws PermissionControlNotFoundException {
         String userId = authentication.getName();
         Class<?> beanType = handlerMethod.getBeanType();
         Method method = handlerMethod.getMethod();
@@ -123,8 +127,12 @@ public class PermissionControlInterceptor implements HandlerInterceptor {
                 , userId, beanName, methodName
 //                , isPublic
         );
-        log.debug("evaluate - userId: [{}], authentication.getClass.getName: [{}], permissionControlAnnotationByUtil: [{}], permissionControlAnnotationByMethod: [{}]"
-                , userId, authentication.getClass().getName(), permissionControlAnnotationByUtil, permissionControlAnnotationByMethod);
+        log.debug("evaluate - userId: [{}], authentication.getClass.getName: [{}]"
+                        + ", permissionControlAnnotationByUtil: [{}]"
+                        + ", permissionControlAnnotationByMethod: [{}]"
+                , userId, authentication.getClass().getName()
+                , permissionControlAnnotationByUtil
+                , permissionControlAnnotationByMethod);
 
         final PermissionControl permissionControl;
         permissionControl = permissionControlAnnotationByUtil;
@@ -134,9 +142,19 @@ public class PermissionControlInterceptor implements HandlerInterceptor {
 //            // nothing to do with PublicController
 //        }
 //        else {
-//        hasPrivilege = this.rbacPermissionControlEvaluator.evaluate(permissionControl, authentication);
+//        hasPrivilege = this.rbacPermissionControlEvaluator.evaluate(permissionControl, myAuthenticationToken);
         if (Objects.isNull(permissionControl)) {
-            throw new PermissionControlNotFoundException("");
+            PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
+                    authentication
+                    , beanName, methodName
+                    , "NULL"
+                    , "NULL", "NULL"
+                    , (mga) -> {}
+            );
+            throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
+        }
+        else {
+            hasPrivilege = true;
         }
 //        }
         return hasPrivilege;

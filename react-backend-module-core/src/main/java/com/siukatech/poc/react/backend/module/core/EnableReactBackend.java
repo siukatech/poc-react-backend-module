@@ -1,6 +1,7 @@
 package com.siukatech.poc.react.backend.module.core;
 
 
+import com.siukatech.poc.react.backend.module.core.business.BusinessConfigImport;
 import com.siukatech.poc.react.backend.module.core.caching.CachingConfigImport;
 import com.siukatech.poc.react.backend.module.core.data.DataConfigImport;
 import com.siukatech.poc.react.backend.module.core.global.GlobalConfigImport;
@@ -19,6 +20,7 @@ import java.lang.annotation.*;
         , DataConfigImport.class
         , WebConfigImport.class
         , SecurityConfigImport.class
+        , BusinessConfigImport.class
 })
 public @interface EnableReactBackend {
 }

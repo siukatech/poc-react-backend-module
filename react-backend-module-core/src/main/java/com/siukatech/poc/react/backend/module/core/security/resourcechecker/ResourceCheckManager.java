@@ -18,15 +18,21 @@ public class ResourceCheckManager {
     // Spring will automatically inject ResourceChecker Bean
     @Autowired
     public ResourceCheckManager(List<ResourceChecker> resourceCheckers) {
-        for (ResourceChecker checker : resourceCheckers) {
-            resourceCheckerMap.put(checker.getSupportedType().toUpperCase(), checker);
+        for (ResourceChecker resourceChecker : resourceCheckers) {
+            resourceCheckerMap.put(resourceChecker.getSupportedType()
+//                    .toUpperCase()
+                    , resourceChecker);
         }
     }
 
     public ResourceChecker getResourceChecker(String resourceType) {
-        ResourceChecker resourceChecker = resourceCheckerMap.get(resourceType.toUpperCase());
+        ResourceChecker resourceChecker = resourceCheckerMap.get(resourceType
+//                .toUpperCase()
+        );
         if (resourceChecker == null) {
-            throw new IllegalArgumentException("No ResourceChecker registered for resourceType: [%s]".formatted(resourceType));
+            String tmpl = "No ResourceChecker registered for resourceType: [%s]";
+            String msg = tmpl.formatted(resourceType);
+            throw new IllegalArgumentException(msg);
         }
         return resourceChecker;
     }

@@ -22,7 +22,8 @@ import java.util.List;
 public class DefaultRbacPermissionControlEvaluator implements RbacPermissionControlEvaluator {
 
     @Deprecated
-    public boolean evaluate(HandlerMethod handlerMethod, Authentication authentication) throws PermissionControlNotFoundException {
+    public boolean evaluate(HandlerMethod handlerMethod, Authentication authentication)
+            throws PermissionControlNotFoundException {
         String userId = authentication.getName();
         Class<?> beanType = handlerMethod.getBeanType();
         Method method = handlerMethod.getMethod();
@@ -59,24 +60,27 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
         long authorityCount = -1;
 //        boolean isPublic = publicController != null;
 
+        final PermissionControl permissionControl;
+        permissionControl = permissionControlAnnotationByUtil;
+//        permissionControl = permissionControlAnnotationByMethod;
+
         log.debug("evaluate - userId: [{}], beanName: [{}], methodName: [{}]"
 //                        + ", hasPublicController: [{}]"
                 , userId, beanName, methodName
 //                , isPublic
         );
-        log.debug("evaluate - userId: [{}], authentication.getClass.getName: [{}], permissionControlAnnotationByUtil: [{}], permissionControlAnnotationByMethod: [{}]"
-                , userId, authentication.getClass().getName(), permissionControlAnnotationByUtil, permissionControlAnnotationByMethod);
-
-        final PermissionControl permissionControl;
-        permissionControl = permissionControlAnnotationByUtil;
-//        permissionControl = permissionControlAnnotationByMethod;
+        log.debug("evaluate - userId: [{}], authentication.getClass.getName: [{}]"
+                        + ", permissionControlAnnotationByUtil: [{}], permissionControlAnnotationByMethod: [{}]"
+                , userId, authentication.getClass().getName()
+                , permissionControlAnnotationByUtil, permissionControlAnnotationByMethod);
 
 //        if (isPublic) {
 //            // nothing to do with PublicController
 //        }
 //        else {
-            if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
-                grantedAuthorityList.addAll(myAuthenticationToken.getAuthorities());
+//            if (authentication instanceof MyAuthenticationToken myAuthenticationTokenTemp) {
+//                myAuthenticationToken = myAuthenticationTokenTemp;
+                grantedAuthorityList.addAll(authentication.getAuthorities());
                 log.debug("evaluate - userId: [{}], grantedAuthorityList.size: [{}]"
                         , userId, grantedAuthorityList.size());
                 log.trace("evaluate - userId: [{}], grantedAuthorityList: [{}]"
@@ -106,7 +110,7 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
                 log.debug("evaluate - userId: [{}], permissionControl: [{}], appResourceId: [{}], accessRight: [{}], authorityCount: [{}]"
                         , userId, permissionControl, appResourceId, accessRight, authorityCount
                 );
-            }
+//            }
             if (authorityCount <= 0) {
 //                String accessDeniedTmpl = "Access denied"
 //                        + ", myAuthenticationToken.getAuthorities.size: [%s]"
@@ -123,31 +127,36 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
 //                        , appResourceId, accessRight
 //                        , authorityCount);
                 PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
-                        grantedAuthorityList.size()
-                        , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
-                        , userId, beanName, methodName
+                        authentication
+                        , "", ""
                         , permissionControl == null ? "NULL" : permissionControl.toString()
                         , appResourceId, accessRight
-                        , authorityCount);
+                        , (mga) -> {}
+                );
                 throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
             }
 //        }
         return true;
     }
 
-    public boolean evaluate(PermissionControl permissionControl, Authentication authentication) throws PermissionControlNotFoundException {
+    public boolean evaluate(PermissionControl permissionControl, Method method, Authentication authentication)
+            throws PermissionControlNotFoundException {
         List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
         String appResourceId = (permissionControl == null ? null : permissionControl.appResourceId());
         String accessRight = (permissionControl == null ? null : permissionControl.accessRight());
         String userId = authentication.getName();
+        String beanName = method.getClass().getSimpleName();
+        String methodName = method.getName();
         long authorityCount = -1;
 //        boolean isPublic = publicController != null;
         boolean hasPrivilege = false;
+//        MyAuthenticationToken myAuthenticationToken = null;
 
         log.debug("evaluate - userId: [{}], authentication.getClass.getName: [{}], permissionControl: [{}]"
                 , userId, authentication.getClass().getName(), permissionControl);
-        if (authentication instanceof MyAuthenticationToken myAuthenticationToken) {
-            grantedAuthorityList.addAll(myAuthenticationToken.getAuthorities());
+//        if (authentication instanceof MyAuthenticationToken myAuthenticationTokenTemp) {
+//            myAuthenticationToken = myAuthenticationTokenTemp;
+            grantedAuthorityList.addAll(authentication.getAuthorities());
             log.debug("evaluate - userId: [{}], grantedAuthorityList.size: [{}]"
                     , userId, grantedAuthorityList.size());
             log.trace("evaluate - userId: [{}], grantedAuthorityList: [{}]"
@@ -177,13 +186,13 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
             log.debug("evaluate - userId: [{}], permissionControl: [{}], appResourceId: [{}], accessRight: [{}], authorityCount: [{}]"
                     , userId, permissionControl, appResourceId, accessRight, authorityCount
             );
-        }
+//        }
         if (authorityCount <= 0) {
 //            String accessDeniedTmpl = "Access denied"
 //                    + ", myAuthenticationToken.getAuthorities.size: [%s]"
 //                    + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
 //                    + ", userId: [%s]"
-////                    + ", beanName: [%s], methodName: [%s]"
+//                    + ", beanName: [%s], methodName: [%s]"
 //                    + ", permissionControl: [%s]"
 //                    + ", appResourceId: [%s], accessRight: [%s]"
 //                    + ", authorityCount: [%d]";
@@ -191,19 +200,18 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
 //                    , grantedAuthorityList.size()
 //                    , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
 //                    , userId
-////                    , beanName, methodName
+//                    , beanName, methodName
 //                    , permissionControl == null ? "NULL" : permissionControl.toString()
 //                    , appResourceId, accessRight
 //                    , authorityCount);
 //            throw new PermissionControlNotFoundException(accessDeniedMsg);
             PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
-                    grantedAuthorityList.size()
-                    , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
-                    , userId
-                    , "", ""
+                    authentication
+                    , beanName, methodName
                     , permissionControl == null ? "NULL" : permissionControl.toString()
                     , appResourceId, accessRight
-                    , authorityCount);
+                    , (mga) -> {}
+            );
             throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
         }
         else {

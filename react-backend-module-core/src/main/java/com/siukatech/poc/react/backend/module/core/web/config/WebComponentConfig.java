@@ -1,16 +1,25 @@
 package com.siukatech.poc.react.backend.module.core.web.config;
 
+import com.siukatech.poc.react.backend.module.core.business.BusinessConfigImport;
+import com.siukatech.poc.react.backend.module.core.data.DataConfigImport;
+import com.siukatech.poc.react.backend.module.core.web.WebConfigImport;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
 @Configuration
 // https://www.concretepage.com/spring/spring-component-scan-include-and-exclude-filter-example
-@ComponentScan(value = {
-        "com.siukatech.poc.react.backend.module.core.web"
-        , "com.siukatech.poc.react.backend.module.core.data"
-        , "com.siukatech.poc.react.backend.module.core.business"
-}
+@ComponentScan(
+//        value = {
+//        "com.siukatech.poc.react.backend.module.core.web"
+//        , "com.siukatech.poc.react.backend.module.core.data"
+//        , "com.siukatech.poc.react.backend.module.core.business"
+//}
+        basePackageClasses = {
+                WebConfigImport.class
+                , DataConfigImport.class
+                , BusinessConfigImport.class
+        }
         , excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX
 //          , classes = IUserService.class
 //          , pattern = "com.concretepage.*.*Util"

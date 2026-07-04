@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 public class OAuth2ClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
@@ -44,7 +45,7 @@ public class OAuth2ClientHttpRequestInterceptor implements ClientHttpRequestInte
         }
         HttpHeaderUtils.logHttpHeaders(request.getHeaders());
 //        log.debug("intercept - request.getHeaders: [{}]", request.getHeaders());
-        log.debug("intercept - authentication: [{}], tokenValue: [{}]", authentication, tokenValue);
+        log.debug("intercept - authentication.getName: [{}], tokenValue: [{}]", Objects.isNull(authentication) ? "NULL" : authentication.getName(), tokenValue);
         log.debug("intercept - correlationIdHandler.getCorrelationId: [{}]", correlationIdHandler.getCorrelationId());
         log.debug("intercept - request.URI: [{}]"
                         + ", authentication.getName: [{}]"

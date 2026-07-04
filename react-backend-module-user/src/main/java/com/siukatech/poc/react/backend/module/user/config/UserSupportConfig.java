@@ -2,6 +2,7 @@ package com.siukatech.poc.react.backend.module.user.config;
 
 import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
 import com.siukatech.poc.react.backend.module.core.security.provider.AuthorizationDataProvider;
+import com.siukatech.poc.react.backend.module.user.EnableUserSupport;
 import com.siukatech.poc.react.backend.module.user.service.UserService;
 import com.siukatech.poc.react.backend.module.user.provider.DatabaseAuthorizationDataProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +15,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Slf4j
 @Configuration
-@ComponentScan(value = {"com.siukatech.poc.react.backend.module.user"})
+//@ComponentScan(value = {"com.siukatech.poc.react.backend.module.user"})
+@ComponentScan(basePackageClasses = {EnableUserSupport.class})
 ////@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.core.security.provider.database.entity"})  // "**" means all packages
 ////@EnableJpaRepositories("com.siukatech.poc.react.backend.module.core.security.provider.database.repository")    // "**" means all packages
-@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.user.entity"})  // "**" means all packages
-@EnableJpaRepositories("com.siukatech.poc.react.backend.module.user.repository")    // "**" means all packages
-//@EntityScan
-//@EnableJpaRepositories
+//@EntityScan(basePackages = {"com.siukatech.poc.react.backend.module.user.entity"})  // "**" means all packages
+//@EnableJpaRepositories("com.siukatech.poc.react.backend.module.user.repository")    // "**" means all packages
+@EntityScan(basePackageClasses = {EnableUserSupport.class})
+@EnableJpaRepositories(basePackageClasses = {EnableUserSupport.class})
 public class UserSupportConfig {
 
     @Bean
