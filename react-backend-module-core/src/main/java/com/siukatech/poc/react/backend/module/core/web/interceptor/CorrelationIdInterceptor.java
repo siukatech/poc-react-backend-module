@@ -38,7 +38,9 @@ public class CorrelationIdInterceptor implements HandlerInterceptor {
         log.debug("postHandle - start");
 
         log.debug("preHandle - request.getRequestURI: [${}]", request.getRequestURI());
-        log.debug("preHandle - request.HEADER_X_CORRELATION_ID: [${}], correlationIdHandler.getCorrelationId: [{}]"
+        log.debug("preHandle - request.header: [{}], request.HEADER_X_CORRELATION_ID: [${}]"
+                        + ", correlationIdHandler.getCorrelationId: [{}]"
+                , CorrelationIdHandler.HEADER_X_CORRELATION_ID
                 , response.getHeader(CorrelationIdHandler.HEADER_X_CORRELATION_ID)
                 , this.correlationIdHandler.getCorrelationId()
         );
