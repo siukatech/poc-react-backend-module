@@ -1,5 +1,6 @@
 package com.siukatech.poc.react.backend.module.core.security.config;
 
+import com.siukatech.poc.react.backend.module.core.global.config.AppCoreProp;
 import com.siukatech.poc.react.backend.module.core.security.filter.AuthorizationDataFilter;
 import com.siukatech.poc.react.backend.module.core.security.filter.ExceptionHandlerFilter;
 import com.siukatech.poc.react.backend.module.core.security.handler.KeycloakLogoutHandler;
@@ -7,11 +8,16 @@ import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.MyJw
 import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.MyOpaqueTokenAuthenticationConverter;
 import com.siukatech.poc.react.backend.module.core.security.oauth2.resource.MyOpaqueTokenIntrospector;
 import com.siukatech.poc.react.backend.module.core.web.helper.PublicControllerHelper;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -31,6 +37,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -57,11 +64,14 @@ public class WebSecurityConfig {
 //    private final MyOpaqueTokenIntrospector opaqueTokenIntrospector;
 //    private final MyOpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter;
 //    private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final WebEndpointProperties webEndpointProperties;
 
     public WebSecurityConfig(
 ////            ObjectMapper objectMapper
 ////            , UserService userService
 ////            , AppCoreProp appCoreProp
+//            ,
+            WebEndpointProperties webEndpointProperties
 ////            ,
 //            KeycloakLogoutHandler keycloakLogoutHandler
 ////            , OAuth2ResourceServerProperties oAuth2ResourceServerProperties
@@ -76,6 +86,7 @@ public class WebSecurityConfig {
 ////        this.objectMapper = objectMapper;
 ////        this.userService = userService;
 ////        this.appCoreProp = appCoreProp;
+        this.webEndpointProperties = webEndpointProperties;
 //        this.authorizationDataFilter = authorizationDataFilter;
 //        this.keycloakLogoutHandler = keycloakLogoutHandler;
 ////        this.oAuth2ResourceServerProperties = oAuth2ResourceServerProperties;
@@ -205,159 +216,120 @@ public class WebSecurityConfig {
 //        return new CorsFilter(source);
 //    }
 
+    // =========================================================================
+    // CHAIN 1: Public Routes (Actuator, Login, Error)
+    // Completely ignores OAuth2 processing to prevent unexpected 401s.
+    // =========================================================================
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http
-            , KeycloakLogoutHandler keycloakLogoutHandler
-//            , OAuth2ResourceServerProperties oAuth2ResourceServerProperties
-            , MyJwtAuthenticationConverter myJwtAuthenticationConverter
-            , AuthorizationDataFilter authorizationDataFilter
-//            , OAuth2ClientExtProp oAuth2ClientExtProp
-//            , OAuth2ResourceServerExtProp oAuth2ResourceServerExtProp
-            , MyOpaqueTokenIntrospector opaqueTokenIntrospector
-            , MyOpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter
-//            , @Qualifier("delegatedAuthenticationEntryPoint") AuthenticationEntryPoint delegatedAuthenticationEntryPoint
-            , AuthenticationEntryPoint delegatedAuthenticationEntryPoint
-            , ExceptionHandlerFilter exceptionHandlerFilter
-    ) throws Exception {
-////        http.csrf().disable();
-//        http.csrf(new Customizer<CsrfConfigurer<HttpSecurity>>() {
-//            @Override
-//            public void customize(CsrfConfigurer<HttpSecurity> httpSecurityCsrfConfigurer) {
-//                httpSecurityCsrfConfigurer.disable();
-//            }
-//        });
-        // can be rewritten in lambda way
-        http.csrf(csrfConfigurer -> csrfConfigurer.disable());
-
-        // cors
-        http.cors(corsConfigurer -> corsConfigurer.configurationSource(this.corsConfigurationSource()));
-
-        // The AntPathRequestMatcher list should match to WebMvcConfig.addInterceptors
-        http.authorizeHttpRequests(requests -> requests
-//                .requestMatchers(
-//                        "/"
-//                        , "/login"
-//                        , "/v*/public/**"
-//                )
-                        .requestMatchers(RequestMatchers.anyOf(
-                                AntPathRequestMatcher.antMatcher("/")
-                                , AntPathRequestMatcher.antMatcher("/login")
-                                , AntPathRequestMatcher.antMatcher("/logout")
-                                , AntPathRequestMatcher.antMatcher("/error")
-                                , AntPathRequestMatcher.antMatcher("/actuator/**")
-
-                                // Only /v*/public/** is allowed to permit without security checking
-//                                , AntPathRequestMatcher.antMatcher("/v*" + PublicController.REQUEST_MAPPING_URI_PREFIX + "/**")
-                                , AntPathRequestMatcher.antMatcher(PublicControllerHelper.resolveExcludePath())
-
-                                // This is required to add HttpMethod.OPTIONS here
-                                // Preflight-request failed reason is missing WebMvcConfig which implements WebMvcConfigurer,
-                                // NOT WebMvcConfigurationSupport, the WebMvcConfigurationSupport is obsolete
-                                , AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/v*/**")
-
-                        ))
-                        .permitAll()
-                        .anyRequest()
-                        //.fullyAuthenticated()
-                        .authenticated()
-        )
-//                .antMatchers("/customers*")
-//                .hasRole("USER")
-//                .anyRequest()
-//                .permitAll()
-        ;
-//        http.oauth2Login()
-//                .and()
-//                .logout()
-//                .addLogoutHandler(keycloakLogoutHandler)
-//                .logoutSuccessUrl("/login")
-//                .permitAll()
-//        ;
-//        http.oauth2Login(new Customizer<OAuth2LoginConfigurer<HttpSecurity>>() {
-//            @Override
-//            public void customize(OAuth2LoginConfigurer<HttpSecurity> httpSecurityOAuth2LoginConfigurer) {
-//                httpSecurityOAuth2LoginConfigurer
-//                        .permitAll();
-//            }
-//        });
-        http.oauth2Login(auth2LoginConfigurer -> {
-            auth2LoginConfigurer.authorizationEndpoint(authorizationEndpointConfig -> {
-                //authorizationEndpointConfig.baseUri("/**");
-            })
-            ;
-            try {
-                auth2LoginConfigurer.init(http);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-////        //http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-////        http.oauth2ResourceServer()
-////                .jwt()
-////                .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)
-////        ;
-////        http.oauth2ResourceServer(new Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>>() {
-////            @Override
-////            public void customize(OAuth2ResourceServerConfigurer<HttpSecurity> httpSecurityOAuth2ResourceServerConfigurer) {
-////                httpSecurityOAuth2ResourceServerConfigurer.jwt(new Customizer<OAuth2ResourceServerConfigurer<org.springframework.security.config.annotation.web.builders.HttpSecurity>.JwtConfigurer>() {
-////                    @Override
-////                    public void customize(OAuth2ResourceServerConfigurer<HttpSecurity>.JwtConfigurer jwtConfigurer) {
-////                        jwtConfigurer
-////                                .jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)
-////                                ;
-////                    }
-////                });
-////            }
-////        });
-        http.oauth2ResourceServer(oAuth2ResourceServerConfigurer ->
-                oAuth2ResourceServerConfigurer
-//                        .jwt(jwtConfigurer -> jwtConfigurer
-//                                .jwtAuthenticationConverter(myJwtAuthenticationConverter)
-//                        )
-                        .opaqueToken(opaqueTokenConfigurer -> opaqueTokenConfigurer
-                                .introspector(
-//                                        opaqueTokenIntrospector()
-                                        opaqueTokenIntrospector
-                                )
-                                        .authenticationConverter(opaqueTokenAuthenticationConverter)
-                        )
+    @Order(1)
+    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+        // List all public routes explicitly
+        List<String> publicPathList = List.of(
+                "/", "/login", "/logout", "/error"
+//                , "/actuator/**"
+                , webEndpointProperties.getBasePath() + "/**"
         );
-//        http.oauth2ResourceServer(Customizer.withDefaults());
-
-        // Add exceptionHandlerFilter before BearerTokenAuthenticationFilter
-        http.addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class);
-        http.addFilterAfter(authorizationDataFilter, BasicAuthenticationFilter.class);
-
-        http.logout(logoutConfigurer -> logoutConfigurer
-                        .addLogoutHandler(keycloakLogoutHandler)
-//                .logoutRequestMatcher(AntPathRequestMatcher.antMatcher("/logout"))
-                        //
-                        // Reference:
-                        // https://stackoverflow.com/a/38461866
-                        // https://baeldung.com/spring-security-logout
-                        // return http-status instead of doing redirect
-//                .logoutSuccessUrl("/")
-                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
-        );
-
-        http.sessionManagement(sessionManagementConfigurer ->
-                sessionManagementConfigurer
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
-
-        log.debug("filterChain - http.exceptionHandling - delegatedAuthenticationEntryPoint: [{}]"
-                , delegatedAuthenticationEntryPoint);
-        http.exceptionHandling(exceptionHandlingConfigurer ->
-                exceptionHandlingConfigurer
-                        .authenticationEntryPoint(delegatedAuthenticationEntryPoint)
-        );
+        http
+            .securityMatchers(matchers -> matchers
+                    .requestMatchers(publicPathList.toArray(String[]::new))
+                    // Only /v*/public/** is allowed to permit without security checking
+                    // "/v*" + PublicController.REQUEST_MAPPING_URI_PREFIX + "/**"
+                    .requestMatchers(PublicControllerHelper.resolveExcludePath())
+            )
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.disable())
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
-//
+
+    // =========================================================================
+    // CHAIN 2: OAuth2 Client Web Login (Authorization Code Flow)
+    // Handles session-based state parameters for Web Browsers/Keycloak Login.
+    // =========================================================================
+    @Bean
+    @Order(2)
+    public SecurityFilterChain oauth2LoginFilterChain(HttpSecurity http, KeycloakLogoutHandler keycloakLogoutHandler) throws Exception {
+        http
+            .securityMatchers(matchers -> matchers
+                    .requestMatchers("/oauth2/**", "/login/oauth2/**")
+            )
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+            .oauth2Login(Customizer.withDefaults())
+            // Logout Handling
+            .logout(logout -> logout
+                    .addLogoutHandler(keycloakLogoutHandler)
+                    .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+            )
+            // MUST BE IF_REQUIRED or ALWAYS for Auth Code flow states!
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+
+        return http.build();
+    }
+
+    // =========================================================================
+    // CHAIN 3: Main API Resource Server (Opaque Token Gateway)
+    // Catches all remaining traffic and strictly enforces API authentication.
+    // =========================================================================
+    @Bean
+    @Order(3)
+    public SecurityFilterChain apiResourceServerFilterChain(HttpSecurity http
+            , AuthorizationDataFilter authorizationDataFilter
+            , MyOpaqueTokenIntrospector opaqueTokenIntrospector
+            , MyOpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter
+            , AuthenticationEntryPoint delegatedAuthenticationEntryPoint
+            , ExceptionHandlerFilter exceptionHandlerFilter
+    ) throws Exception {
+
+        // Disable CSRF for APIs
+        // can be rewritten in lambda way
+        http.csrf(csrf -> csrf.disable());
+
+        // CORS configuration
+        http.cors(cors -> cors.configurationSource(this.corsConfigurationSource()));
+
+        // Cleaned up authorization rules
+        // Everything left over requires Opaque Bearer token validation
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.OPTIONS, "/v*/**"))
+                .permitAll()
+//                .requestMatchers(AntPathRequestMatcher.antMatcher("/customers*"))
+//                .hasRole("USER")
+//                .anyRequest().permitAll()
+                // Force authentication for everything else
+                .anyRequest().authenticated()
+        );
+
+        // OAuth2 Resource Server (Bearer Tokens)
+        http.oauth2ResourceServer(resourceServer -> resourceServer
+                .opaqueToken(opaque -> opaque
+                        .introspector(opaqueTokenIntrospector)
+                        .authenticationConverter(opaqueTokenAuthenticationConverter)
+                )
+        );
+
+        // Filter Injection Chain
+        // Your custom filter interceptors run strictly within the API domain now
+        http.addFilterBefore(exceptionHandlerFilter, BearerTokenAuthenticationFilter.class);
+        http.addFilterAfter(authorizationDataFilter, BasicAuthenticationFilter.class);
+
+        http.sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // Exception Handling & Entry Points
+        log.debug("apiResourceServerFilterChain - http.exceptionHandling - delegatedAuthenticationEntryPoint: [{}]"
+                , delegatedAuthenticationEntryPoint);
+        http.exceptionHandling(handling ->
+                handling.authenticationEntryPoint(delegatedAuthenticationEntryPoint));
+
+        return http.build();
+    }
+
+
 //    @Bean
 //    public JwtDecoder jwtDecoder() {
 //        return (token -> {
