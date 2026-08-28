@@ -108,6 +108,7 @@ dependencies {
 //	api 'io.micrometer:micrometer-registry-prometheus:1.12.3'
 //	api 'io.micrometer:micrometer-tracing-bridge-brave:1.2.3'
     api 'io.micrometer:micrometer-tracing-bridge-brave'
+    api 'io.micrometer:micrometer-registry-prometheus'
 //	api 'io.zipkin.reporter2:zipkin-reporter-bom:2.16.3'
 //	api 'com.github.loki4j:loki-logback-appender:1.5.0'
 
