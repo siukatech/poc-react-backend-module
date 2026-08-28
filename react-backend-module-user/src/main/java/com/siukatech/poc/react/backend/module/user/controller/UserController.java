@@ -31,7 +31,7 @@ public class UserController {
             @ResourceCheck(
                     resourceType = UserSecurityConstants.ResourceType.USER
                     , accessRight = UserSecurityConstants.AccessRight.VIEW
-                    , idExpression = "#targetUserId"
+//                    , idExpression = "#targetUserId"
             )
     })
     public ResponseEntity getUserInfo(@PathVariable

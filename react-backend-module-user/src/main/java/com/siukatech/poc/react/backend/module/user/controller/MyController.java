@@ -149,9 +149,10 @@ public class MyController {
             // Evaluates condition at runtime: skips if applicationId query param is not provided
             @ResourceCheck(
                     resourceType = UserSecurityConstants.ResourceType.APPLICATION,
-                    accessRight = UserSecurityConstants.AccessRight.VIEW,
-                    idExpression = "#applicationId",
-                    condition = "#applicationId != null && #applicationId != ''"
+                    accessRight = UserSecurityConstants.AccessRight.VIEW
+//                    ,
+//                    idExpression = "#applicationId",
+//                    condition = "#applicationId != null && #applicationId != ''"
             )
         }
     )
@@ -196,9 +197,10 @@ public class MyController {
             // Evaluates condition at runtime: skips if applicationId query param is not provided
             @ResourceCheck(
                     resourceType = UserSecurityConstants.ResourceType.APPLICATION,
-                    accessRight = UserSecurityConstants.AccessRight.VIEW,
-                    idExpression = "#applicationId",
-                    condition = "#applicationId != null && #applicationId != ''"
+                    accessRight = UserSecurityConstants.AccessRight.VIEW
+//                    ,
+//                    idExpression = "#applicationId",
+//                    condition = "#applicationId != null && #applicationId != ''"
             )
         }
     )

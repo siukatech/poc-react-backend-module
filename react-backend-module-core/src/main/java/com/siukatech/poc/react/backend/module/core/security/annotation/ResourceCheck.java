@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
 public @interface ResourceCheck {
     String resourceType(); // Resource type, e.g., "SHOP", "CATEGORY"
     String accessRight(); // Resource CRUD access right
-    String idExpression(); // Resource Id, SpEL expression, e.g., "#shopId"
+    //    String idExpression(); // Resource Id, SpEL expression, e.g., "#shopId"
     String condition() default "true"; // SpEL conditional expression, defaults to "true"
 }

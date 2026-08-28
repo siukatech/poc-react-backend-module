@@ -5,32 +5,31 @@ import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceC
 import com.siukatech.poc.react.backend.module.core.security.evaluator.RbacPermissionControlEvaluator;
 import com.siukatech.poc.react.backend.module.core.security.evaluator.RlacPermissionControlEvaluator;
 import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlNotFoundException;
-import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
+import com.siukatech.poc.react.backend.module.core.security.resourcechecker.ResourceCheckResult;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.expression.MethodBasedEvaluationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.HandlerMapping;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Aspect
@@ -53,14 +52,18 @@ public class PermissionControlAspect {
         this.rlacPermissionControlEvaluator = rlacPermissionControlEvaluator;
     }
 
-//    @Before("@annotation(com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl)")
+    //    @Before("@annotation(com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl)")
 //    public void evaluate(JoinPoint joinPoint) throws Throwable {
     @Before("@annotation(permissionControl)")
     public void evaluate(JoinPoint joinPoint, PermissionControl permissionControl) throws Throwable {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication == null ? "NULL" : authentication.getName();
-
         log.debug("evaluate - userId: [{}], start", userId);
+
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ReqVariableData reqVariableData = this.resolveReqVariableData(requestAttributes);
+        log.debug("evaluate - userId: [{}], reqVariableData: [{}]", userId, reqVariableData);
+
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         String methodName = method.getDeclaringClass().getSimpleName() + "." + method.getName();
@@ -113,7 +116,8 @@ public class PermissionControlAspect {
             EvaluationContext evaluationContext = new MethodBasedEvaluationContext(joinPoint.getTarget(), method, args, nameDiscoverer);
 
             // Context container to pass validated parent resources down the chain
-            Map<String, String> validatedResources = new LinkedHashMap<>();
+//            Map<String, String> validatedResources = new LinkedHashMap<>();
+            Map<String, ResourceCheckResult> validatedResources = new LinkedHashMap<>();
 
             for (ResourceCheck resourceCheck : resourceChecks) {
                 String currentType = resourceCheck.resourceType()
@@ -131,30 +135,61 @@ public class PermissionControlAspect {
                 }
 
                 // Resolve the actual Resource ID value from SpEL context
-                Object resourceIdObj = expressionParser.parseExpression(resourceCheck.idExpression()).getValue(evaluationContext);
-                if (resourceIdObj == null) {
-                    log.error("evaluate - [Security-RLAC] Error! Resource ID expression [{}] returned null on method [{}]"
-                            , resourceCheck.idExpression(), methodName);
-                    throw new AccessDeniedException("Required resource ID is null");
-                }
-                String resourceId = resourceIdObj.toString();
+//                Object resourceIdObj = expressionParser.parseExpression(resourceCheck.idExpression()).getValue(evaluationContext);
+//                if (resourceIdObj == null) {
+//                    log.error("evaluate - [Security-RLAC] Error! Resource ID expression [{}] returned null on method [{}]"
+//                            , resourceCheck.idExpression(), methodName);
+//                    throw new AccessDeniedException("Required resource ID is null");
+//                }
+//                String resourceId = resourceIdObj.toString();
 
                 // Print the validation log before execution
-                log.info("evaluate - [Security-RLAC] Verifying Resource [{}] with ID [{}] (AccessRight: {}), Context: {}",
-                        currentType, resourceId, resourceCheck.accessRight(), validatedResources);
+//                log.info("evaluate - [Security-RLAC] Verifying Resource [{}] with ID [{}] (AccessRight: {}), Context: {}",
+//                        currentType, resourceId, resourceCheck.accessRight(), validatedResources);
+                log.info("evaluate - [Security-RLAC] Verifying Resource [{}] (AccessRight: {}), Context: {}",
+                        currentType, resourceCheck.accessRight(), validatedResources);
 
                 // Execute the specific ResourceChecker strategy
-                boolean rlacPassed = false;
-                rlacPassed = rlacPermissionControlEvaluator.evaluate(resourceCheck, resourceId
-                        , validatedResources, permissionControl, authentication);
-                if (!rlacPassed) {
-                    log.warn("evaluate - [Security-RLAC] Denied! No access to Resource [{}] with ID [{}] on method [{}]", currentType, resourceId, methodName);
+//                boolean rlacPassed = false;
+//                rlacPassed =
+                ResourceCheckResult resourceCheckResult = rlacPermissionControlEvaluator.evaluate(resourceCheck
+//                        , resourceId
+                        , reqVariableData
+                        , validatedResources, permissionControl, authentication
+                );
+                if (!resourceCheckResult.isHasAccess()) {
+//                    log.warn("evaluate - [Security-RLAC] Denied! No access to Resource [{}] with ID [{}] on method [{}]"
+//                            , currentType, resourceId, methodName);
+                    log.warn("evaluate - [Security-RLAC] Denied! No access to Resource [{}] with ResourceCheckResult [{}] on method [{}]"
+                            , currentType, resourceCheckResult, methodName);
                     throw new AccessDeniedException(String.format("RLAC Permission Denied for [%s]", currentType));
                 }
 
                 // Push current verified resource into the context map for subsequent checks
-                validatedResources.put(currentType, resourceId);
+//                validatedResources.put(currentType, resourceId);
+                validatedResources.put(currentType, resourceCheckResult);
             }
         }
     }
+
+    protected ReqVariableData resolveReqVariableData(
+            ServletRequestAttributes requestAttributes) {
+        Map<String, String> pathVarMap = new HashMap<>();
+        Map<String, String[]> paramVarMap = new HashMap<>();
+        if (Objects.nonNull(requestAttributes)) {
+            HttpServletRequest servletRequest = requestAttributes.getRequest();
+            @SuppressWarnings("unchecked")
+            Map<String, String> uriTemplateVariablesAttr = (Map<String, String>) servletRequest
+                    .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+            if (Objects.nonNull(uriTemplateVariablesAttr)) {
+                pathVarMap.putAll(uriTemplateVariablesAttr);
+            }
+            if (Objects.nonNull(servletRequest.getParameterMap())) {
+                paramVarMap.putAll(servletRequest.getParameterMap());
+            }
+        }
+        ReqVariableData reqVariableData = new ReqVariableData(pathVarMap, paramVarMap);
+        return reqVariableData;
+    }
+
 }
