@@ -11,6 +11,7 @@ import com.siukatech.poc.react.backend.module.core.util.DateTimeUtils;
 import com.siukatech.poc.react.backend.module.core.web.helper.PublicControllerHelper;
 import com.siukatech.poc.react.backend.module.core.web.interceptor.CorrelationIdInterceptor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -30,16 +31,22 @@ import java.util.List;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final ObjectMapper objectMapper;
+//    private final AppCoreProp appCoreProp;
+    private final WebEndpointProperties webEndpointProperties;
     private final AuthorizationDataInterceptor authorizationDataInterceptor;
     private final PermissionControlInterceptor permissionControlInterceptor;
     private final CorrelationIdInterceptor correlationIdInterceptor;
 
     public WebMvcConfig(ObjectMapper objectMapper
+//            , AppCoreProp appCoreProp
+            , WebEndpointProperties webEndpointProperties
             , AuthorizationDataInterceptor authorizationDataInterceptor
             , PermissionControlInterceptor permissionControlInterceptor
             , CorrelationIdInterceptor correlationIdInterceptor
     ) {
         this.objectMapper = objectMapper;
+//        this.appCoreProp = appCoreProp;
+        this.webEndpointProperties = webEndpointProperties;
         this.authorizationDataInterceptor = authorizationDataInterceptor;
         this.permissionControlInterceptor = permissionControlInterceptor;
         this.correlationIdInterceptor = correlationIdInterceptor;
@@ -140,21 +147,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 , "/logout"
                 , "/error"
 //                , "/auth/**"
+//                , "/actuator/**"
+                , webEndpointProperties.getBasePath() + "/**"
                 , PublicControllerHelper.resolveExcludePath()
         );
         registry.addInterceptor(correlationIdInterceptor)
                 .addPathPatterns("/**")
         ;
         //
-        registry.addInterceptor(authorizationDataInterceptor)
-//                .addPathPatterns("/**")
-////                .excludePathPatterns("/auth/**", "/logout")
-                .excludePathPatterns(excludedPathPatternList.toArray(String[]::new))
-//                .excludePathPatterns(PublicControllerHelper.resolveExcludePath())
-        ;
-        registry.addInterceptor(permissionControlInterceptor)
-                .excludePathPatterns(excludedPathPatternList.toArray(String[]::new))
-        ;
+//        registry.addInterceptor(authorizationDataInterceptor)
+////                .addPathPatterns("/**")
+//////                .excludePathPatterns("/auth/**", "/logout")
+//                .excludePathPatterns(excludedPathPatternList.toArray(String[]::new))
+////                .excludePathPatterns(PublicControllerHelper.resolveExcludePath())
+//        ;
+//        registry.addInterceptor(permissionControlInterceptor)
+//                .excludePathPatterns(excludedPathPatternList.toArray(String[]::new))
+//        ;
         log.debug("addInterceptors - end");
     }
 
