@@ -1,4 +1,4 @@
 package com.siukatech.poc.react.backend.module.core.security.resourcechecker;
 
-public interface ResourceChecker {
+public class NoneResourceChecker implements ResourceChecker {
 }

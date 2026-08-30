@@ -20,6 +20,8 @@ public class PermissionControlNotFoundException extends RuntimeException {
             + ", beanName: [%s], methodName: [%s]"
             + ", permissionControl: [%s]"
             + ", appResourceId: [%s], accessRight: [%s]"
+            + ", resourceChecker: [%s], checkMethod: [%s]"
+            + ", skipChecker: [%s]"
             + ", authorityCount: [%d]"
             ;
 
@@ -57,6 +59,9 @@ public class PermissionControlNotFoundException extends RuntimeException {
                 , permissionControlExceptionRec.permissionControl()
                 , permissionControlExceptionRec.appResourceId()
                 , permissionControlExceptionRec.accessRight()
+                , permissionControlExceptionRec.resourceChecker()
+                , permissionControlExceptionRec.checkMethod()
+                , permissionControlExceptionRec.skipChecker()
                 , authorityCount
         );
         return accessDeniedMsg;

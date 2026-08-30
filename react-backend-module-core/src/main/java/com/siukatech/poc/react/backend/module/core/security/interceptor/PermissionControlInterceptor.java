@@ -149,6 +149,8 @@ public class PermissionControlInterceptor implements HandlerInterceptor {
                     , beanName, methodName
                     , "NULL"
                     , "NULL", "NULL"
+                    , "NULL", "NULL"
+                    , "NULL"
                     , (mga) -> {}
             );
             throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);

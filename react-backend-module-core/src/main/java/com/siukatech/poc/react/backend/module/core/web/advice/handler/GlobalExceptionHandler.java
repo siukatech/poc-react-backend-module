@@ -7,11 +7,11 @@ import com.siukatech.poc.react.backend.module.core.web.advice.model.ProblemDetai
 import com.siukatech.poc.react.backend.module.core.web.micrometer.CorrelationIdHandler;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -233,6 +234,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleRuntimeInternal(ex, request, HttpStatus.NOT_FOUND, null);
     }
 
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    protected ResponseEntity handleAccessDenied(AccessDeniedException ex, WebRequest request) {
+        Object[] args = {};
+        return this.handleRuntimeInternal(ex, request, HttpStatus.FORBIDDEN, args);
+    }
+
     @ExceptionHandler(value = PermissionControlNotFoundException.class)
     protected ResponseEntity handlePermissionControlNotFound(
             PermissionControlNotFoundException ex, WebRequest request) {
@@ -249,7 +256,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String defaultDetail = ""
 //                + ex.getMessage()  // should not expose the exception detail
                 ;
-        ProblemDetail body = createProblemDetail(ex, status, defaultDetail, null, args, request);
+        ProblemDetail body = createProblemDetail(ex, status, defaultDetail
+                , null, args, request);
         ProblemDetailExt bodyExt = createProblemDetailExt(body);
         return handleExceptionInternal(ex, bodyExt, new HttpHeaders(), status, request);
     }

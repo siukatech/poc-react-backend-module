@@ -1,6 +1,7 @@
 package com.siukatech.poc.react.backend.module.core.security.evaluator;
 
 import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
+import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceCheck;
 import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlExceptionRec;
 import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlNotFoundException;
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
@@ -15,6 +16,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 //@Component
@@ -54,14 +56,20 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
         PermissionControl permissionControlAnnotationByUtil = AnnotationUtils.findAnnotation(
                 method, PermissionControl.class);
         PermissionControl permissionControlAnnotationByMethod = handlerMethod.getMethodAnnotation(PermissionControl.class);
-        List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
-        String appResourceId = (permissionControlAnnotationByUtil == null ? null : permissionControlAnnotationByUtil.appResourceId());
-        String accessRight = (permissionControlAnnotationByUtil == null ? null : permissionControlAnnotationByUtil.accessRight());
-        long authorityCount = -1;
-//        boolean isPublic = publicController != null;
 
         final PermissionControl permissionControl;
         permissionControl = permissionControlAnnotationByUtil;
+
+        List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
+        String appResourceId = Objects.nonNull(permissionControl)? permissionControl.appResourceId() : null;
+        String accessRight = Objects.nonNull(permissionControl)? permissionControl.accessRight() : null;
+        ResourceCheck resourceCheck = Objects.nonNull(permissionControl)? permissionControl.resourceCheck() : null;
+        String resourceChecker = Objects.nonNull(resourceCheck)? resourceCheck.resourceChecker().getName() : null;
+        String checkMethod = Objects.nonNull(resourceCheck)? resourceCheck.checkMethod() : null;
+        boolean skipChecker = Objects.nonNull(resourceCheck) && resourceCheck.skipChecker();
+        long authorityCount = -1;
+        boolean hasAccess = false;
+//        boolean isPublic = publicController != null;
 //        permissionControl = permissionControlAnnotationByMethod;
 
         log.debug("evaluate - userId: [{}], beanName: [{}], methodName: [{}]"
@@ -89,16 +97,18 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
                         .filter(grantedAuthority -> grantedAuthority instanceof MyGrantedAuthority)
                         .map(MyGrantedAuthority.class::cast)
                         .peek(mga -> {
-                            log.trace("evaluate - userId: [{}], permissionControl: [{}]"
+                            log.trace("evaluate - userId: [{}]"
                                             + ", appResourceId: [{}], accessRight: [{}]"
                                             + ", mga.getApplicationId: [{}], mga.getUserRoleId: [{}]"
                                             + ", mga.getAppResourceId: [{}], mga.getAccessRight: [{}]"
                                             + ", mga.getAuthority: [{}]"
-                                    , userId, permissionControl
+                                            + ", permissionControl: [{}]"
+                                    , userId
                                     , appResourceId, accessRight
                                     , mga.getApplicationId(), mga.getUserRoleId()
                                     , mga.getAppResourceId(), mga.getAccessRight()
                                     , mga.getAuthority()
+                                    , permissionControl
                             );
                         })
                         .filter(mga -> mga.getAppResourceId() != null
@@ -107,11 +117,12 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
                                 && mga.getAccessRight().equals(accessRight)
                         )
                         .count();
-                log.debug("evaluate - userId: [{}], permissionControl: [{}], appResourceId: [{}], accessRight: [{}], authorityCount: [{}]"
-                        , userId, permissionControl, appResourceId, accessRight, authorityCount
+                hasAccess = authorityCount > 0;
+                log.debug("evaluate - userId: [{}], appResourceId: [{}], accessRight: [{}], authorityCount: [{}], hasAccess: [{}], permissionControl: [{}]"
+                        , userId, appResourceId, accessRight, authorityCount, hasAccess, permissionControl
                 );
 //            }
-            if (authorityCount <= 0) {
+            if (!hasAccess) {
 //                String accessDeniedTmpl = "Access denied"
 //                        + ", myAuthenticationToken.getAuthorities.size: [%s]"
 //                        + ", myAuthenticationToken.getAuthorities.MyGrantedAuthority.count: [%s]"
@@ -123,14 +134,16 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
 //                        , grantedAuthorityList.size()
 //                        , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
 //                        , userId, beanName, methodName
-//                        , permissionControl == null ? "NULL" : permissionControl.toString()
+//                        , Objects.nonNull(permissionControl) ? permissionControl.toString() : "NULL"
 //                        , appResourceId, accessRight
 //                        , authorityCount);
                 PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
                         authentication
                         , "", ""
-                        , permissionControl == null ? "NULL" : permissionControl.toString()
+                        , Objects.nonNull(permissionControl) ? permissionControl.toString() : "NULL"
                         , appResourceId, accessRight
+                        , resourceChecker, checkMethod
+                        , String.valueOf(skipChecker)
                         , (mga) -> {}
                 );
                 throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
@@ -142,11 +155,15 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
     public boolean evaluate(PermissionControl permissionControl, Method method, Authentication authentication)
             throws PermissionControlNotFoundException {
         List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
-        String appResourceId = (permissionControl == null ? null : permissionControl.appResourceId());
-        String accessRight = (permissionControl == null ? null : permissionControl.accessRight());
+        String appResourceId = Objects.nonNull(permissionControl)? permissionControl.appResourceId() : null;
+        String accessRight = Objects.nonNull(permissionControl)? permissionControl.accessRight() : null;
         String userId = authentication.getName();
         String beanName = method.getClass().getSimpleName();
         String methodName = method.getName();
+        ResourceCheck resourceCheck = Objects.nonNull(permissionControl)? permissionControl.resourceCheck() : null;
+        String resourceChecker = Objects.nonNull(resourceCheck)? resourceCheck.resourceChecker().getName() : null;
+        String checkMethod = Objects.nonNull(resourceCheck)? resourceCheck.checkMethod() : null;
+        boolean skipChecker = Objects.nonNull(resourceCheck) && resourceCheck.skipChecker();
         long authorityCount = -1;
 //        boolean isPublic = publicController != null;
         boolean hasPrivilege = false;
@@ -201,15 +218,17 @@ public class DefaultRbacPermissionControlEvaluator implements RbacPermissionCont
 //                    , grantedAuthorityList.stream().filter(ga -> ga instanceof MyGrantedAuthority).count()
 //                    , userId
 //                    , beanName, methodName
-//                    , permissionControl == null ? "NULL" : permissionControl.toString()
+//                    , , Objects.nonNull(permissionControl) ? permissionControl.toString() : "NULL"
 //                    , appResourceId, accessRight
 //                    , authorityCount);
 //            throw new PermissionControlNotFoundException(accessDeniedMsg);
             PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
                     authentication
                     , beanName, methodName
-                    , permissionControl == null ? "NULL" : permissionControl.toString()
+                    , Objects.nonNull(permissionControl) ? permissionControl.toString() : "NULL"
                     , appResourceId, accessRight
+                    , resourceChecker, checkMethod
+                    , String.valueOf(skipChecker)
                     , (mga) -> {}
             );
             throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);

@@ -3,33 +3,29 @@ package com.siukatech.poc.react.backend.module.core.security.aop;
 import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
 import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceCheck;
 import com.siukatech.poc.react.backend.module.core.security.evaluator.RbacPermissionControlEvaluator;
-import com.siukatech.poc.react.backend.module.core.security.evaluator.RlacPermissionControlEvaluator;
+import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlExceptionRec;
 import com.siukatech.poc.react.backend.module.core.security.exception.PermissionControlNotFoundException;
+import com.siukatech.poc.react.backend.module.core.security.resourcechecker.NoneResourceChecker;
 import com.siukatech.poc.react.backend.module.core.security.resourcechecker.ResourceCheckResult;
-import jakarta.servlet.http.HttpServletRequest;
+import com.siukatech.poc.react.backend.module.core.security.resourcechecker.ResourceChecker;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.context.expression.MethodBasedEvaluationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.HandlerMapping;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Aspect
@@ -40,16 +36,14 @@ public class PermissionControlAspect {
     private final ExpressionParser expressionParser = new SpelExpressionParser();
     private final ParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
     private final RbacPermissionControlEvaluator rbacPermissionControlEvaluator;
-    private final RlacPermissionControlEvaluator rlacPermissionControlEvaluator;
+    private final ApplicationContext applicationContext;
 
     public PermissionControlAspect(
-//            @Lazy
             RbacPermissionControlEvaluator rbacPermissionControlEvaluator
-            ,
-//            @Lazy
-            RlacPermissionControlEvaluator rlacPermissionControlEvaluator) {
+            , ApplicationContext applicationContext
+    ) {
         this.rbacPermissionControlEvaluator = rbacPermissionControlEvaluator;
-        this.rlacPermissionControlEvaluator = rlacPermissionControlEvaluator;
+        this.applicationContext = applicationContext;
     }
 
     //    @Before("@annotation(com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl)")
@@ -60,37 +54,13 @@ public class PermissionControlAspect {
         String userId = authentication == null ? "NULL" : authentication.getName();
         log.debug("evaluate - userId: [{}], start", userId);
 
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        ReqVariableData reqVariableData = this.resolveReqVariableData(requestAttributes);
-        log.debug("evaluate - userId: [{}], reqVariableData: [{}]", userId, reqVariableData);
-
+        String controllerName = joinPoint.getTarget().getClass().getName();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
-        String methodName = method.getDeclaringClass().getSimpleName() + "." + method.getName();
+//        String methodName = method.getDeclaringClass().getSimpleName() + "." + method.getName();
+        String methodName = method.getName();
 //        PermissionControl permissionControl = AnnotationUtils.findAnnotation(
 //                method, PermissionControl.class);
-
-        // ==========================================
-        // 1. Core Architecture Constraint Validation
-        // ==========================================
-        long expectedCheckCount = Arrays.stream(method.getParameters())
-                // Filter parameters that act as sensitive resource identifiers
-                .filter(p -> p.isAnnotationPresent(PathVariable.class) || p.isAnnotationPresent(RequestParam.class))
-                // Exclude boolean switches, only count standard ID types
-                .filter(p -> p.getType() == String.class || p.getType() == Long.class)
-                .count();
-
-        int actualCheckCount = permissionControl.resources().length;
-        log.debug("evaluate - userId: [{}], expectedCheckCount: [{}], actualCheckCount: [{}]"
-                , userId, expectedCheckCount, actualCheckCount);
-
-        // Strict Whitelist Rule: The number of declared @ResourceCheck must match the number of resource arguments
-        if (actualCheckCount != expectedCheckCount) {
-            log.error("evaluate - [Security-Constraint] Architecture Violation in method [{}]: "
-                            + "Expected {} resource checks based on method parameters, but found {} registered in @PermissionControl"
-                    , methodName, expectedCheckCount, actualCheckCount);
-            throw new IllegalStateException("Security Configuration Error: Resource check count mismatch");
-        }
 
         // ==========================================
         // 2. RBAC Evaluation (API-Level Permission)
@@ -110,86 +80,140 @@ public class PermissionControlAspect {
         // ==========================================
         // 3. RLAC Evaluation (Resource-Level Control)
         // ==========================================
-        ResourceCheck[] resourceChecks = permissionControl.resources();
-        if (resourceChecks.length > 0) {
-            Object[] args = joinPoint.getArgs();
-            EvaluationContext evaluationContext = new MethodBasedEvaluationContext(joinPoint.getTarget(), method, args, nameDiscoverer);
+        ResourceCheck resourceCheck = permissionControl.resourceCheck();
+        if (Objects.nonNull(resourceCheck)) {
+            Class<? extends ResourceChecker> resourceCheckerClazz = resourceCheck.resourceChecker();
+            String checkMethod = resourceCheck.checkMethod();
+            boolean skipChecker = resourceCheck.skipChecker();
 
-            // Context container to pass validated parent resources down the chain
-//            Map<String, String> validatedResources = new LinkedHashMap<>();
-            Map<String, ResourceCheckResult> validatedResources = new LinkedHashMap<>();
+            // Resolve method name: Use explicit name if provided, else default to controller method name
+            String targetCheckMethodName = StringUtils.hasText(checkMethod)
+                    ? resourceCheck.checkMethod()
+                    : methodName;
 
-            for (ResourceCheck resourceCheck : resourceChecks) {
-                String currentType = resourceCheck.resourceType()
-//                        .toUpperCase()
-                        ;
+            log.info("evaluate - [Security-RLAC] Checking appResourceId: [{}]"
+                            + ", controllerName: [{}], methodName: [{}]"
+                            + ", resourceCheckerClazz: [{}], checkMethod: [{}]"
+                            + ", targetCheckMethodName: [{}]"
+                            + ", skipChecker: [{}]"
+                    , permissionControl.appResourceId()
+                    , controllerName, methodName
+                    , resourceCheckerClazz.getSimpleName(), checkMethod
+                    , targetCheckMethodName
+                    , skipChecker
+            );
 
-                // Evaluate dynamic condition SpEL expression
-                Boolean shouldCheck = expressionParser.parseExpression(resourceCheck.condition()).getValue(evaluationContext, Boolean.class);
-
-                // If condition evaluates to false, log it clearly and skip the runtime validation
-                if (shouldCheck != null && !shouldCheck) {
-                    log.info("evaluate - [Security-RLAC] Skip resourceCheck for Resource [{}], condition [{}] evaluated to FALSE on method [{}]",
-                            currentType, resourceCheck.condition(), methodName);
-                    continue;
-                }
-
-                // Resolve the actual Resource ID value from SpEL context
-//                Object resourceIdObj = expressionParser.parseExpression(resourceCheck.idExpression()).getValue(evaluationContext);
-//                if (resourceIdObj == null) {
-//                    log.error("evaluate - [Security-RLAC] Error! Resource ID expression [{}] returned null on method [{}]"
-//                            , resourceCheck.idExpression(), methodName);
-//                    throw new AccessDeniedException("Required resource ID is null");
-//                }
-//                String resourceId = resourceIdObj.toString();
-
-                // Print the validation log before execution
-//                log.info("evaluate - [Security-RLAC] Verifying Resource [{}] with ID [{}] (AccessRight: {}), Context: {}",
-//                        currentType, resourceId, resourceCheck.accessRight(), validatedResources);
-                log.info("evaluate - [Security-RLAC] Verifying Resource [{}] (AccessRight: {}), Context: {}",
-                        currentType, resourceCheck.accessRight(), validatedResources);
-
-                // Execute the specific ResourceChecker strategy
-//                boolean rlacPassed = false;
-//                rlacPassed =
-                ResourceCheckResult resourceCheckResult = rlacPermissionControlEvaluator.evaluate(resourceCheck
-//                        , resourceId
-                        , reqVariableData
-                        , validatedResources, permissionControl, authentication
+            // 1. Bypass immediately if skipChecker is true
+            if (skipChecker) {
+                log.warn("evaluate - [Security-RLAC] skipChecker - controllerName: [{}], methodName: [{}]"
+                        + ", resourceCheckerClazz: [{}], checkMethod: [{}], targetCheckMethodName: [{}]"
+                        , controllerName, methodName
+                        , resourceCheckerClazz.getSimpleName(), checkMethod
+                        , targetCheckMethodName
                 );
-                if (!resourceCheckResult.isHasAccess()) {
-//                    log.warn("evaluate - [Security-RLAC] Denied! No access to Resource [{}] with ID [{}] on method [{}]"
-//                            , currentType, resourceId, methodName);
-                    log.warn("evaluate - [Security-RLAC] Denied! No access to Resource [{}] with ResourceCheckResult [{}] on method [{}]"
-                            , currentType, resourceCheckResult, methodName);
-                    throw new AccessDeniedException(String.format("RLAC Permission Denied for [%s]", currentType));
-                }
-
-                // Push current verified resource into the context map for subsequent checks
-//                validatedResources.put(currentType, resourceId);
-                validatedResources.put(currentType, resourceCheckResult);
+                return;
             }
+
+            // 2. Validate that a real checker class was specified when skipChecker is false
+            if (resourceCheckerClazz == NoneResourceChecker.class) {
+                throw new IllegalArgumentException(
+                        "A valid ResourceChecker class must be specified on @ResourceCheck unless 'skipChecker = true'."
+                );
+            }
+
+            Object[] args = joinPoint.getArgs();
+            Object checkerBean = this.applicationContext.getBean(resourceCheckerClazz);
+
+            // Find matching method on target bean using resolved method name
+            Method targetCheckMethod = this.findMatchingMethod(resourceCheckerClazz, targetCheckMethodName, args);
+
+            if (targetCheckMethod == null) {
+                throw new IllegalStateException(
+                        String.format("No matching method '%s' found in %s with %d arguments.",
+                                methodName, resourceCheckerClazz.getName(), args.length)
+                );
+            }
+
+            // 3. Invoke permission check
+            ResourceCheckResult resourceCheckResult;
+            try {
+                resourceCheckResult = (ResourceCheckResult) targetCheckMethod.invoke(checkerBean, args);
+            } catch (InvocationTargetException e) {
+                // Rethrow target exception if checker method throws custom exception
+                throw e.getCause();
+            }
+            if (!resourceCheckResult.isHasAccess()) {
+                // Format using Stream
+                String outputMapStr = resourceCheckResult.getOutputMap().entrySet()
+                        .stream()
+                        .map(entry -> String.format("key: [%s], value: [%s]", entry.getKey(), entry.getValue()))
+                        .collect(Collectors.joining(", "));
+//                throw new AccessDeniedException(
+//                        String.format("Access denied by %s.%s, outputMapStr: [%s]", resourceCheckerClazz.getSimpleName(), methodName, outputMapStr)
+//                );
+                PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
+                        authentication
+                        , controllerName, methodName
+                        , Objects.nonNull(permissionControl) ? permissionControl.toString() : "NULL"
+                        , Objects.nonNull(permissionControl) ? permissionControl.appResourceId() : "NULL"
+                        , Objects.nonNull(permissionControl) ? permissionControl.accessRight() : "NULL"
+                        , resourceCheckerClazz.getName()
+                        , checkMethod
+                        , String.valueOf(skipChecker)
+                        , (mga) -> {}
+                );
+                throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
+            }
+        }
+        else {
+            PermissionControlExceptionRec permissionControlExceptionRec = new PermissionControlExceptionRec(
+                    authentication
+                    , controllerName, methodName
+                    , "NULL"
+                    , "NULL", "NULL"
+                    , "NULL", "NULL"
+                    , "NULL"
+                    , (mga) -> {}
+            );
+            throw PermissionControlNotFoundException.toPermissionControlNotFoundException(permissionControlExceptionRec);
         }
     }
 
-    protected ReqVariableData resolveReqVariableData(
-            ServletRequestAttributes requestAttributes) {
-        Map<String, String> pathVarMap = new HashMap<>();
-        Map<String, String[]> paramVarMap = new HashMap<>();
-        if (Objects.nonNull(requestAttributes)) {
-            HttpServletRequest servletRequest = requestAttributes.getRequest();
-            @SuppressWarnings("unchecked")
-            Map<String, String> uriTemplateVariablesAttr = (Map<String, String>) servletRequest
-                    .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-            if (Objects.nonNull(uriTemplateVariablesAttr)) {
-                pathVarMap.putAll(uriTemplateVariablesAttr);
-            }
-            if (Objects.nonNull(servletRequest.getParameterMap())) {
-                paramVarMap.putAll(servletRequest.getParameterMap());
+    private Method findMatchingMethod(Class<?> clazz, String methodName, Object[] args) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals(methodName) && method.getParameterCount() == args.length) {
+                if (isAssignable(method.getParameterTypes(), args)) {
+                    return method;
+                }
             }
         }
-        ReqVariableData reqVariableData = new ReqVariableData(pathVarMap, paramVarMap);
-        return reqVariableData;
+        return null;
+    }
+
+    private boolean isAssignable(Class<?>[] paramTypes, Object[] args) {
+        for (int i = 0; i < paramTypes.length; i++) {
+            if (args[i] != null) {
+                // Handle primitive wrappers (e.g. Integer.TYPE vs java.lang.Integer)
+                Class<?> paramType = wrapPrimitive(paramTypes[i]);
+                if (!paramType.isAssignableFrom(args[i].getClass())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private Class<?> wrapPrimitive(Class<?> clazz) {
+        if (!clazz.isPrimitive()) return clazz;
+        if (clazz == int.class) return Integer.class;
+        if (clazz == long.class) return Long.class;
+        if (clazz == boolean.class) return Boolean.class;
+        if (clazz == double.class) return Double.class;
+        if (clazz == float.class) return Float.class;
+        if (clazz == byte.class) return Byte.class;
+        if (clazz == char.class) return Character.class;
+        if (clazz == short.class) return Short.class;
+        return clazz;
     }
 
 }

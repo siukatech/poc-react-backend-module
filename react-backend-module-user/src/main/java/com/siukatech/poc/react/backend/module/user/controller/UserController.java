@@ -7,6 +7,7 @@ import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceC
 import com.siukatech.poc.react.backend.module.core.security.model.MyAuthenticationToken;
 import com.siukatech.poc.react.backend.module.core.web.annotation.v1.ProtectedApiV1Controller;
 import com.siukatech.poc.react.backend.module.user.security.constant.UserSecurityConstants;
+import com.siukatech.poc.react.backend.module.user.security.resourcechecker.UserResourceChecker;
 import com.siukatech.poc.react.backend.module.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +28,15 @@ public class UserController {
     @PostMapping("/users/{targetUserId}/user-info")
     @PermissionControl(appResourceId = "core.user.getUserInfo"
             , accessRight = UserSecurityConstants.AccessRight.VIEW
-            , resources = {
-            @ResourceCheck(
-                    resourceType = UserSecurityConstants.ResourceType.USER
-                    , accessRight = UserSecurityConstants.AccessRight.VIEW
-//                    , idExpression = "#targetUserId"
-            )
-    })
+//            , resources = {
+//            @ResourceCheck(
+//                    resourceType = UserSecurityConstants.ResourceType.USER
+//                    , accessRight = UserSecurityConstants.AccessRight.VIEW
+////                    , idExpression = "#targetUserId"
+//            )
+//        }
+            , resourceCheck = @ResourceCheck(resourceChecker = UserResourceChecker.class)
+    )
     public ResponseEntity getUserInfo(@PathVariable
 //             // after upgrade to springboot >= 3.2.1
 //             // this can be fixed by update build.gradle or adding maven plugin

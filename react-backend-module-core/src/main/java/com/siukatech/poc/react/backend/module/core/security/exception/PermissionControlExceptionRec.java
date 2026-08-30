@@ -14,6 +14,8 @@ public record PermissionControlExceptionRec(
         , String permissionControl
         , String appResourceId, String accessRight
 //        , Long authorityCount
+        , String resourceChecker, String checkMethod
+        , String skipChecker
         , Consumer<MyGrantedAuthority> authorityCountPeek
 ) {
 }

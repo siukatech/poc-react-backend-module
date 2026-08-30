@@ -1,61 +1,49 @@
 package com.siukatech.poc.react.backend.module.user.security.resourcechecker;
 
-import com.siukatech.poc.react.backend.module.core.security.annotation.PermissionControl;
-import com.siukatech.poc.react.backend.module.core.security.annotation.ResourceCheck;
-import com.siukatech.poc.react.backend.module.core.security.aop.ReqVariableData;
 import com.siukatech.poc.react.backend.module.core.security.resourcechecker.ResourceCheckResult;
 import com.siukatech.poc.react.backend.module.core.security.resourcechecker.ResourceChecker;
-import com.siukatech.poc.react.backend.module.user.security.constant.UserSecurityConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Component
 public class UserResourceChecker implements ResourceChecker {
 
-    @Override
-    public String getSupportedType() {
-        // Use Constant
-        return UserSecurityConstants.ResourceType.USER;
-    }
-
-    @Override
-    public ResourceCheckResult check(ResourceCheck resourceCheck
-//            , String resourceId
-//            , Map<String, String> validatedResources
-            , ReqVariableData reqVariableData
-            , Map<String, ResourceCheckResult> validatedResources
-            , PermissionControl permissionControl
-            , Authentication authentication
-    ) {
-        // Get the previous resource id from Context
-//        String parentShopId = validatedResources.get(UserSecurityConstants.ResourceType.APPLICATION);
-
-        boolean hasAccess = false;
-        hasAccess = true;
-        Map<String, String> resourceIdMap = new HashMap<>();
-        // put the resourceId into resourceIdMap
-        ResourceCheckResult resourceCheckResult = new ResourceCheckResult(hasAccess, resourceIdMap);
-        log.info("check - resourceCheck: [{}]"
-//                        + ", resourceId: [{}]"
-                        + ", reqVariableData: [{}]"
-                        + ", validatedResources: [{}]"
-                        + ", permissionControl: [{}]"
-//                        + ", authentication: [{}]"
-                        + ", hasAccess: [{}]"
-                        + ", start"
-                , resourceCheck
-//                , resourceId
-                , reqVariableData
-                , validatedResources
-                , permissionControl
-//                , authentication
-                , hasAccess
-        );
+    public ResourceCheckResult getUserInfo(String targetUserId, Authentication authentication) {
+        log.info("getUserInfo - targetUserId: [{}], authentication.getName: [{}]"
+                , targetUserId, authentication.getName());
+        ResourceCheckResult resourceCheckResult = new ResourceCheckResult(true);
+        resourceCheckResult.getOutputMap()
+                .putAll(Map.of("authentication.getName", authentication.getName()))
+        ;
         return resourceCheckResult;
     }
+
+    public ResourceCheckResult getPublicKey(HttpHeaders httpHeaders, Authentication authentication) {
+        log.trace("getPublicKey - httpHeaders: [{}]", httpHeaders);
+        log.info("getPublicKey - httpHeaders.size: [{}], authentication.getName: [{}]"
+                , httpHeaders.size(), authentication.getName());
+        ResourceCheckResult resourceCheckResult = new ResourceCheckResult(true);
+        resourceCheckResult.getOutputMap()
+                .putAll(Map.of("authentication.getName", authentication.getName()))
+        ;
+        return resourceCheckResult;
+    }
+
+    public ResourceCheckResult getKeyInfo1(HttpHeaders httpHeaders, Authentication authentication) {
+        log.trace("getKeyInfo1 - httpHeaders: [{}]", httpHeaders);
+        log.info("getKeyInfo1 - httpHeaders.size: [{}], authentication.getName: [{}]"
+                , httpHeaders.size(), authentication.getName());
+        ResourceCheckResult resourceCheckResult = new ResourceCheckResult(true);
+        resourceCheckResult.getOutputMap()
+                .putAll(Map.of("authentication.getName", authentication.getName()))
+        ;
+        return resourceCheckResult;
+    }
+
 }
