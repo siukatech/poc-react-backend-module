@@ -73,3 +73,6 @@ generated.proto/
 
 ### local properties ###
 *-local.properties
+
+### repomix output ###
+*output.xml
